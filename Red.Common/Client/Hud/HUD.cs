@@ -41,7 +41,7 @@ namespace Red.Common.Client.Hud
         public static bool IsHUDHidden() => IsHudHidden();
         public static bool IsThisHelpMessageBeingDisplayed(int index) => EndTextCommandIsThisHelpMessageBeingDisplayed(index);
         public static bool IsThisHelpMessageBeingDisplayed(HUDIndex index) => EndTextCommandIsThisHelpMessageBeingDisplayed((int)index);
-        public static bool HUDIsVisable() => Screen.Hud.IsVisible;
+        public static bool HUDIsVisable => Screen.Hud.IsVisible;
 
         public static int DisplayFeedPostAward(string textureDict, string textureName, int rpBonus, int colorOverlay, string title) => EndTextCommandThefeedPostAward(textureDict, textureName, rpBonus, colorOverlay, title);
         public static int DisplayFeedPostCrewRankup(string charTitle, string clanTextureDict, string clanTextureName, bool isImportant, bool showSubtitle) => EndTextCommandThefeedPostCrewRankup(charTitle, clanTextureDict, clanTextureName, isImportant, showSubtitle);
@@ -116,6 +116,7 @@ namespace Red.Common.Client.Hud
         public static void DrawText2d(float x, float y, float size, string text, int r, int g, int b, int a = 255)
         {
             float sizeOfSafezone = GetSafeZoneSize();
+            float aspectRatio = GetAspectRatio(false);
             float number = (float)(1.0 / (double)sizeOfSafezone / 3.0 - 0.3580000102519989);
 
             SetTextFont(4);

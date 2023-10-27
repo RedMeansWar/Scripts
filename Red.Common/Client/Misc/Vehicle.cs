@@ -7,6 +7,7 @@ using CitizenFX.Core;
 using CitizenFX.Core.Native;
 using static CitizenFX.Core.Native.API;
 using static Red.Common.Client.Client;
+using static Red.Common.Client.Hud.HUD;
 
 namespace Red.Common.Client.Misc
 {
@@ -246,13 +247,21 @@ namespace Red.Common.Client.Misc
             SetVehicleColours(vehicle.Handle, (int)primaryColor, (int)secondaryColor);
         }
 
-        public static void ToggleVehicleEngine()
+        #region Speeds
+        public static float ConvertToMPH(float speed) => speed * 2.236936f;
+        public static float ConvertFromMPH(float speed) => speed * 0.44704f;
+        #endregion
+
+        public static void ToggleVehicleEngine(Vehicle vehicle)
         {
-            if (Player != null && Character != null && Character.CurrentVehicle != null && Character.Exists())
+            if (vehicle is null)
             {
-                Vehicle vehicle = Character.CurrentVehicle;
-                vehicle.IsEngineRunning = false;
+                ErrorNotification("You must be in a vehicle");
+                return;
             }
+
+            PlayerPed.SetConfigFlag(429, true);
+            vehicle.IsEngineRunning = !vehicle.IsEngineRunning;
         }
 
         #region Misc Methods

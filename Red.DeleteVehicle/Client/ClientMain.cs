@@ -37,10 +37,10 @@ namespace Red.DeleteVehicle.Client
             TriggerEvent("chat:addSuggestion", "/delveh", "Delete the closest vehicle to the player.", "");
             #endregion
 
+            Vehicle closestVehicle = GetClosestVehicleToPlayer(3f);
+
             if (Game.PlayerPed.CurrentVehicle is null)
             {
-                Vehicle closestVehicle = GetClosestVehicleToPlayer(3f);
-
                 if (closestVehicle is null)
                 {
                     ErrorNotification("You must be in or near a vehicle.");
@@ -51,6 +51,13 @@ namespace Red.DeleteVehicle.Client
                 {
                     ErrorNotification("That vehicle still has a driver.");
                     return;
+                }
+
+                if (closestVehicle.IsUpsideDown || Game.PlayerPed.CurrentVehicle.IsUpsideDown)
+                {
+                    bool deleted = await DvVehicle(closestVehicle);
+
+                    ShowNotification(deleted ? "~g~~h~Success~h~~s~: Vehicle deleted." : "~r~~h~Error~h~~s~: Failed to delete vehicle, try again.", true);
                 }
 
                 if (NetworkGetEntityOwner(closestVehicle.Handle) == Game.Player.Handle)
@@ -75,8 +82,6 @@ namespace Red.DeleteVehicle.Client
 
                         await Delay(0);
                     }
-
-                    ErrorNotification("Vehicle deleted.");
                 }
             }
             else if (Game.PlayerPed.SeatIndex != VehicleSeat.Driver)
@@ -87,7 +92,7 @@ namespace Red.DeleteVehicle.Client
             {
                 bool deleted = await DvVehicle(Game.PlayerPed.CurrentVehicle);
 
-                ShowNotification(deleted ? "~g~~h~Success~h~~s~: Deleted vehicle." : "~r~~h~Error~h~~s~: Failed to delete vehicle, try again.", true);
+                ShowNotification(deleted ? "~g~~h~Success~h~~s~: Vehicle deleted." : "~r~~h~Error~h~~s~: Failed to delete vehicle, try again.", true);
             }
         }
 
