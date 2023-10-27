@@ -39,7 +39,7 @@ namespace Red.Common.Client
         public static bool IsHUDHidden() => IsHudHidden();
         public static bool IsThisHelpMessageBeingDisplayed(int index) => EndTextCommandIsThisHelpMessageBeingDisplayed(index);
         public static bool IsThisHelpMessageBeingDisplayed(HUDIndex index) => EndTextCommandIsThisHelpMessageBeingDisplayed((int)index);
-        public static bool HUDIsVisable() => Screen.Hud.IsVisible;
+        public static bool HUDIsVisable() => Hud.IsVisible;
 
         public static int DisplayFeedPostAward(string textureDict, string textureName, int rpBonus, int colorOverlay, string title) => EndTextCommandThefeedPostAward(textureDict, textureName, rpBonus, colorOverlay, title);
         public static int DisplayFeedPostCrewRankup(string charTitle, string clanTextureDict, string clanTextureName, bool isImportant, bool showSubtitle) => EndTextCommandThefeedPostCrewRankup(charTitle, clanTextureDict, clanTextureName, isImportant, showSubtitle);
@@ -130,7 +130,9 @@ namespace Red.Common.Client
         }
 
         public static void DisplayHelpText(string text) => DisplayHelpTextThisFrame(text);
+        #endregion
 
+        #region Draw 2D Lines
         public static void Draw2dLine(float pos1X, float pos1Y, float pos2X, float pos2Y, float width, int r, int g, int b, int a = 255) => DrawLine_2d(pos1X, pos1Y, pos2X, pos2Y, width, r, g, b, a);
         public static void Draw2dLine(Vector2 pos1, Vector2 pos2, float width, int r, int g, int b, int a = 255) => DrawLine_2d(pos1.X, pos1.Y, pos2.X, pos2.Y, width, r, g, b, a);
         #endregion
@@ -167,8 +169,26 @@ namespace Red.Common.Client
             }
         }
         #endregion
+
+        #region Requests
+        public static async void RequestTextureDictionary(string texture)
+        {
+            RequestStreamedTextureDict(texture, true);
+
+            while (!HasStreamedTextureDictLoaded(texture))
+            {
+                await Delay(0);
+            }
+        }
+
+        public static void RequestTextureDict(string text)
+        {
+
+        }
+        #endregion
     }
 
+    #region Enums
     public enum OnScreenStatus
     {
         InActive = -1,
@@ -222,4 +242,5 @@ namespace Red.Common.Client
         RpIcon = 8,
         DollarIcon = 9
     }
+    #endregion
 }

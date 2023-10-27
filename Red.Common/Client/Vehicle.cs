@@ -162,6 +162,11 @@ namespace Red.Common.Client
             }
         }
 
+        public static void SetVehicleColors(Vehicle vehicle, VehicleColor primaryColor, VehicleColor secondaryColor)
+        {
+            SetVehicleColours(vehicle.Handle, (int)primaryColor, (int)secondaryColor);
+        }
+
         #region Toggle Engine
         public static void ToggleVehicleEngine()
         {

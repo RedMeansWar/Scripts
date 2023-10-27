@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
 using static Red.Common.Client.MathExtender;
@@ -181,6 +182,35 @@ namespace Red.Common.Client
 
             return ConvertDirectionToHeading(dirToTargetEnt);
         }
+        #endregion
+
+        #region Animations
+        public static void PlayAnim(string dictionary, string name) => PlayerPed.Task.PlayAnimation(dictionary, name);
+        public static void PlayAnim(string dictionary, string name, float blindInSpeed, int duration, AnimationFlags flags) => PlayerPed.Task.PlayAnimation(dictionary, name, blindInSpeed, duration, flags);
+        public static void PlayAnim(string dictionary, string name, float blindInSpeed, float blindOutSpeed, int duration, AnimationFlags flags, float playbackRate) => PlayerPed.Task.PlayAnimation(dictionary, name, blindInSpeed, blindOutSpeed, duration, flags, playbackRate);
+        public static void PlayAnim(string dictionary, string name, int blindInSpeed, int duration, AnimationFlags flags) => PlayAnim(dictionary, name, ConvertIntToFloat(blindInSpeed), duration, flags);
+        public static void PlayAnim(string dictionary, string name, int blindInSpeed, int blindOutSpeed, int duration, AnimationFlags flags, int playbackRate) => PlayerPed.Task.PlayAnimation(dictionary, name, ConvertIntToFloat(blindInSpeed), ConvertIntToFloat(blindOutSpeed), duration, flags, ConvertIntToFloat(playbackRate));
+        public static void PlayAnim(string dictionary, string name, float blindInSpeed, int duration, int flags) => PlayerPed.Task.PlayAnimation(dictionary, name, blindInSpeed, duration, flags);
+        public static void PlayAnim(string dictionary, string name, float blindInSpeed, float blindOutSpeed, int duration, int flags, float playbackRate) => PlayerPed.Task.PlayAnimation(dictionary, name, blindInSpeed, blindOutSpeed, duration, (AnimationFlags)flags, playbackRate);
+        public static void PlayAnim(string dictionary, string name, int blindInSpeed, int duration, int flags) => PlayAnim(dictionary, name, ConvertIntToFloat(blindInSpeed), duration, flags);
+        public static void PlayAnim(string dictionary, string name, int blindInSpeed, int blindOutSpeed, int duration, int flags, int playbackRate) => PlayerPed.Task.PlayAnimation(dictionary, name, ConvertIntToFloat(blindInSpeed), ConvertIntToFloat(blindOutSpeed), duration, (AnimationFlags)flags, ConvertIntToFloat(playbackRate));
+        #endregion
+
+        #region Tasks
+        public static void ClearAllTasksImmediately() => PlayerPed.Task.ClearAllImmediately();
+        public static void ClearAllTasks() => PlayerPed.Task.ClearAll();
+        #endregion
+
+        #region Field of View
+        public static void ForceFirstPerson() => SetFollowPedCamViewMode(4);
+        public static void ForceThirdPersonClose() => SetFollowPedCamViewMode(0);
+        public static void ForceThirdPerson() => SetFollowPedCamViewMode(1);
+        public static void ForceThirdPersonFar() => SetFollowPedCamViewMode(2);
+        public static void ForceCinematic() => SetFollowPedCamViewMode(3);
+        #endregion
+
+        #region Weapons
+        public static void IsWeaponAutomatic(Weapon weapon) => automaticWeapons.Contains(weapon.Hash);
         #endregion
     }
 }
