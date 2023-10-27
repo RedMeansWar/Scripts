@@ -40,7 +40,7 @@ namespace Red.VehicleControl.Client
             TriggerEvent("chat:addSuggestion", "/flip", "Flips an upside down vehicle to be upright.", "");
             TriggerEvent("chat:addSuggestion", "/trunk", "Opens and closes a vehicle's trunk.", "");
             TriggerEvent("chat:addSuggestion", "/hood", "Opens and closes s vehicle's hood.", "");
-            TriggerEvent("chat:addSuggestion", "/door", "Open a vehicle's door. (Ex: /door 1) ", "");
+            TriggerEvent("chat:addSuggestion", "/door", "Open a vehicle's door. (Ex: /door 1)", "");
         }
         #endregion
 

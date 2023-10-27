@@ -6,20 +6,20 @@ namespace Red.GsrTest.Server
 {
     public class ServerMain : BaseScript
     {
-        [EventHandler("Gsr:Server:submitGsrTest")]
+        [EventHandler("GsrTest:Server:doGsrTest")]
         private void OnSubmitGsrTest([FromSource] Player testerPlayer, int testedPlayerId)
         {
             Player testedPlayer = Players[testedPlayerId];
 
-            testedPlayer?.TriggerEvent("Gsr:Client:doGsrTest", testerPlayer.Handle);
+            testedPlayer?.TriggerEvent("GsrTest:Client:doGsrTest", testerPlayer.Handle);
         }
 
-        [EventHandler("Gsr:Server:returnGsrTest")]
+        [EventHandler("GsrTest:Server:returnGsrResult")]
         private void OnReturnGsrTest(bool shotRecently, string testerPlayerId)
         {
             Player testerPlayer = Players[int.Parse(testerPlayerId)];
 
-            testerPlayer.TriggerEvent("Gsr:Client:showClientNotification", shotRecently ? "Sample from swab comes back ~g~~h~positive~h~~s~." : "Sample from swab comes back ~o~~h~negative~h~~s~.");
+            testerPlayer.TriggerEvent("GsrTest:Client:showClientNotification", shotRecently ? "Sample from swab comes back ~g~~h~positive~h~~s~." : "Sample from swab comes back ~o~~h~negative~h~~s~.");
         }
     }
 }

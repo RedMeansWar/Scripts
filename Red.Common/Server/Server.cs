@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
 using CitizenFX.Core;
+using static CitizenFX.Core.Native.API;
 
 namespace Red.Common.Server
 {
     public class Server : BaseScript
     {
-        protected Dictionary<int, string> SteamId = new();
-
         public static void SendPlayerMessage(Player player, string message, double r, double g, double b)
         {
             TriggerClientEvent(player, "chat:addMessage", new
@@ -39,5 +38,10 @@ namespace Red.Common.Server
         {
             return players.Find(player => player.Handle == id.ToString());
         }
+
+        #region Event Handlers
+        [EventHandler("Server:DropUser")]
+        private void DropUserFromServer([FromSource] Player player, string reason = "Dropped from server.") => DropPlayer(player.Handle, reason);
+        #endregion
     }
 }

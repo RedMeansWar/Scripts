@@ -53,13 +53,6 @@ namespace Red.DeleteVehicle.Client
                     return;
                 }
 
-                if (closestVehicle.IsUpsideDown || Game.PlayerPed.CurrentVehicle.IsUpsideDown)
-                {
-                    bool deleted = await DvVehicle(closestVehicle);
-
-                    ShowNotification(deleted ? "~g~~h~Success~h~~s~: Vehicle deleted." : "~r~~h~Error~h~~s~: Failed to delete vehicle, try again.", true);
-                }
-
                 if (NetworkGetEntityOwner(closestVehicle.Handle) == Game.Player.Handle)
                 {
                     bool deleted = await DvVehicle(closestVehicle);

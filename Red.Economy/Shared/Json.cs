@@ -1,7 +1,7 @@
 using System;
 using Newtonsoft.Json;
 
-namespace Red.Chat
+namespace Red.Economy
 {
     public static class Json
     {
