@@ -1,36 +1,10 @@
 ﻿using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
-using static Red.Common.Client.MathExtender;
 
-namespace Red.Common.Client
+namespace Red.Common.Client.Misc
 {
-    public class Objects : BaseScript
+    public class Marker
     {
-        public static void DeleteProp(string modelName)
-        {
-            int hash = GetHashKey(modelName);
-            Vector3 entityCoords = GetEntityCoords(PlayerPedId(), true);
-            Vector3 coords = new()
-            {
-                X = entityCoords.X,
-                Y = entityCoords.Y,
-                Z = entityCoords.Z
-            };
-
-            if (DoesObjectOfTypeExistAtCoords(coords.X, coords.Z, coords.Z, 1.5f, ConvertIntToUInt(hash), true))
-            {
-                int prop = GetClosestObjectOfType(coords.X, coords.Y, coords.Y, 1.5f, ConvertIntToUInt(hash), false, false, false);
-                DeleteObject(ref prop);
-            }
-        }
-
-        public static void PlaceObjectOnGround(int model) => PlaceObjectOnGroundProperly(model);
-        public static void PlaceObjectOnGround(string model) => PlaceObjectOnGroundProperly(GetHashKey(model));
-
-        public static void DeleteEntity(string entity) => DeleteEntity(entity);
-        public static void SetEntityOpacity(int entity, int alpha, bool changeSkin = false) => SetEntityAlpha(entity, alpha, changeSkin ? 1 : 0);
-
-        #region Markers
         public static void PlaceMarkerOnGroundProperly(int markerType, float posX, float posY, float posZ, float dirX, float dirY, float dirZ, float rotationX, float rotationY, float rotationZ, float scaleX, float scaleY, float scaleZ, int r, int g, int b, int a, bool bobUpAndDown, bool faceCamera, int p19, bool rotate, string textureDict, string textureName, bool drawOnEnts)
         {
             p19 = 2;
@@ -126,6 +100,5 @@ namespace Red.Common.Client
 
         public static void GetDistanceToMarker(Vector3 position, Vector3 markerPos) => Vdist(position.X, markerPos.Y, markerPos.Z, markerPos.X, markerPos.Y, markerPos.Z);
         public static void GetDistanceToMarker(float posX, float posY, float posZ, float markerPosX, float markerPosY, float markerPosZ) => Vdist(posX, posY, posZ, markerPosX, markerPosY, markerPosZ);
-        #endregion
     }
 }

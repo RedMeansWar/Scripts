@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Red.Common.Server
+namespace Red.Common.Server.Diagnostics
 {
     public class Log
     {

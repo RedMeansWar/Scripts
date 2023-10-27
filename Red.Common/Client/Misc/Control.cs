@@ -2,10 +2,11 @@
 using CitizenFX.Core.Native;
 using static CitizenFX.Core.Native.API;
 
-namespace Red.Common.Client
+namespace Red.Common.Client.Misc
 {
     public class Controls
     {
+        public static bool IsOnScreenKeyboardActive() => UpdateOnscreenKeyboard() == 3;
         public static int UpdateKeyboard() => UpdateOnscreenKeyboard();
         public static int TimeSinceLastInput(int inputGroup = 0) => GetTimeSinceLastInput(inputGroup);
         public static int TimeSinceLastInput(ControlType inputGroup) => TimeSinceLastInput((int)inputGroup);
@@ -78,53 +79,53 @@ namespace Red.Common.Client
         public static bool IsKeyJustPressedRegardlessOfDisabled(Control key, ControlType inputGroup = ControlType.Player) => IsKeyJustPressedRegardlessOfDisabled(key, (int)inputGroup);
         public static bool IsKeyJustPressedRegardlessOfDisabled(KeyboardKeys key, ControlType inputGroup = ControlType.Player) => IsKeyJustPressedRegardlessOfDisabled(key, (int)inputGroup);
 
-        public static bool IsButtonEnabled(int button, int inputGroup = 0) => Game.IsControlEnabled(inputGroup, (Control)button) && Game.CurrentInputMode == InputType.Controller;
-        public static void IsButtonEnabled(Control button) => IsButtonEnabled((int)button, ControlType.Player);
-        public static void IsButtonEnabled(Control button, int inputGroup) => IsButtonEnabled((int)button, inputGroup);
-        public static void IsButtonEnabled(ControllerButtons button, int inputGroup) => IsButtonEnabled((Control)button, inputGroup);
-        public static void IsButtonEnabled(int button, ControlType inputGroup = ControlType.Player) => IsButtonEnabled(button, (int)inputGroup);
-        public static void IsButtonEnabled(Control button, ControlType inputGroup = ControlType.Player) => IsButtonEnabled(button, (int)inputGroup);
-        public static void IsButtonEnabled(ControllerButtons button, ControlType inputGroup = ControlType.Player) => IsButtonEnabled(button, (int)inputGroup);
+        public static bool IsButtonEnabled(int key, int inputGroup = 0) => Game.IsControlEnabled(inputGroup, (Control)key) && Game.CurrentInputMode == InputType.Controller;
+        public static void IsButtonEnabled(Control key) => IsButtonEnabled((int)key, ControlType.Player);
+        public static void IsButtonEnabled(Control key, int inputGroup) => IsButtonEnabled((int)key, inputGroup);
+        public static void IsButtonEnabled(KeyboardKeys key, int inputGroup) => IsButtonEnabled((Control)key, inputGroup);
+        public static void IsButtonEnabled(int key, ControlType inputGroup = ControlType.Player) => IsButtonEnabled(key, (int)inputGroup);
+        public static void IsButtonEnabled(Control key, ControlType inputGroup = ControlType.Player) => IsButtonEnabled(key, (int)inputGroup);
+        public static void IsButtonEnabled(KeyboardKeys key, ControlType inputGroup = ControlType.Player) => IsButtonEnabled(key, (int)inputGroup);
 
-        public static bool IsButtonPressed(int button, int inputGroup = 0) => Game.IsControlPressed(inputGroup, (Control)button) && Game.CurrentInputMode == InputType.Controller;
-        public static bool IsButtonPressed(Control button) => IsButtonPressed((int)button, ControlType.Player);
-        public static bool IsButtonPressed(Control button, int inputGroup = 0) => IsButtonPressed((int)button, inputGroup);
-        public static bool IsButtonPressed(ControllerButtons button, int keyGroup = 0) => IsButtonPressed((Control)button, keyGroup);
-        public static bool IsButtonPressed(int button, ControlType inputGroup = ControlType.Player) => IsButtonPressed(button, (int)inputGroup);
-        public static bool IsButtonPressed(Control button, ControlType inputGroup = ControlType.Player) => IsButtonPressed(button, (int)inputGroup);
-        public static bool IsButtonPressed(ControllerButtons button, ControlType inputGroup = ControlType.Player) => IsButtonPressed(button, (int)inputGroup);
+        public static bool IsButtonPressed(int key, int inputGroup = 0) => Game.IsControlPressed(inputGroup, (Control)key) && Game.CurrentInputMode == InputType.Controller;
+        public static bool IsButtonPressed(Control key) => IsButtonPressed((int)key, ControlType.Player);
+        public static bool IsButtonPressed(Control key, int inputGroup = 0) => IsButtonPressed((int)key, inputGroup);
+        public static bool IsButtonPressed(KeyboardKeys key, int keyGroup = 0) => IsButtonPressed((Control)key, keyGroup);
+        public static bool IsButtonPressed(int key, ControlType inputGroup = ControlType.Player) => IsButtonPressed(key, (int)inputGroup);
+        public static bool IsButtonPressed(Control key, ControlType inputGroup = ControlType.Player) => IsButtonPressed(key, (int)inputGroup);
+        public static bool IsButtonPressed(KeyboardKeys key, ControlType inputGroup = ControlType.Player) => IsButtonPressed(key, (int)inputGroup);
 
-        public static bool IsDisableButtonJustPressed(int button, int inputGroup = 0) => Game.IsDisabledControlJustPressed(inputGroup, (Control)button) && Game.CurrentInputMode == InputType.Controller;
-        public static bool IsDisableButtonJustPressed(Control button) => IsDisableButtonJustPressed(button, ControlType.Player);
-        public static bool IsDisableButtonJustPressed(Control button, int inputGroup = 0) => IsDisableButtonJustPressed((int)button, inputGroup);
-        public static bool IsDisableButtonJustPressed(ControllerButtons button, int inputGroup = 0) => IsDisableButtonJustPressed((Control)button, inputGroup);
-        public static bool IsDisableButtonJustPressed(int button, ControlType inputGroup = ControlType.Player) => IsDisableButtonJustPressed(button, (int)inputGroup);
-        public static bool IsDisableButtonJustPressed(Control button, ControlType inputGroup = ControlType.Player) => IsDisableButtonJustPressed(button, (int)inputGroup);
-        public static bool IsDisableButtonJustPressed(ControllerButtons button, ControlType inputGroup = ControlType.Player) => IsDisableButtonJustPressed(button, (int)inputGroup);
+        public static bool IsDisableButtonJustPressed(int key, int inputGroup = 0) => Game.IsDisabledControlJustPressed(inputGroup, (Control)key) && Game.CurrentInputMode == InputType.Controller;
+        public static bool IsDisableButtonJustPressed(Control key) => IsDisableButtonJustPressed(key, ControlType.Player);
+        public static bool IsDisableButtonJustPressed(Control key, int inputGroup = 0) => IsDisableButtonJustPressed((int)key, inputGroup);
+        public static bool IsDisableButtonJustPressed(KeyboardKeys key, int inputGroup = 0) => IsDisableButtonJustPressed((Control)key, inputGroup);
+        public static bool IsDisableButtonJustPressed(int key, ControlType inputGroup = ControlType.Player) => IsDisableButtonJustPressed(key, (int)inputGroup);
+        public static bool IsDisableButtonJustPressed(Control key, ControlType inputGroup = ControlType.Player) => IsDisableButtonJustPressed(key, (int)inputGroup);
+        public static bool IsDisableButtonJustPressed(KeyboardKeys key, ControlType inputGroup = ControlType.Player) => IsDisableButtonJustPressed(key, (int)inputGroup);
 
-        public static bool IsDisabledButtonJustReleased(int button, int inputGroup = 0) => Game.IsDisabledControlJustReleased(inputGroup, (Control)button) && Game.CurrentInputMode == InputType.Controller;
-        public static bool IsDisabledButtonJustReleased(Control button) => IsDisabledButtonJustReleased(button, ControlType.Player);
-        public static bool IsDisabledButtonJustReleased(Control button, int inputGroup = 0) => IsDisabledButtonJustReleased((int)button, inputGroup);
-        public static bool IsDisabledButtonJustReleased(ControllerButtons button, int inputGroup = 0) => IsDisabledButtonJustReleased((Control)button, inputGroup);
-        public static bool IsDisabledButtonJustReleased(int button, ControlType inputGroup = ControlType.Player) => IsDisabledButtonJustReleased(button, (int)inputGroup);
-        public static bool IsDisabledButtonJustReleased(Control button, ControlType inputGroup = ControlType.Player) => IsDisabledButtonJustReleased(button, (int)inputGroup);
-        public static bool IsDisabledButtonJustReleased(ControllerButtons button, ControlType inputGroup = ControlType.Player) => IsDisabledButtonJustReleased(button, (int)inputGroup);
+        public static bool IsDisabledButtonJustReleased(int key, int inputGroup = 0) => Game.IsDisabledControlJustReleased(inputGroup, (Control)key) && Game.CurrentInputMode == InputType.Controller;
+        public static bool IsDisabledButtonJustReleased(Control key) => IsDisabledButtonJustReleased(key, ControlType.Player);
+        public static bool IsDisabledButtonJustReleased(Control key, int inputGroup = 0) => IsDisabledButtonJustReleased((int)key, inputGroup);
+        public static bool IsDisabledButtonJustReleased(KeyboardKeys key, int inputGroup = 0) => IsDisabledButtonJustReleased((Control)key, inputGroup);
+        public static bool IsDisabledButtonJustReleased(int key, ControlType inputGroup = ControlType.Player) => IsDisabledButtonJustReleased(key, (int)inputGroup);
+        public static bool IsDisabledButtonJustReleased(Control key, ControlType inputGroup = ControlType.Player) => IsDisabledButtonJustReleased(key, (int)inputGroup);
+        public static bool IsDisabledButtonJustReleased(KeyboardKeys key, ControlType inputGroup = ControlType.Player) => IsDisabledButtonJustReleased(key, (int)inputGroup);
 
-        public static bool IsButtonJustPressed(int button, int inputGroup = 0) => Game.IsControlJustPressed(inputGroup, (Control)button) && Game.CurrentInputMode == InputType.Controller;
-        public static bool IsButtonJustPressed(Control button) => IsButtonJustPressed(button, ControlType.Player);
-        public static bool IsButtonJustPressed(Control button, int inputGroup = 0) => IsButtonJustPressed((int)button, inputGroup);
-        public static bool IsButtonJustPressed(ControllerButtons button, int inputGroup = 0) => IsButtonJustPressed((Control)button, inputGroup);
-        public static bool IsButtonJustPressed(int button, ControlType inputGroup = ControlType.Player) => IsButtonJustPressed(button, (int)inputGroup);
-        public static bool IsButtonJustPressed(Control button, ControlType inputGroup = ControlType.Player) => IsButtonJustPressed(button, (int)inputGroup);
-        public static bool IsButtonJustPressed(ControllerButtons button, ControlType inputGroup = ControlType.Player) => IsButtonJustPressed(button, (int)inputGroup);
+        public static bool IsButtonJustPressed(int key, int inputGroup = 0) => Game.IsControlJustPressed(inputGroup, (Control)key) && Game.CurrentInputMode == InputType.Controller;
+        public static bool IsButtonJustPressed(Control key) => IsButtonJustPressed(key, ControlType.Player);
+        public static bool IsButtonJustPressed(Control key, int inputGroup = 0) => IsButtonJustPressed((int)key, inputGroup);
+        public static bool IsButtonJustPressed(KeyboardKeys key, int inputGroup = 0) => IsButtonJustPressed((Control)key, inputGroup);
+        public static bool IsButtonJustPressed(int key, ControlType inputGroup = ControlType.Player) => IsButtonJustPressed(key, (int)inputGroup);
+        public static bool IsButtonJustPressed(Control key, ControlType inputGroup = ControlType.Player) => IsButtonJustPressed(key, (int)inputGroup);
+        public static bool IsButtonJustPressed(KeyboardKeys key, ControlType inputGroup = ControlType.Player) => IsButtonJustPressed(key, (int)inputGroup);
 
-        public static bool IsButtonJustPressedRegardlessOfDisabled(int button, int inputGroup = 0) => IsKeyPressed(button, inputGroup) || IsDisabledKeyJustReleased(button, inputGroup) && Game.CurrentInputMode == InputType.Controller;
-        public static bool IsButtonJustPressedRegardlessOfDisabled(Control button) => IsButtonJustPressedRegardlessOfDisabled(button, ControlType.Player);
-        public static bool IsButtonJustPressedRegardlessOfDisabled(Control button, int inputGroup = 0) => IsButtonJustPressedRegardlessOfDisabled((int)button, inputGroup);
-        public static bool IsButtonJustPressedRegardlessOfDisabled(ControllerButtons button, int inputGroup = 0) => IsButtonJustPressedRegardlessOfDisabled((Control)button, inputGroup);
-        public static bool IsButtonJustPressedRegardlessOfDisabled(int button, ControlType inputGroup = ControlType.Player) => IsButtonJustPressedRegardlessOfDisabled(button, (int)inputGroup);
-        public static bool IsButtonJustPressedRegardlessOfDisabled(Control button, ControlType inputGroup = ControlType.Player) => IsButtonJustPressedRegardlessOfDisabled(button, (int)inputGroup);
-        public static bool IsButtonJustPressedRegardlessOfDisabled(ControllerButtons button, ControlType inputGroup = ControlType.Player) => IsButtonJustPressedRegardlessOfDisabled(button, (int)inputGroup);
+        public static bool IsButtonJustPressedRegardlessOfDisabled(int key, int inputGroup = 0) => IsKeyPressed(key, inputGroup) || IsDisabledKeyJustReleased(key, inputGroup) && Game.CurrentInputMode == InputType.Controller;
+        public static bool IsButtonJustPressedRegardlessOfDisabled(Control key) => IsButtonJustPressedRegardlessOfDisabled(key, ControlType.Player);
+        public static bool IsButtonJustPressedRegardlessOfDisabled(Control key, int inputGroup = 0) => IsButtonJustPressedRegardlessOfDisabled((int)key, inputGroup);
+        public static bool IsButtonJustPressedRegardlessOfDisabled(KeyboardKeys key, int inputGroup = 0) => IsButtonJustPressedRegardlessOfDisabled((Control)key, inputGroup);
+        public static bool IsButtonJustPressedRegardlessOfDisabled(int key, ControlType inputGroup = ControlType.Player) => IsButtonJustPressedRegardlessOfDisabled(key, (int)inputGroup);
+        public static bool IsButtonJustPressedRegardlessOfDisabled(Control key, ControlType inputGroup = ControlType.Player) => IsButtonJustPressedRegardlessOfDisabled(key, (int)inputGroup);
+        public static bool IsButtonJustPressedRegardlessOfDisabled(KeyboardKeys key, ControlType inputGroup = ControlType.Player) => IsButtonJustPressedRegardlessOfDisabled(key, (int)inputGroup);
 
         public static void EnableMouseAction(MouseInput key) => EnableControlAction((int)ControlType.Player, (int)key, true);
         public static void DisableMouseAction(MouseInput key) => DisableControlAction((int)ControlType.Player, (int)key, true);
@@ -143,139 +144,10 @@ namespace Red.Common.Client
             return Function.Call<bool>(Hash._IS_USING_KEYBOARD, 2);
         }
     }
-    
+
     public class InputType
     {
         public static InputMode Keyboard = InputMode.MouseAndKeyboard;
         public static InputMode Controller = InputMode.GamePad;
-    }
-
-    // Made from the FiveM Control List (https://docs.fivem.net/docs/game-references/controls/)
-    public enum KeyboardKeys
-    {
-        Z = 20,
-        V = 0,
-        S = 8,
-        D = 9,
-        F = 23,
-        C = 26,
-        B = 29,
-        W = 32,
-        A = 34,
-        Q = 44,
-        R = 45,
-        G = 47,
-        H = 74,
-        E = 38,
-        M = 244,
-        T = 245,
-        Y = 246,
-        N = 249,
-        K = 311,
-        PageUp = 10,
-        PageDown = 11,
-        LeftAlt = 19,
-        LeftShift = 21,
-        Spacebar = 22,
-        LeftControl = 36,
-        Tab = 37,
-        OpenBracket = 39,
-        ClosedBracket = 40,
-        Period = 81,
-        Comma = 82,
-        Equals = 83,
-        Minus = 84,
-        X = 105,
-        NumbPad6 = 107,
-        NumbPad4 = 108,
-        NumbPad5 = 110,
-        NumbPad8 = 112,
-        NumbPad7 = 117,
-        NumbPad9 = 118,
-        NumpadPlus = 314,
-        NumpadMinus = 315,
-        Insert = 121,
-        CapsLock = 137,
-        One = 157,
-        Two = 158,
-        Six = 159,
-        Three = 160,
-        Seven = 161,
-        Eight = 162,
-        Nine = 163,
-        Four = 164,
-        Five = 165,
-        F1 = 288,
-        F2 = 289,
-        F5 = 166,
-        F6 = 167,
-        F7 = 168,
-        F8 = 169,
-        F3 = 170,
-        F9 = 56,
-        F10 = 57,
-        ArrowUp = 172,
-        ArrowDown = 173,
-        ArrowLeft = 174,
-        ArrowRight = 175,
-        Delete = 178,
-        L = 182,
-        Enter = 191,
-        P = 199,
-        Escape = 200,
-        Home = 212,
-        Tilde = 243,
-        ForwardSlash = 243,
-        BackTick = 243,
-    }
-    // Made from the FiveM Control List (https://docs.fivem.net/docs/game-references/controls/) 
-    public enum MouseInput
-    {
-        MouseRight = 1,
-        MouseDown = 2,
-        MouseWheelDown = 14,
-        MouseWheelUp = 15,
-        LeftMouseButton = 24,
-        RightMouseButton = 25,
-        ScrollWheelButton = 348
-    }
-    // Made from the FiveM Control List (https://docs.fivem.net/docs/game-references/controls/) 
-    public enum ControllerButtons
-    {
-        PlayStationTriagle = 56,
-        PlayStationSquare = 296,
-        PlayStationCross = 298,
-        PlayStationCircle = 225,
-        PlayStationR1 = 90,
-        PlayStationR2 = 129,
-        PlayStationL1 = 185,
-        PlayStationL2 = 207,
-        PlayStationOptions = 318,
-        PlayStationShare = 310,
-        PlayStationDPadUp = 42,
-        PlayStationDPadDown = 43,
-        PlayStationDPadLeft = 47,
-        PlayStationDPadRight = 46,
-        PlayStationLeftStick = 28,
-        PlayStationRightStick = 26,
-        XboxY = 49,
-        XboxX = 22,
-        XboxA = 18,
-        XboxB = 45,
-        XboxBack = 0,
-        XboxStart = 199,
-        XboxRightButton = 69,
-        XboxLeftButton = 89,
-        XboxRightTrigger = 10,
-        XboxLeftTrigger = 11,
-        XboxLeftStick = 8,
-        XboxRightStick = 12,
-    }
-    // Made from the FiveM Control List (https://docs.fivem.net/docs/game-references/controls/) 
-    public enum ControlType
-    {
-        Player = 0,
-        Unknown = 1,
-        FrontEnd = 2
     }
 }

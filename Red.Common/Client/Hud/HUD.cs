@@ -1,21 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Globalization;
 using System.Text;
-using System.Threading.Tasks;
+using System.Drawing;
 using CitizenFX.Core;
 using CitizenFX.Core.UI;
+using Red.Common.Client.Misc;
 using static CitizenFX.Core.Native.API;
 using static CitizenFX.Core.UI.Screen;
+using System.Threading.Tasks;
 
-namespace Red.Common.Client
+namespace Red.Common.Client.Hud
 {
-    public class HUD : BaseScript
+    public class HUD : ClientScript
     {
         #region Extensions
         public static void DisplayHUD(bool display = true) => DisplayHud(display);
         public static void SetMaxArmorDisplay(int maxValue) => SetMaxArmourHudDisplay(maxValue);
-        public static void SetMaxHealthDisplay(int maxValue) => SetMaxHealthHudDisplay(maxValue);
+        public static void SetMaxHealthDisplay(int maxValue) => SetMaxHealthHudDisplay(maxValue); 
         public static void ChangeFakeCash(int cash, int bank) => ChangeFakeMpCash(cash, bank);
         public static void HideHUDComponent(HudComponent component) => HideHudComponentThisFrame((int)component);
         public static void HideHUDComponent(int component) => HideHudComponentThisFrame(component);
@@ -39,7 +41,7 @@ namespace Red.Common.Client
         public static bool IsHUDHidden() => IsHudHidden();
         public static bool IsThisHelpMessageBeingDisplayed(int index) => EndTextCommandIsThisHelpMessageBeingDisplayed(index);
         public static bool IsThisHelpMessageBeingDisplayed(HUDIndex index) => EndTextCommandIsThisHelpMessageBeingDisplayed((int)index);
-        public static bool HUDIsVisable() => Hud.IsVisible;
+        public static bool HUDIsVisable() => Screen.Hud.IsVisible;
 
         public static int DisplayFeedPostAward(string textureDict, string textureName, int rpBonus, int colorOverlay, string title) => EndTextCommandThefeedPostAward(textureDict, textureName, rpBonus, colorOverlay, title);
         public static int DisplayFeedPostCrewRankup(string charTitle, string clanTextureDict, string clanTextureName, bool isImportant, bool showSubtitle) => EndTextCommandThefeedPostCrewRankup(charTitle, clanTextureDict, clanTextureName, isImportant, showSubtitle);
@@ -63,7 +65,7 @@ namespace Red.Common.Client
         public static string ErrorNotification(string message)
         {
             ShowNotification($"~r~~h~Error~h~~s~: {message}", true);
-            return message;
+            return message; 
         }
 
         public static string AlertNotification(string message)
@@ -130,14 +132,13 @@ namespace Red.Common.Client
         }
 
         public static void DisplayHelpText(string text) => DisplayHelpTextThisFrame(text);
-        #endregion
-
-        #region Draw 2D Lines
+        
         public static void Draw2dLine(float pos1X, float pos1Y, float pos2X, float pos2Y, float width, int r, int g, int b, int a = 255) => DrawLine_2d(pos1X, pos1Y, pos2X, pos2Y, width, r, g, b, a);
         public static void Draw2dLine(Vector2 pos1, Vector2 pos2, float width, int r, int g, int b, int a = 255) => DrawLine_2d(pos1.X, pos1.Y, pos2.X, pos2.Y, width, r, g, b, a);
         #endregion
 
-        #region Get User Input
+        #region User Input
+        // Forked from vMenu
         public static async Task<string> GetUserInput() => await GetUserInput(null, null, 30);
         public static async Task<string> GetUserInput(int maxInputLength) => await GetUserInput(null, null, maxInputLength);
         public static async Task<string> GetUserInput(string title) => await GetUserInput(title, null, 30);
@@ -169,78 +170,5 @@ namespace Red.Common.Client
             }
         }
         #endregion
-
-        #region Requests
-        public static async void RequestTextureDictionary(string texture)
-        {
-            RequestStreamedTextureDict(texture, true);
-
-            while (!HasStreamedTextureDictLoaded(texture))
-            {
-                await Delay(0);
-            }
-        }
-
-        public static void RequestTextureDict(string text)
-        {
-
-        }
-        #endregion
     }
-
-    #region Enums
-    public enum OnScreenStatus
-    {
-        InActive = -1,
-        Editing = 0,
-        Finished = 1,
-        Canceled = 2
-    }
-
-    public enum HUDIndex
-    {
-        HelpText = 0,
-        FloatingHelpText1 = 1,
-        FloatingHelpText2 = 2
-    }
-
-    public enum HUDIdentifier
-    {
-        HUD = 0,
-        WantedStars = 1,
-        WeaponIcon = 2,
-        Cash = 3,
-        MultiplayerCash = 4,
-        MultiplayerMessage = 5,
-        VehicleName = 6,
-        AreaName = 7,
-        VehicleClass = 8,
-        StreetName = 9,
-        HelpText = 10,
-        FloatingHelpText1 = 11,
-        FloatingHelpText2 = 12,
-        CashChange = 13,
-        Reticle = 14,
-        SubtitleText = 15,
-        RadioStation = 16,
-        SavingGame = 17,
-        GameStream = 18,
-        WeaponWheel = 10,
-        WeaponWheelStats = 20,
-        Components = 21,
-        Weapons = 22,
-        MaxScriptedHUDComponents = 141
-    }
-
-    public enum IconType
-    {
-        ChatBox = 0,
-        Email = 1,
-        AddFriendRequest = 3,
-        Nothing = 4,
-        RightJumpingArrow = 7,
-        RpIcon = 8,
-        DollarIcon = 9
-    }
-    #endregion
 }

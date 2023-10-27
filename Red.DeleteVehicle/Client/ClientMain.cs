@@ -1,7 +1,9 @@
 using System.Threading.Tasks;
 using CitizenFX.Core;
-using CitizenFX.Core.UI;
 using static CitizenFX.Core.Native.API;
+using static CitizenFX.Core.UI.Screen;
+using static Red.Common.Client.Client;
+using static Red.Common.Client.Hud.HUD;
 
 namespace Red.DeleteVehicle.Client
 {
@@ -9,51 +11,53 @@ namespace Red.DeleteVehicle.Client
     {
         #region Variables
         protected int tempTimer = Game.GameTime;
-        protected static Ped PlayerPed;
         #endregion
 
         #region Commands
         [Command("dv")]
-        private void DvCommand() => DeleteVehicleHandler();
-
-        [Command("delveh")]
-        private void DelVehCommand() => DeleteVehicleHandler();
-
-        [Command("deletevehicle")]
-        private void DeleteVehicleCommand() => DeleteVehicleHandler();
+        private void DvCommand() => CommandHandler();
 
         [Command("deleteveh")]
-        private void DeleteVehCommand() => DeleteVehicleHandler();
+        private void DeleteVehCommand() => CommandHandler();
+
+        [Command("deletevehicle")]
+        private void DeleteVehicleCommand() => CommandHandler();
+
+        [Command("delveh")]
+        private void DelVehCommand() => CommandHandler();
         #endregion
 
-        #region Handlers
-        private async void DeleteVehicleHandler()
+        #region Command Handlers
+        private async void CommandHandler()
         {
+            #region Chat Suggestions
             TriggerEvent("chat:addSuggestion", "/dv", "Delete the closest vehicle to the player.", "");
             TriggerEvent("chat:addSuggestion", "/deleteveh", "Delete the closest vehicle to the player.", "");
             TriggerEvent("chat:addSuggestion", "/deletevehicle", "Delete the closest vehicle to the player.", "");
             TriggerEvent("chat:addSuggestion", "/delveh", "Delete the closest vehicle to the player.", "");
+            #endregion
 
-            if (PlayerPed.CurrentVehicle is null)
+            if (Game.PlayerPed.CurrentVehicle is null)
             {
-                Vehicle closestVehicle = GetClosestVehicle(3f);
+                Vehicle closestVehicle = GetClosestVehicleToPlayer(3f);
 
                 if (closestVehicle is null)
                 {
-                    Screen.ShowNotification("~r~~h~Error~h~~s~: You must be in or near a vehicle.", true);
+                    ErrorNotification("You must be in or near a vehicle.");
                     return;
                 }
 
                 if (closestVehicle.Driver.Exists() && closestVehicle.Driver.IsPlayer)
                 {
-                    Screen.ShowNotification("~r~~h~Error~h~~s~: That vehicle still has a driver in it.", true);
+                    ErrorNotification("That vehicle still has a driver.");
                     return;
                 }
 
                 if (NetworkGetEntityOwner(closestVehicle.Handle) == Game.Player.Handle)
                 {
-                    bool deleted = await DeleteVehicle(closestVehicle);
-                    Screen.ShowNotification(deleted ? "~g~~h~Success~h~~s~: Vehicle deleted." : "~r~~h~Error~h~~s~: Failed to delete vehicle, try again.", true);
+                    bool deleted = await DvVehicle(closestVehicle);
+
+                    ShowNotification(deleted ? "~g~~h~Success~h~~s~: Vehicle deleted." : "~r~~h~Error~h~~s~: Failed to delete vehicle, try again.", true);
                 }
                 else
                 {
@@ -65,39 +69,29 @@ namespace Red.DeleteVehicle.Client
                     {
                         if (Game.GameTime - tempTimer > 5000)
                         {
-                            Screen.ShowNotification("~r~~h~Error~h~~s~: Failed to delete vehicle, try again.", true);
+                            ErrorNotification("Failed to delete vehicle, try again.");
                             return;
                         }
 
                         await Delay(0);
                     }
 
-                    Screen.ShowNotification("~g~~h~Success~h~~s~: Vehicle deleted.", true);
+                    ErrorNotification("Vehicle deleted.");
                 }
             }
-            else if (PlayerPed.SeatIndex != VehicleSeat.Driver)
+            else if (Game.PlayerPed.SeatIndex != VehicleSeat.Driver)
             {
-                Screen.ShowNotification("~r~~h~Error~h~~s~: You must be the driver.", true);
+                ErrorNotification("You must be the driver.");
             }
             else
             {
-                bool deleted = await DeleteVehicle(PlayerPed.CurrentVehicle);
+                bool deleted = await DvVehicle(Game.PlayerPed.CurrentVehicle);
 
-                Screen.ShowNotification(deleted ? "~g~~h~Success~h~~s~: Deleted vehicle." : "~r~~h~Error~h~~s~: Failed to delete vehicle, try again.", true);
+                ShowNotification(deleted ? "~g~~h~Success~h~~s~: Deleted vehicle." : "~r~~h~Error~h~~s~: Failed to delete vehicle, try again.", true);
             }
         }
-        #endregion
 
-        #region Methods
-        private static Vehicle GetClosestVehicle(float radius = 2f)
-        {
-            RaycastResult raycast = World.RaycastCapsule(PlayerPed.Position, PlayerPed.Position, radius, (IntersectOptions)10, PlayerPed);
-            return raycast.HitEntity as Vehicle;
-        }
-        #endregion
-
-        #region Ticks
-        private async Task<bool> DeleteVehicle(Vehicle vehicle)
+        private async Task<bool> DvVehicle(Vehicle vehicle)
         {
             vehicle.IsPersistent = true;
             vehicle.Delete();
@@ -116,11 +110,13 @@ namespace Red.DeleteVehicle.Client
 
             return true;
         }
+        #endregion
 
+        #region Ticks
         [Tick]
         private async Task CommandsTick()
         {
-            Vehicle vehicle = PlayerPed.CurrentVehicle;
+            Vehicle vehicle = Game.PlayerPed.CurrentVehicle;
 
             if (vehicle is null)
             {

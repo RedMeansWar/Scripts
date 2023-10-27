@@ -1,15 +1,18 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading.Tasks;
+using Red.Common.Client.Misc;
 using CitizenFX.Core;
+using CitizenFX.Core.Native;
 using static CitizenFX.Core.Native.API;
-using static Red.Common.Client.MathExtender;
+using static Red.Common.Client.Diagnostics.Log;
+using static Red.Common.Client.Misc.MathExtender;
+using System.Linq;
 
 namespace Red.Common.Client
 {
     public class Client : BaseScript
     {
-        #region Variables
         protected static Ped PlayerPed = Game.PlayerPed;
         protected static Ped Character = Game.Player.Character;
         protected static Player Player = Game.Player;
@@ -41,19 +44,22 @@ namespace Red.Common.Client
 
         protected static readonly IReadOnlyList<WeaponHash> automaticWeapons = new List<WeaponHash>()
         {
-            WeaponHash.MicroSMG, WeaponHash.MachinePistol, WeaponHash.MiniSMG, WeaponHash.SMG, WeaponHash.SMGMk2, WeaponHash.AssaultSMG, WeaponHash.CombatPDW,
-            WeaponHash.MG, WeaponHash.CombatMG, WeaponHash.CombatMGMk2, WeaponHash.Gusenberg, WeaponHash.AssaultRifle, WeaponHash.AssaultRifleMk2, WeaponHash.CarbineRifle,
-            WeaponHash.CarbineRifleMk2, WeaponHash.AdvancedRifle, WeaponHash.SpecialCarbine, WeaponHash.SpecialCarbineMk2, WeaponHash.BullpupRifle, WeaponHash.BullpupRifleMk2,
+            WeaponHash.MicroSMG, WeaponHash.MachinePistol, WeaponHash.MiniSMG, WeaponHash.SMG, WeaponHash.SMGMk2, WeaponHash.AssaultSMG, WeaponHash.CombatPDW, 
+            WeaponHash.MG, WeaponHash.CombatMG, WeaponHash.CombatMGMk2, WeaponHash.Gusenberg, WeaponHash.AssaultRifle, WeaponHash.AssaultRifleMk2, WeaponHash.CarbineRifle, 
+            WeaponHash.CarbineRifleMk2, WeaponHash.AdvancedRifle, WeaponHash.SpecialCarbine, WeaponHash.SpecialCarbineMk2, WeaponHash.BullpupRifle, WeaponHash.BullpupRifleMk2, 
             WeaponHash.CompactRifle
         };
-        #endregion
 
-        #region "GetClosest" Methods
-        /// <summary>
-        /// Gets the closest player to the client within a given radius.
-        /// </summary>
-        /// <param name="radius"></param>
-        /// <returns></returns>
+        public static float CalculateDistanceTo(Vector3 vec1, Vector3 vec2, bool useZ) => useZ ? (float)Math.Sqrt((double)((Vector3)vec1).DistanceToSquared(vec2)) : (float)Math.Sqrt(Math.Pow(x: (double)vec2.X - vec1.X, 2.0) + Math.Pow(vec2.Y - (double)vec1.Y, 2.0));
+
+        #region Weapons
+        public static Weapon GiveWeapon(WeaponHash weaponHash, bool equip) => PlayerPed.Weapons.Give(weaponHash, 9999, equip, true);
+        public static Weapon GiveWeapon(WeaponHash weaponHash, int ammoAmount, bool equip) => PlayerPed.Weapons.Give(weaponHash, ammoAmount, equip, true);
+        public static Weapon GiveWeapon(uint weaponHash, bool equip) => PlayerPed.Weapons.Give((WeaponHash)weaponHash, 9999, equip, true);
+        public static Weapon GiveWeapon(uint weaponHash, int ammoAmount, bool equip) => PlayerPed.Weapons.Give((WeaponHash)weaponHash, ammoAmount, equip, true);
+
+        public static bool IsWeaponAutomatic(Weapon weapon) => automaticWeapons.Contains(weapon);
+        #endregion
         public static Player GetClosestPlayerToClient(float radius = 2f)
         {
             Player closestPlayer = null;
@@ -77,11 +83,6 @@ namespace Red.Common.Client
             return closestPlayer;
         }
 
-        /// <summary>
-        /// Gets the closest vehicle to the client within a given radius.
-        /// </summary>
-        /// <param name="radius"></param>
-        /// <returns></returns>
         public static Vehicle GetClosestVehicleToPlayer(float radius = 2f)
         {
             RaycastResult raycast = World.RaycastCapsule(PlayerPosition, PlayerPosition, radius, (IntersectOptions)10, PlayerPed);
@@ -89,42 +90,6 @@ namespace Red.Common.Client
             return raycast.HitEntity as Vehicle;
         }
 
-        /// <summary>
-        /// Gets the closest player to the client within a given radius.
-        /// </summary>
-        /// <param name="radius"></param>
-        /// <returns></returns>
-        public static Player GetClosestPlayer(float radius = 2f) => GetClosestPlayerToClient(radius);
-
-        /// <summary>
-        /// Gets the closest player to the client within a given radius.
-        /// </summary>
-        /// <param name="radius"></param>
-        /// <returns></returns>
-        public static Player GetClosestPlayerToPed(float radius = 2f) => GetClosestPlayerToClient(radius);
-
-        /// <summary>
-        /// Gets the closest vehicle to the client within a given radius.
-        /// </summary>
-        /// <param name="radius"></param>
-        /// <returns></returns>
-        public static Vehicle GetClosestVehicle(float radius = 2f) => GetClosestVehicleToPlayer(radius);
-
-        /// <summary>
-        /// Gets the closest vehicle to the client within a given radius.
-        /// </summary>
-        /// <param name="radius"></param>
-        /// <returns></returns>
-        public static Vehicle GetClosestVehicleToPed(float radius = 2f) => GetClosestVehicleToPlayer(radius);
-        #endregion
-
-        #region Player Actions
-        /// <summary>
-        /// Determines if the player cannot do an action based off of being cuffed, is dead, is currently being stunned, is climbing, is driving a vehicle, is falling,
-        /// is getting into a vehicle, is jumping, is getting out of a vehicle, is in ragdoll mode, is swimming under water, or is vaulting over something.
-        /// </summary>
-        /// <param name="ped"></param>
-        /// <returns></returns>
         public static bool CannotDoAction(Ped ped)
         {
             return ped.IsCuffed
@@ -133,10 +98,36 @@ namespace Red.Common.Client
             || ped.IsGettingIntoAVehicle || ped.IsJumping || ped.IsJumpingOutOfVehicle
             || ped.IsRagdoll || ped.IsSwimmingUnderWater || ped.IsVaulting;
         }
+        #region Spawn Local Vehicle
+        public static void SpawnLocalVehicle(Vehicle vehicle, Vector3 coords, float heading) => CreateVehicle(vehicle.Model, coords.X, coords.Y, coords.Z, heading, false, false);
+        public static void SpawnLocalVehicle(uint vehicle, Vector3 coords, float heading) => CreateVehicle(vehicle, coords.X, coords.Y, coords.Z, heading, false, false);
+        #endregion
 
-        /// <summary>
-        /// Disables all attack controls.
-        /// </summary>
+        public static float CorrectHeading(Entity entity)
+        {
+            float headingNumber = 360f - entity.Heading;
+
+            if ((double)headingNumber > 360.0f)
+            {
+                headingNumber -= 360f;
+            }
+
+            return headingNumber;
+        }
+
+        #region Model Checker
+        public static bool DoesModelExist(uint modelHash) => IsModelInCdimage(modelHash);
+        public static bool DoesModelExist(string modelName) => DoesModelExist((uint)GetHashKey(modelName));
+        #endregion
+
+        #region Extensions
+        public static Player GetClosestPlayer(float radius = 2f) => GetClosestPlayerToClient(radius);
+        public static Player GetClosestPlayerToPed(float radius = 2f) => GetClosestPlayerToClient(radius);
+
+        public static Vehicle GetClosestVehicle(float radius = 2f) => GetClosestVehicleToPlayer(radius);
+        public static Vehicle GetClosestVehicleToPed(float radius = 2f) => GetClosestVehicleToPlayer(radius);
+        #endregion
+
         public static void DisableAttackControls()
         {
             foreach (Control control in attackControls)
@@ -144,12 +135,8 @@ namespace Red.Common.Client
                 Game.DisableControlThisFrame(0, control);
             }
         }
-        
-        /// <summary>
-        /// Disables movement controls. (you can choose if you want to disable movement controls)
-        /// </summary>
-        /// <param name="disableCameraMovement"></param>
-        public static void DisableMovementControls(bool disableCameraMovement = false)
+
+        public static void DisableMovement(bool disableCameraMovement = false)
         {
             foreach (Control control in movementControls)
             {
@@ -164,9 +151,7 @@ namespace Red.Common.Client
                 }
             }
         }
-        #endregion
 
-        #region Calculate Methods
         public static float CalculateHeadingTowardsEntity(Entity entity, Entity targetEntity)
         {
             Vector3 dirToTargetEnt = targetEntity.Position - entity.Position;
@@ -182,24 +167,28 @@ namespace Red.Common.Client
 
             return ConvertDirectionToHeading(dirToTargetEnt);
         }
-        #endregion
 
-        #region Animations
-        public static void PlayAnim(string dictionary, string name) => PlayerPed.Task.PlayAnimation(dictionary, name);
-        public static void PlayAnim(string dictionary, string name, float blindInSpeed, int duration, AnimationFlags flags) => PlayerPed.Task.PlayAnimation(dictionary, name, blindInSpeed, duration, flags);
-        public static void PlayAnim(string dictionary, string name, float blindInSpeed, float blindOutSpeed, int duration, AnimationFlags flags, float playbackRate) => PlayerPed.Task.PlayAnimation(dictionary, name, blindInSpeed, blindOutSpeed, duration, flags, playbackRate);
-        public static void PlayAnim(string dictionary, string name, int blindInSpeed, int duration, AnimationFlags flags) => PlayAnim(dictionary, name, ConvertIntToFloat(blindInSpeed), duration, flags);
-        public static void PlayAnim(string dictionary, string name, int blindInSpeed, int blindOutSpeed, int duration, AnimationFlags flags, int playbackRate) => PlayerPed.Task.PlayAnimation(dictionary, name, ConvertIntToFloat(blindInSpeed), ConvertIntToFloat(blindOutSpeed), duration, flags, ConvertIntToFloat(playbackRate));
-        public static void PlayAnim(string dictionary, string name, float blindInSpeed, int duration, int flags) => PlayerPed.Task.PlayAnimation(dictionary, name, blindInSpeed, duration, flags);
-        public static void PlayAnim(string dictionary, string name, float blindInSpeed, float blindOutSpeed, int duration, int flags, float playbackRate) => PlayerPed.Task.PlayAnimation(dictionary, name, blindInSpeed, blindOutSpeed, duration, (AnimationFlags)flags, playbackRate);
-        public static void PlayAnim(string dictionary, string name, int blindInSpeed, int duration, int flags) => PlayAnim(dictionary, name, ConvertIntToFloat(blindInSpeed), duration, flags);
-        public static void PlayAnim(string dictionary, string name, int blindInSpeed, int blindOutSpeed, int duration, int flags, int playbackRate) => PlayerPed.Task.PlayAnimation(dictionary, name, ConvertIntToFloat(blindInSpeed), ConvertIntToFloat(blindOutSpeed), duration, (AnimationFlags)flags, ConvertIntToFloat(playbackRate));
-        #endregion
+        // Forked from vMenu
+        public static void TeleportPlayer(int playerId, Vector3 pos, bool withVehicle, bool freezePlayer)
+        {
+            PlayerList Players = PlayerList.Players;
+            Player player = Players[playerId];
 
-        #region Tasks
-        public static void ClearAllTasksImmediately() => PlayerPed.Task.ClearAllImmediately();
-        public static void ClearAllTasks() => PlayerPed.Task.ClearAll();
-        #endregion
+
+            if (freezePlayer && player != null && Character != null && Character.Exists())
+            {
+                Character.IsPositionFrozen = true;
+
+                FreezeEntityPosition(Character.Handle, true);
+                ClearPedTasksImmediately(Character.Handle);
+                ClearPedTasks(Character.Handle);
+            }
+
+            if (withVehicle && player != null && Character != null && Character.Exists() && player.Character.IsInVehicle())
+            {
+                SetPedCoordsKeepVehicle(Character.Handle, pos.X, pos.Y, pos.Z);
+            }
+        }
 
         #region Field of View
         public static void ForceFirstPerson() => SetFollowPedCamViewMode(4);
@@ -209,8 +198,106 @@ namespace Red.Common.Client
         public static void ForceCinematic() => SetFollowPedCamViewMode(3);
         #endregion
 
-        #region Weapons
-        public static void IsWeaponAutomatic(Weapon weapon) => automaticWeapons.Contains(weapon.Hash);
+        #region Animations
+        public static void ClearAllTaskImmediately() => PlayerPed.Task.ClearAllImmediately();
+        public static void ClearAllTasks() => PlayerPed.Task.ClearAll();
+
+        public static void PlayAnim(string dictionary, string name) => PlayerPed.Task.PlayAnimation(dictionary, name);
+        public static void PlayAnim(string dictionary, string name, float blindInSpeed, int duration, AnimationFlags flags) => PlayerPed.Task.PlayAnimation(dictionary, name, blindInSpeed, duration, flags);
+        public static void PlayAnim(string dictionary, string name, float blindInSpeed, float blindOutSpeed, int duration, AnimationFlags flags, float playbackRate) => PlayerPed.Task.PlayAnimation(dictionary, name, blindInSpeed, blindOutSpeed, duration, flags, playbackRate);
+        public static void PlayAnim(string dictionary, string name, int blindInSpeed, int duration, AnimationFlags flags) => PlayAnim(dictionary, name, ConvertIntToFloat(blindInSpeed), duration, flags);
+        public static void PlayAnim(string dictionary, string name, int blindInSpeed, int blindOutSpeed, int duration, AnimationFlags flags, int playbackRate) => PlayerPed.Task.PlayAnimation(dictionary, name, ConvertIntToFloat(blindInSpeed), ConvertIntToFloat(blindOutSpeed), duration, flags, ConvertIntToFloat(playbackRate));
         #endregion
+
+        #region Props
+        public static async void SpawnProp(string modelName)
+        {
+            var player = Game.PlayerPed;
+            var coords = player.Position;
+            var heading = player.Heading;
+
+            RequestModel((uint)GetHashKey(modelName));
+            while (!HasModelLoaded((uint)GetHashKey(modelName)))
+            {
+                await Delay(0);
+            }
+
+            var offsetCoords = GetOffsetFromEntityInWorldCoords(player.Handle, 0.0f, 0.75f, 0.0f);
+            var prop = CreateObjectNoOffset((uint)GetHashKey(modelName), offsetCoords.X, offsetCoords.Y, offsetCoords.Z, false, true, false);
+            SetEntityHeading(prop, heading);
+            PlaceObjectOnGround(prop);
+            SetEntityCollision(prop, false, true);
+            SetEntityOpacity(prop, 100);
+            FreezeEntityPosition(prop, true);
+            SetModelAsNoLongerNeeded((uint)GetHashKey(modelName));
+
+            while (true)
+            {
+                await Delay(0);
+
+                offsetCoords = GetOffsetFromEntityInWorldCoords(player.Handle, 0.0f, 0.75f, 0.0f);
+                heading = player.Heading;
+
+                SetEntityCoordsNoOffset(prop, offsetCoords.X, offsetCoords.Y, offsetCoords.Z, false, false, false);
+                SetEntityHeading(prop, heading);
+                PlaceObjectOnGroundProperly(prop);
+                DisableControlAction(PadIndex.Unknown, 38, true); // E
+                DisableControlAction(PadIndex.Unknown, 140, true); // R
+
+                if (IsDisabledControlJustPressed(PadIndex.Unknown, 38)) // E
+                {
+                    var propCoords = GetEntityCoords(prop, false);
+                    var propHeading = GetEntityHeading(prop);
+                    DeleteObject(ref prop);
+
+                    RequestModel((uint)GetHashKey(modelName));
+                    while (!HasModelLoaded((uint)GetHashKey(modelName)))
+                    {
+                        await Delay(0);
+                    }
+
+                    prop = CreateObjectNoOffset((uint)GetHashKey(modelName), propCoords.X, propCoords.Y, propCoords.Z, true, true, true);
+                    SetEntityHeading(prop, propHeading);
+                    PlaceObjectOnGroundProperly(prop);
+                    FreezeEntityPosition(prop, true);
+                    SetEntityInvincible(prop, true);
+                    SetModelAsNoLongerNeeded((uint)GetHashKey(modelName));
+
+                    return;
+                }
+
+                if (IsDisabledControlJustPressed(PadIndex.Unknown, 140)) // R
+                {
+                    DeleteObject(ref prop);
+                    return;
+                }
+            }
+        }
+
+        public static void DeleteProp(string modelName)
+        {
+            int hash = GetHashKey(modelName);
+            Vector3 entityCoords = GetEntityCoords(PlayerPedId(), true);
+            Vector3 coords = new()
+            {
+                X = entityCoords.X,
+                Y = entityCoords.Y,
+                Z = entityCoords.Z
+            };
+
+            if (DoesObjectOfTypeExistAtCoords(coords.X, coords.Z, coords.Z, 1.5f, ConvertIntToUInt(hash), true))
+            {
+                int prop = GetClosestObjectOfType(coords.X, coords.Y, coords.Y, 1.5f, ConvertIntToUInt(hash), false, false, false);
+                DeleteObject(ref prop);
+            }
+        }
+
+        public static void PlaceObjectOnGround(int model) => PlaceObjectOnGroundProperly(model);
+        public static void PlaceObjectOnGround(string model) => PlaceObjectOnGroundProperly(GetHashKey(model));
+        #endregion
+
+        public static void DeleteEntity(string entity) => DeleteEntity(entity);
+        public static void SetEntityOpacity(int entity, int alpha, bool changeSkin = false) => SetEntityAlpha(entity, alpha, changeSkin ? 1 : 0);
+       
     }
 }
