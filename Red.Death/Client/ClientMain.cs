@@ -39,120 +39,12 @@ namespace Red.Death.Client
         public ClientMain()
         {
             ReadConfigFile();
+            TriggerEvent("chat:addSuggestion", "/revive", "Revives you in place.", "");
+            TriggerEvent("chat:addSuggestion", "/respawn", "Respawns you at the nearest hospital.", "");
         }
         #endregion
 
-        #region Methods
-        private void ReadConfigFile()
-        {
-            var data = LoadResourceFile(GetCurrentResourceName(), "config.ini");
-
-            if (Configuration.LoadFromString(data).Contains("Death", "EnableRagdoll") == true)
-            {
-                Configuration loaded = Configuration.LoadFromString(data);
-                enableRagdoll = loaded["Death"]["EnableRagdoll"].BoolValue;
-                reviveDelay = loaded["Death"]["ReviveDelay"].IntValue;
-                reviveKey = loaded["Death"]["ReviveKey"].IntValue;
-                respawnKey = loaded["Death"]["RespawnKey"].IntValue;
-            }
-            else
-            {
-                Log.Error($"[Death]: Config file has not been configured correctly.");
-            }
-        }
-
-        private void OnDeath()
-        {
-            isDead = true;
-            Random random = new();
-
-            coordsToReviveAt = Game.PlayerPed.Position;
-            NetworkResurrectLocalPlayer(coordsToReviveAt.X, coordsToReviveAt.Y, coordsToReviveAt.Z + 0.1f, Game.PlayerPed.Heading, false, false);
-
-            Game.PlayerPed.IsInvincible = true;
-            Game.PlayerPed.IsFireProof = true;
-            Game.PlayerPed.IsExplosionProof = true;
-            Game.PlayerPed.IsCollisionProof = true;
-            Game.PlayerPed.IsMeleeProof = true;
-            Game.PlayerPed.Health = Game.PlayerPed.MaxHealth;
-            Game.PlayerPed.Armor = 0;
-
-            if (enableRagdoll is false)
-            {
-                animToPlay = animList[random.Next(animList.Count)];
-            }
-            else
-            {
-                SetPedToRagdoll(GetPlayerPed(-1), 60000, 60000, 0, false, false, false);
-            }
-
-            DisableAutomaticRespawn(true);
-
-            Tick += DeadTick;
-            Tick += ControlsTick;
-        }
-
-        private async Task ControlsTick()
-        {
-            if (!keyHeld && (Game.IsControlPressed(0, Control.Context) || Game.IsControlPressed(0, Control.Reload)))
-            {
-                keyHeld = true;
-                startTime = Game.GameTime;
-
-                while (keyHeld && Game.GameTime - startTime < reviveDelay)
-                {
-                    Screen.ShowSubtitle($"Hold for ~r~{Math.Ceiling((double)(startTime + reviveDelay - Game.GameTime) / 1000)} ~s~more second(s)", 110);
-
-                    keyHeld = Game.IsControlPressed(0, (Control)reviveKey) || Game.IsControlPressed(0, (Control)respawnKey);
-
-                    await Delay(0);
-                }
-
-                if (Game.IsControlPressed(0, (Control)reviveKey))
-                {
-                    Revive();
-                }
-                else if (Game.IsControlPressed(0, (Control)respawnKey))
-                {
-                    Screen.Fading.FadeOut(1000);
-                    while (!Screen.Fading.IsFadedOut)
-                    {
-                        await Delay(0);
-                    }
-
-                    OnRespawnCommand();
-                }
-            }
-            else
-            {
-                keyHeld = false;
-            }
-
-            await Delay(0);
-        }
-
-        private async Task DeadTick()
-        {
-            DisableFirstPersonCamThisFrame();
-            DisplayHudWhenDeadThisFrame();
-            AllowPauseMenuWhenDeadThisFrame();
-
-            Game.DisableControlThisFrame(0, Control.Context);
-            Game.DisableControlThisFrame(0, Control.Reload);
-
-            if (enableRagdoll is false && !IsEntityPlayingAnim(Game.PlayerPed.Handle, animToPlay.Item1, animToPlay.Item2, 3))
-            {
-                PlayAnim(animToPlay.Item1, animToPlay.Item2, 50f, -1, (AnimationFlags)1);
-            }
-
-            if (!keyHeld)
-            {
-                Screen.DisplayHelpTextThisFrame("Hold ~INPUT_CONTEXT~ to revive in place, or hold ~INPUT_RELOAD~ to respawn at the closest hospital.");
-            }
-
-            await Delay(0);
-        }
-
+        #region Commands
         [Command("revive")]
         private bool Revive()
         {
@@ -221,7 +113,119 @@ namespace Red.Death.Client
         }
         #endregion
 
+        #region Methods
+        private void ReadConfigFile()
+        {
+            var data = LoadResourceFile(GetCurrentResourceName(), "config.ini");
+
+            if (Configuration.LoadFromString(data).Contains("Death", "EnableRagdoll") == true)
+            {
+                Configuration loaded = Configuration.LoadFromString(data);
+                enableRagdoll = loaded["Death"]["EnableRagdoll"].BoolValue;
+                reviveDelay = loaded["Death"]["ReviveDelay"].IntValue;
+                reviveKey = loaded["Death"]["ReviveKey"].IntValue;
+                respawnKey = loaded["Death"]["RespawnKey"].IntValue;
+            }
+            else
+            {
+                Log.Error($"[Death]: Config file has not been configured correctly.");
+            }
+        }
+
+        private void OnDeath()
+        {
+            isDead = true;
+            Random random = new();
+
+            coordsToReviveAt = Game.PlayerPed.Position;
+            NetworkResurrectLocalPlayer(coordsToReviveAt.X, coordsToReviveAt.Y, coordsToReviveAt.Z + 0.1f, Game.PlayerPed.Heading, false, false);
+
+            Game.PlayerPed.IsInvincible = true;
+            Game.PlayerPed.IsFireProof = true;
+            Game.PlayerPed.IsExplosionProof = true;
+            Game.PlayerPed.IsCollisionProof = true;
+            Game.PlayerPed.IsMeleeProof = true;
+            Game.PlayerPed.Health = Game.PlayerPed.MaxHealth;
+            Game.PlayerPed.Armor = 0;
+
+            if (enableRagdoll is false)
+            {
+                animToPlay = animList[random.Next(animList.Count)];
+            }
+            else
+            {
+                SetPedToRagdoll(GetPlayerPed(-1), 60000, 60000, 0, false, false, false);
+            }
+
+            DisableAutomaticRespawn(true);
+
+            Tick += DeadTick;
+            Tick += ControlsTick;
+        }
+        #endregion
+
         #region Ticks
+        private async Task ControlsTick()
+        {
+            if (!keyHeld && (Game.IsControlPressed(0, Control.Context) || Game.IsControlPressed(0, Control.Reload)))
+            {
+                keyHeld = true;
+                startTime = Game.GameTime;
+
+                while (keyHeld && Game.GameTime - startTime < reviveDelay)
+                {
+                    Screen.ShowSubtitle($"Hold for ~r~{Math.Ceiling((double)(startTime + reviveDelay - Game.GameTime) / 1000)} ~s~more second(s)", 110);
+
+                    keyHeld = Game.IsControlPressed(0, (Control)reviveKey) || Game.IsControlPressed(0, (Control)respawnKey);
+
+                    await Delay(0);
+                }
+
+                if (Game.IsControlPressed(0, (Control)reviveKey))
+                {
+                    Revive();
+                }
+                else if (Game.IsControlPressed(0, (Control)respawnKey))
+                {
+                    Screen.Fading.FadeOut(1000);
+                    while (!Screen.Fading.IsFadedOut)
+                    {
+                        await Delay(0);
+                    }
+
+                    OnRespawnCommand();
+                }
+            }
+            else
+            {
+                keyHeld = false;
+            }
+
+            await Delay(0);
+        }
+
+        private async Task DeadTick()
+        {
+            DisableFirstPersonCamThisFrame();
+            DisplayHudWhenDeadThisFrame();
+            AllowPauseMenuWhenDeadThisFrame();
+
+            Game.DisableControlThisFrame(0, Control.Context);
+            Game.DisableControlThisFrame(0, Control.Reload);
+
+            if (enableRagdoll is false && !IsEntityPlayingAnim(Game.PlayerPed.Handle, animToPlay.Item1, animToPlay.Item2, 3))
+            {
+                PlayAnim(animToPlay.Item1, animToPlay.Item2, 50f, -1, (AnimationFlags)1);
+            }
+
+            if (!keyHeld)
+            {
+                Screen.DisplayHelpTextThisFrame("Hold ~INPUT_CONTEXT~ to revive in place, or hold ~INPUT_RELOAD~ to respawn at the closest hospital.");
+            }
+
+            await Delay(0);
+        }
+
         [Tick]
         private async Task CheckDeathTick()
         {

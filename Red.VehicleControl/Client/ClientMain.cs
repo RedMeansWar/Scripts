@@ -30,7 +30,18 @@ namespace Red.VehicleControl.Client
         #endregion
 
         #region Constructor
-        public ClientMain() => RegisterKeyMapping("cruisecontrol", "Toggle cruise control", "keyboard", "f7");
+        public ClientMain()
+        {
+            RegisterKeyMapping("cruisecontrol", "Toggle cruise control", "keyboard", "f7");
+
+            TriggerEvent("chat:addSuggestion", "/engine", "Turns on or off a vehicle's engine.", "");
+            TriggerEvent("chat:addSuggestion", "/eng", "Turns on or off a vehicle's engine.", "");
+            TriggerEvent("chat:addSuggestion", "/cruisecontrol", "Sets the vehicle speed to a static speed. (also can be activated using F7)", "");
+            TriggerEvent("chat:addSuggestion", "/flip", "Flips an upside down vehicle to be upright.", "");
+            TriggerEvent("chat:addSuggestion", "/trunk", "Opens and closes a vehicle's trunk.", "");
+            TriggerEvent("chat:addSuggestion", "/hood", "Opens and closes s vehicle's hood.", "");
+            TriggerEvent("chat:addSuggestion", "/door", "Open a vehicle's door. (Ex: /door 1) ", "");
+        }
         #endregion
 
         #region Commands
