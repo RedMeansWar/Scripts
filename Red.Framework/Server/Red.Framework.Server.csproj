@@ -9,6 +9,8 @@
   
     <ItemGroup>
       <PackageReference Include="CitizenFX.Core.Server" Version="1.0.*" />
+      <PackageReference Include="Dapper" Version="1.60.6" />
+      <PackageReference Include="MySql.Data" Version="8.0.32.1" />
   
       <Compile Include="../Shared/**/*.cs" />
     </ItemGroup>
@@ -16,6 +18,12 @@
     <ItemGroup>
       <Reference Include="Newtonsoft.Json">
         <HintPath>..\..\_References_\Newtonsoft.Json.dll</HintPath>
+      </Reference>
+      <Reference Include="Red.Common.Server.net">
+        <HintPath>..\..\_References_\Red.Common.Server.net.dll</HintPath>
+      </Reference>
+      <Reference Include="SharpConfig">
+        <HintPath>..\..\_References_\SharpConfig.dll</HintPath>
       </Reference>
     </ItemGroup>
 </Project>

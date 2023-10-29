@@ -25,6 +25,9 @@ namespace Red.Breathalyzer.Client
         #region Commands
         [Command("breathalyzer")]
         private void BreathalyzerCommand() => DisplayNUI();
+
+        [Command("bac")]
+        private void BacCommand() => DisplayNUI();
         #endregion
 
         #region Methods

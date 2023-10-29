@@ -171,5 +171,14 @@ namespace Red.Common.Client.Hud
             }
         }
         #endregion
+
+        public static async void RequestTextureDictionary(string textureDict)
+        {
+            RequestStreamedTextureDict(textureDict, true);
+            while (!HasStreamedTextureDictLoaded(textureDict))
+            {
+                await Delay(0);
+            }
+        }
     }
 }

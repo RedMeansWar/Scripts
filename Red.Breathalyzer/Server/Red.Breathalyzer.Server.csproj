@@ -14,8 +14,15 @@
     </ItemGroup>
   
     <ItemGroup>
+      <None Remove="ServerMain.cs~RFdeb3a28.TMP" />
+    </ItemGroup>
+  
+    <ItemGroup>
       <Reference Include="Newtonsoft.Json">
         <HintPath>..\..\_References_\Newtonsoft.Json.dll</HintPath>
+      </Reference>
+      <Reference Include="SharpConfig">
+        <HintPath>..\..\_References_\SharpConfig.dll</HintPath>
       </Reference>
     </ItemGroup>
 </Project>
