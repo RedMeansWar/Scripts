@@ -21,7 +21,7 @@ namespace Red.WeaponControl.Client
         #endregion
 
         #region Constructor
-        
+        public ClientMain() => RequestTextureDictionary("mpweaponsgang0");
         #endregion
     }
 }

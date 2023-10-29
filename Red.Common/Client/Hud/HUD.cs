@@ -180,5 +180,7 @@ namespace Red.Common.Client.Hud
                 await Delay(0);
             }
         }
+
+        public static async void RequestTextureDict(string textureDict) => RequestTextureDictionary(textureDict);
     }
 }
