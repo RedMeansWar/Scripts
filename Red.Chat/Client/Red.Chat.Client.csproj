@@ -9,8 +9,5 @@
       <Reference Include="Newtonsoft.Json">
         <HintPath>..\..\_References_\Newtonsoft.Json.dll</HintPath>
       </Reference>
-      <Reference Include="Red.Common.Client.net">
-        <HintPath>..\..\_References_\Red.Common.Client.net.dll</HintPath>
-      </Reference>
     </ItemGroup>
 </Project>
