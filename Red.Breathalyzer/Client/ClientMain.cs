@@ -2,140 +2,106 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CitizenFX.Core;
-using CitizenFX.Core.UI;
 using static CitizenFX.Core.Native.API;
+using static Red.Common.Client.Client;
+using static Red.Common.Client.Hud.HUD;
 
 namespace Red.Breathalyzer.Client
 {
     public class ClientMain : BaseScript
     {
         #region Variables
-        protected bool nuiDisplayed = false;
+        protected bool isDisplayed = IsNuiFocused();
+        protected bool bacBeenSet;
         #endregion
 
         #region Constructor
         public ClientMain()
         {
-            RegisterNuiCallback("openNUI", new Action<IDictionary<string, object>, CallbackDelegate>(DisplayBreathalyzer));
-            RegisterNuiCallback("closeNUI", new Action<IDictionary<string, object>, CallbackDelegate>(HideBreathalyzer));
-            RegisterNuiCallback("startBacTest", new Action<IDictionary<string, object>, CallbackDelegate>(StartBreathalyzerTest));
+            isDisplayed = !isDisplayed;
+
+            // NUI Registration
+            RegisterNuiCallback("startBreathalyzer", new Action<IDictionary<string, object>, CallbackDelegate>(StartBreathalyzer));
+            RegisterNuiCallback("resetBreathalyzer", new Action<IDictionary<string, object>, CallbackDelegate>(ResetBreathalyzer));
+            RegisterNuiCallback("cancelNUI", new Action<IDictionary<string, object>, CallbackDelegate>(CancelNUI));
         }
         #endregion
 
-        #region Commands
-        [Command("breathalyzer")]
-        private void BreathalyzerCommand() => DisplayNUI();
+        #region Methods
 
-        [Command("bac")]
-        private void BacCommand() => DisplayNUI();
         #endregion
 
-        #region Methods
-        private void DisplayNUI(bool display = true)
+        #region Event Handlers
+        [EventHandler("Breathalyzer:Client:nuiError")]
+        private void OnNuiError()
         {
-            nuiDisplayed = display;
-
-            if (nuiDisplayed == false)
+            TriggerEvent("chat:addMessage", new
             {
-                SendNuiMessage(Json.Stringify(new
-                {
-                    type = "CLOSE_UI",
-                }));
+                template = "<div style='background-color: rgba(250, 22, 10, 0.5); text-align: center; border-radius: 0.5vh; padding: 0.7vh; font-size: 1.7vh;'><b>Input must be a number!</b></div>"
+            });
+        }
 
-                Debug.WriteLine("[Breathalyzer]: Revoking NUI");
-            }
-
-            SendNuiMessage(Json.Stringify(new
+        [EventHandler("Breathalyzer:Client:testSuccess")]
+        private void OnTestSuccess(string value)
+        {
+            TriggerEvent("chat:addMessage", new
             {
-                type = "DISPLAY_UI"
-            }));
-
-            Debug.WriteLine("[Breathalyzer]: Invoking NUI");
+                template = "<div style='background-color: rgba(44, 230, 41, 0.5); text-align: center; border-radius: 0.5vh; padding: 0.7vh; font-size: 1.7vh;'><b>SUCCESS: BAC set to {0}</b></div>",
+                args = new[] { value }
+            });
         }
         #endregion
 
         #region NUI Callbacks
-        private void DisplayBreathalyzer(IDictionary<string, object> data, CallbackDelegate result) => DisplayNUI();
-        private void HideBreathalyzer(IDictionary<string, object> data, CallbackDelegate result) => DisplayNUI(false);
-
-        private void StartBreathalyzerTest(IDictionary<string, object> data, CallbackDelegate result)
+        private void StartBreathalyzer(IDictionary<string, object> data, CallbackDelegate result)
         {
-            DisplayNUI();
+            PlaySoundFrontend(-1, "PIN_BUTTON", "ATM_SOUNDS", true);
+            
+            Player closestPlayer = GetClosestPlayer();
+            Ped Character = Game.Player.Character;
 
-            Player targetPlayer = GetClosestPlayer();
+            float distance = (closestPlayer is null) ? Vector3.Distance(Character.Position, closestPlayer.Character.Position) : -1f;
 
-            if (targetPlayer is null)
+            if (distance != 1f && distance < 3f)
             {
-                Screen.ShowNotification("~r~~h~Error~h~~s~: You need to be near a player to use this.", true);
-                return;
+                TriggerServerEvent("Breathalyzer:Server:startBacTest", closestPlayer.ServerId);
+                DisplayNotification($"~b~Breathalyzer~w~: Testing " + closestPlayer.Name);
             }
-
-            TriggerServerEvent("Bac:Server:startBacTest", targetPlayer.ServerId);
-        }
-        #endregion
-
-        #region Methods
-        private Player GetClosestPlayer(float radius = 2f)
-        {
-            Vector3 plyPos = Game.PlayerPed.Position;
-            Player closestPlayer = null;
-            float closestDist = float.MaxValue;
-
-            foreach (Player p in Players)
+            else
             {
-                if (p is null || p == Game.Player)
+                ErrorNotification("You need to be near a player to use this.");
+            }
+        }
+
+        private void ResetBreathalyzer(IDictionary<string, object> data, CallbackDelegate result)
+        {
+            PlaySoundFrontend(-1, "PIN_BUTTON", "ATM_SOUNDS", true);
+            DisplayNotification("~b~Breathalyzer~w~: Resetting...");
+
+            SendNuiMessage(Json.Stringify(new
+            {
+                text = "0.00"
+            }));
+        }
+
+        private void CancelNUI(IDictionary<string, object> data, CallbackDelegate result)
+        {
+            SendNuiMessage(Json.Stringify(new
+            {
+                type = "CANCEL_UI"
+            }));
+
+            SetNuiFocus(false, false);
+
+            if (isDisplayed && Game.IsControlJustPressed(0, Control.SkipCutscene))
+            {
+                SendNuiMessage(Json.Stringify(new
                 {
-                    continue;
-                }
-
-                float dist = Vector3.DistanceSquared(p.Character.Position, plyPos);
-                if (dist < closestDist && dist < radius)
-                {
-                    closestPlayer = p;
-                    closestDist = dist;
-                }
-            }
-
-            return closestPlayer;
-        }
-        #endregion
-
-        #region Ticks
-        private async Task DisableControlsTick()
-        {
-            while (nuiDisplayed)
-            {
-                Wait(0);
-
-                DisableControlAction(0, 1, nuiDisplayed); // INPUT_LOOK_LR (Mouse Right)
-                DisableControlAction(0, 2, nuiDisplayed); // INPUT_LOOK_UD (Mouse Down)
-                DisableControlAction(0, 18, nuiDisplayed); // INPUT_SKIP_CUTSCENE (Enter)
-                DisableControlAction(0, 106, nuiDisplayed); // INPUT_VEH_MOUSE_CONTROL_OVERRIDE (Left Mouse Button) - Stop the player from getting to a vehicle.
-                DisableControlAction(0, 142, nuiDisplayed); // INPUT_MELEE_ATTACK_ALTERNATE (Left Mouse Button) - Stop the player from attacking.
-                DisableControlAction(0, 322, nuiDisplayed); // INPUT_REPLAY_TOGGLE_TIMELINE	(Escape)
+                    type = "CANCEL_UI"
+                }));
+                SetNuiFocus(false, false);
             }
         }
         #endregion
-
-        #region Event Handlers
-        [EventHandler("Breathalyzer:Client:requestBac")]
-        private void OnRequestBacLevel()
-        {
-
-        }
-        #endregion
-    }
-
-    public static class Extensions
-    {
-        public static T GetValue<T>(this IDictionary<string, object> dict, string key, T defaultVal)
-        {
-            if (dict.TryGetValue(key, out object value) && value is T t)
-            {
-                return t;
-            }
-
-            return defaultVal;
-        }
     }
 }

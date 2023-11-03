@@ -1,5 +1,7 @@
 ﻿using System;
 using CitizenFX.Core;
+using static CitizenFX.Core.Native.API;
+using static Red.Common.Server.Server;
 
 namespace Red.Framework.Server
 {
@@ -16,6 +18,11 @@ namespace Red.Framework.Server
         private void AopCommand([FromSource] Player player, string[] args) => ParseAOP(player, args);
         #endregion
 
+        #region Event Handlers
+        [EventHandler("Framework:Server:DropUser")]
+        private void OnDropFrameworkUser([FromSource] Player player, string reason) => DropPlayer(player.Handle, reason);
+        #endregion
+
         #region Methods
         private void ParseAOP(Player sender, string[] args)
         {
@@ -27,11 +34,11 @@ namespace Red.Framework.Server
             }
             else if (currentAOP is null || currentAOPSetter is null)
             {
-                sender.TriggerEvent("chat:addMessage", new { color = new[] { 0, 73, 83 }, multiline = true, args = new[] { "", "We couldn't retrieve the current AOP, try again later." } });
+                AddChatMessage("", "We couldn't retrieve the current AOP, try again later.", 0, 73, 83);
             }
             else
             {
-                sender.TriggerEvent("chat:addMessage", new { templateId = "TemplateGrey", color = new[] { 255, 255, 255 }, multiline = true, args = new[] { "", $"Current AOP is ^5^*{currentAOP}^r^7 (Set by: ^5^*{currentAOPSetter}^r^7)" } });
+                AddChatMessage("", $"Current AOP is ^5^*{currentAOP}^r^7 (Set by: ^5^*{currentAOPSetter}^r^7)");
             }
         }
         #endregion

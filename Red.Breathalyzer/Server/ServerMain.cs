@@ -29,30 +29,5 @@ namespace Red.Breathalyzer.Server
             }
         }
         #endregion
-
-        #region Commands
-        [Command("setbac")]
-        private void BacSetterCommand([FromSource] Player tester, string[] args, string rawCommand)
-        {
-            string bacEntered = rawCommand.Substring("setbac".Length);
-
-            if (int.TryParse(bacEntered, out int bacEntered2))
-            {
-                TriggerClientEvent("Breathalyzer:Client:successfulBAC", tester, bacEntered2);
-            }
-            else
-            {
-                
-            }
-        }
-        #endregion
-
-        #region Event Handlers
-        [EventHandler("Breathalyzer:Server:doBacTest")]
-        private void OnBacTest(float bacLevel)
-        {
-
-        }
-        #endregion
     }
 }

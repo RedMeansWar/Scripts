@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Text;
-using System.Drawing;
-using CitizenFX.Core;
+﻿using CitizenFX.Core;
 using CitizenFX.Core.UI;
 using Red.Common.Client.Misc;
 using static CitizenFX.Core.Native.API;
 using static CitizenFX.Core.UI.Screen;
-using System.Threading.Tasks;
 
 namespace Red.Common.Client.Hud
 {
@@ -139,37 +133,7 @@ namespace Red.Common.Client.Hud
         #endregion
 
         #region User Input
-        // Forked from vMenu
-        public static async Task<string> GetUserInput() => await GetUserInput(null, null, 30);
-        public static async Task<string> GetUserInput(int maxInputLength) => await GetUserInput(null, null, maxInputLength);
-        public static async Task<string> GetUserInput(string title) => await GetUserInput(title, null, 30);
-        public static async Task<string> GetUserInput(string title, int maxInputLength) => await GetUserInput(title, null, maxInputLength);
-        public static async Task<string> GetUserInput(string title, string defaultText) => await GetUserInput(title, defaultText, 30);
-        public static async Task<string> GetUserInput(string title, string defaultText, int maxInputLength)
-        {
-            var spacer = "\t";
-            AddTextEntry($"{GetCurrentResourceName().ToUpper()}_WINDOW_TITLE", $"{title ?? "Enter"}:{spacer}(MAX {maxInputLength} Characters)");
 
-            DisplayOnscreenKeyboard(1, $"{GetCurrentResourceName().ToUpper()}_WINDOW_TITLE", "", defaultText ?? "", "", "", "", maxInputLength);
-            await Delay(0);
-
-            while (true)
-            {
-                var keyboardStatus = UpdateOnscreenKeyboard();
-
-                switch (keyboardStatus)
-                {
-                    case 3:
-                    case 2:
-                        return null;
-                    case 1:
-                        return GetOnscreenKeyboardResult();
-                    default:
-                        await Delay(0);
-                        break;
-                }
-            }
-        }
         #endregion
 
         public static async void RequestTextureDictionary(string textureDict)

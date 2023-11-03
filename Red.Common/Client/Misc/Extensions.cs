@@ -1,13 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using CitizenFX.Core;
+using static CitizenFX.Core.Native.API;
+using static Red.Common.Client.Client;
 
 namespace Red.Common.Client.Misc
 {
     // Forked From Albo1125 Fire Script (https://github.com/Albo1125/FireScript/blob/master/FireScript/Vector3Extension.cs)
     public static class Extensions
     {
+        #region Variables
         private static Random random = new Random(Environment.TickCount);
+
+        #endregion
+
+        #region Model Extensions
+        public static bool DoesModelExist(uint modelHash) => IsModelInCdimage(modelHash);
+        public static bool DoesModelExist(string modelName) => DoesModelExist((uint)GetHashKey(modelName));
+        #endregion
+
+        #region Get Closest Extensions
+        #endregion
+
+        #region Vector3 Extensions
         public static Vector3 Around(this Vector3 start, float radius)
         {
             // Random direction.
@@ -39,7 +54,9 @@ namespace Red.Common.Client.Misc
             vector3.Normalize();
             return vector3;
         }
+        #endregion
 
+        #region T GetValues
         public static T GetVal<T>(this IDictionary<string, object> dict, string key, T defaultVal)
         {
             if (dict.TryGetValue(key, out object value) && value is T t)
@@ -49,8 +66,19 @@ namespace Red.Common.Client.Misc
 
             return defaultVal;
         }
-    }
 
+        public static T GetValue<T>(this IDictionary<string, object> dict, string key, T defaultVal)
+        {
+            if (dict.TryGetValue(key, out object value) && value is T t)
+            {
+                return t;
+            }
+
+            return defaultVal;
+        }
+        #endregion
+    }
+    #region TupleList Extensions
     public class TupleList<T1, T2> : List<Tuple<T1, T2>>
     {
         public TupleList(TupleList<T1, T2> tupleList)
@@ -99,4 +127,6 @@ namespace Red.Common.Client.Misc
             Add(new Tuple<T1, T2, T3, T4>(item, item2, item3, item4));
         }
     }
+
+    #endregion
 }

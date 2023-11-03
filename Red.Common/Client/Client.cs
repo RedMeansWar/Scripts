@@ -1,13 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Linq;
 using Red.Common.Client.Misc;
 using CitizenFX.Core;
-using CitizenFX.Core.Native;
 using static CitizenFX.Core.Native.API;
-using static Red.Common.Client.Diagnostics.Log;
 using static Red.Common.Client.Misc.MathExtender;
-using System.Linq;
 
 namespace Red.Common.Client
 {
@@ -60,6 +57,7 @@ namespace Red.Common.Client
 
         public static bool IsWeaponAutomatic(Weapon weapon) => automaticWeapons.Contains(weapon);
         #endregion
+
         public static Player GetClosestPlayerToClient(float radius = 2f)
         {
             Player closestPlayer = null;
@@ -98,6 +96,7 @@ namespace Red.Common.Client
             || ped.IsGettingIntoAVehicle || ped.IsJumping || ped.IsJumpingOutOfVehicle
             || ped.IsRagdoll || ped.IsSwimmingUnderWater || ped.IsVaulting;
         }
+
         #region Spawn Local Vehicle
         public static void SpawnLocalVehicle(Vehicle vehicle, Vector3 coords, float heading) => CreateVehicle(vehicle.Model, coords.X, coords.Y, coords.Z, heading, false, false);
         public static void SpawnLocalVehicle(uint vehicle, Vector3 coords, float heading) => CreateVehicle(vehicle, coords.X, coords.Y, coords.Z, heading, false, false);
@@ -123,11 +122,14 @@ namespace Red.Common.Client
         #region Extensions
         public static Player GetClosestPlayer(float radius = 2f) => GetClosestPlayerToClient(radius);
         public static Player GetClosestPlayerToPed(float radius = 2f) => GetClosestPlayerToClient(radius);
+        public static Player GetClosestPlayerInRadius(float radius = 2f) => GetClosestPlayerToClient(radius);
 
         public static Vehicle GetClosestVehicle(float radius = 2f) => GetClosestVehicleToPlayer(radius);
         public static Vehicle GetClosestVehicleToPed(float radius = 2f) => GetClosestVehicleToPlayer(radius);
+        public static Vehicle GetClosestVehicleInRadius(float radius = 2f) => GetClosestVehicleToPlayer(radius);
         #endregion
 
+        #region Disable Actions
         public static void DisableAttackControls()
         {
             foreach (Control control in attackControls)
@@ -151,7 +153,9 @@ namespace Red.Common.Client
                 }
             }
         }
+        #endregion
 
+        #region Heading Calculation
         public static float CalculateHeadingTowardsEntity(Entity entity, Entity targetEntity)
         {
             Vector3 dirToTargetEnt = targetEntity.Position - entity.Position;
@@ -167,7 +171,9 @@ namespace Red.Common.Client
 
             return ConvertDirectionToHeading(dirToTargetEnt);
         }
+        #endregion
 
+        #region Teleportation
         // Forked from vMenu
         public static void TeleportPlayer(int playerId, Vector3 pos, bool withVehicle, bool freezePlayer)
         {
@@ -189,6 +195,7 @@ namespace Red.Common.Client
                 SetPedCoordsKeepVehicle(Character.Handle, pos.X, pos.Y, pos.Z);
             }
         }
+        #endregion
 
         #region Field of View
         public static void ForceFirstPerson() => SetFollowPedCamViewMode(4);
@@ -210,67 +217,23 @@ namespace Red.Common.Client
         #endregion
 
         #region Props
-        public static async void SpawnProp(string modelName)
+        public static void SpawnPreviewProp(string model)
         {
-            var player = Game.PlayerPed;
-            var coords = player.Position;
-            var heading = player.Heading;
+            Prop previewProp;
 
-            RequestModel((uint)GetHashKey(modelName));
-            while (!HasModelLoaded((uint)GetHashKey(modelName)))
+            Vector3 pedPos = PlayerPed.Position;
+            RaycastResult raycast = World.RaycastCapsule(pedPos, pedPos, 2f, (IntersectOptions)10, PlayerPed);
+
+            if (!raycast.DitHitEntity)
             {
-                await Delay(0);
-            }
+                Vector3 previewCoords = PlayerPed.GetOffsetPosition(new(0.0f, 1.2f, 1.32f));
 
-            var offsetCoords = GetOffsetFromEntityInWorldCoords(player.Handle, 0.0f, 0.75f, 0.0f);
-            var prop = CreateObjectNoOffset((uint)GetHashKey(modelName), offsetCoords.X, offsetCoords.Y, offsetCoords.Z, false, true, false);
-            SetEntityHeading(prop, heading);
-            PlaceObjectOnGround(prop);
-            SetEntityCollision(prop, false, true);
-            SetEntityOpacity(prop, 100);
-            FreezeEntityPosition(prop, true);
-            SetModelAsNoLongerNeeded((uint)GetHashKey(modelName));
-
-            while (true)
-            {
-                await Delay(0);
-
-                offsetCoords = GetOffsetFromEntityInWorldCoords(player.Handle, 0.0f, 0.75f, 0.0f);
-                heading = player.Heading;
-
-                SetEntityCoordsNoOffset(prop, offsetCoords.X, offsetCoords.Y, offsetCoords.Z, false, false, false);
-                SetEntityHeading(prop, heading);
-                PlaceObjectOnGroundProperly(prop);
-                DisableControlAction(PadIndex.Unknown, 38, true); // E
-                DisableControlAction(PadIndex.Unknown, 140, true); // R
-
-                if (IsDisabledControlJustPressed(PadIndex.Unknown, 38)) // E
+                previewProp = new(CreateObjectNoOffset((uint)GetHashKey(model), previewCoords.X, previewCoords.Y, previewCoords.Z, false, false, false))
                 {
-                    var propCoords = GetEntityCoords(prop, false);
-                    var propHeading = GetEntityHeading(prop);
-                    DeleteObject(ref prop);
-
-                    RequestModel((uint)GetHashKey(modelName));
-                    while (!HasModelLoaded((uint)GetHashKey(modelName)))
-                    {
-                        await Delay(0);
-                    }
-
-                    prop = CreateObjectNoOffset((uint)GetHashKey(modelName), propCoords.X, propCoords.Y, propCoords.Z, true, true, true);
-                    SetEntityHeading(prop, propHeading);
-                    PlaceObjectOnGroundProperly(prop);
-                    FreezeEntityPosition(prop, true);
-                    SetEntityInvincible(prop, true);
-                    SetModelAsNoLongerNeeded((uint)GetHashKey(modelName));
-
-                    return;
-                }
-
-                if (IsDisabledControlJustPressed(PadIndex.Unknown, 140)) // R
-                {
-                    DeleteObject(ref prop);
-                    return;
-                }
+                    Rotation = PlayerPed.Rotation + new Vector3(-20f, 0f, 0f),
+                    IsCollisionEnabled = false,
+                    Opacity = 100
+                };
             }
         }
 
@@ -296,8 +259,55 @@ namespace Red.Common.Client
         public static void PlaceObjectOnGround(string model) => PlaceObjectOnGroundProperly(GetHashKey(model));
         #endregion
 
+        #region Entity
         public static void DeleteEntity(string entity) => DeleteEntity(entity);
         public static void SetEntityOpacity(int entity, int alpha, bool changeSkin = false) => SetEntityAlpha(entity, alpha, changeSkin ? 1 : 0);
-       
+        #endregion
+
+        #region Chat Addons
+        public static void AddChatMessage(string author, string text, bool multiLineEnabled = true, int r = 255, int g = 255, int b = 255)
+        {
+            TriggerEvent("chat:addMessage", new
+            {
+                multiline = multiLineEnabled,
+                args = new[] { author, text },
+                color = new[] { r, g, b }
+            });
+        }
+
+        public static void AddChatMessage(string author, string text, int r = 255, int g = 255, int b = 255)
+        {
+            TriggerEvent("chat:addMessage", new
+            {
+                args = new[] { author, text },
+                color = new[] { r, g, b }
+            });
+        }
+
+        public static void AddChatMessage(string author, string text)
+        {
+            TriggerEvent("chat:addMessage", new
+            {
+                args = new[] { author, text },
+            });
+        }
+        #endregion
+
+        #region Players
+        public static List<int> GetPlayers()
+        {
+            List<int> players = new();
+
+            for (int i = 0; i <= 255; i++)
+            {
+                if (NetworkIsPlayerActive(i))
+                {
+                    players.Add(i);
+                }
+            }
+
+            return players;
+        }
+        #endregion
     }
 }
