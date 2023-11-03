@@ -158,7 +158,7 @@ namespace Red.Cuff.Client
 
             if (CannotDoAction(PlayerPed))
             {
-                Screen.ShowNotification("~r~~h~Error~h~~s~: That vehicle still has a driver in it.", true);
+                Screen.ShowNotification("~r~~h~Error~h~~s~: You can't do this right now.", true);
                 return;
             }
 

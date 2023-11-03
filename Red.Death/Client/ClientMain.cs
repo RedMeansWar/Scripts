@@ -132,7 +132,7 @@ namespace Red.Death.Client
             }
         }
 
-        private void OnDeath()
+        private async void OnDeath()
         {
             isDead = true;
             Random random = new();
@@ -150,10 +150,12 @@ namespace Red.Death.Client
 
             if (enableRagdoll is false)
             {
+                await Delay(0);
                 animToPlay = animList[random.Next(animList.Count)];
             }
             else
             {
+                await Delay(0);
                 SetPedToRagdoll(GetPlayerPed(-1), 60000, 60000, 0, false, false, false);
             }
 
