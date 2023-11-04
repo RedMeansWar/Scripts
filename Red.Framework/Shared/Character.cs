@@ -10,6 +10,7 @@ namespace Red.Framework
         public string LastName { get; set; }
         public DateTime DoB { get; set; }
         public string Gender { get; set; }
+        public string TwitterName { get; set; }
         public string Department { get; set; }
     }
 }

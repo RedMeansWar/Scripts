@@ -1,6 +1,7 @@
 ﻿using CitizenFX.Core;
 using CitizenFX.Core.UI;
 using Red.Common.Client.Misc;
+using System;
 using static CitizenFX.Core.Native.API;
 using static CitizenFX.Core.UI.Screen;
 
@@ -109,22 +110,32 @@ namespace Red.Common.Client.Hud
 
         public static void DrawText2d(float x, float y, float size, string text, int r, int g, int b, int a = 255)
         {
-            float sizeOfSafezone = GetSafeZoneSize();
-            float aspectRatio = GetAspectRatio(false);
-            float number = (float)(1.0 / (double)sizeOfSafezone / 3.0 - 0.3580000102519989);
+            float referenceScreenWidth = 1920f;
+            float referenceScreenHeight = 1080f;
 
-            SetTextFont(4);
-            SetTextProportional(false);
-            SetTextScale(1f, size);
+            float screenWidth = Resolution.Width;
+            float screenHeight = Resolution.Height;
+
+            float safezoneOffsetX = (referenceScreenWidth - screenWidth) / 2.0f;
+            float safezoneOffsetY = (referenceScreenHeight - screenHeight) / 2.0f;
+
+            float scaleX = screenWidth / referenceScreenWidth;
+            float scaleY = screenHeight / referenceScreenHeight;
+
+            x += safezoneOffsetX;
+            y += safezoneOffsetY;
+
+            size *= Math.Min(scaleX, scaleY);
+
+            SetTextScale(1.0f, size);
             SetTextColour(r, g, b, a);
-            SetTextDropshadow(0, 0, 0, 0, byte.MaxValue);
-            SetTextEdge(2, 0, 0, 0, byte.MaxValue);
             SetTextDropShadow();
             SetTextOutline();
             SetTextEntry("STRING");
-            AddTextComponentString(text);
-            DrawText(number + x, sizeOfSafezone - GetTextScaleHeight(y, 4));
+            DrawText(x, y);
         }
+
+        public static void DrawText2d(float x, float y, float size, string text) => DrawText2d(x, y, size, text, 255, 255, 255, 255);
 
         public static void DisplayHelpText(string text) => DisplayHelpTextThisFrame(text);
         

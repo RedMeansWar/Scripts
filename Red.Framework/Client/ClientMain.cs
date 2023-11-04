@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using CitizenFX.Core;
 using Red.Common.Client.Misc;
 using Red.Framework.Client.Misc;
+using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
 using static Red.Common.Client.Client;
 
@@ -13,10 +13,9 @@ namespace Red.Framework.Client
     public class ClientMain : BaseScript
     {
         #region Variables
-        protected bool ran;
-        public static Character currentCharacter;
-        protected ISet<string> allowedDepartments = new HashSet<string>();
-        protected string currentAOP = "Not Set";
+        protected float densityMultiplier = 1f;
+        protected string currentAOP = "Statewide";
+        public static Character currentCharacter = new();
 
         protected readonly IReadOnlyList<string> scenarioTypes = new List<string>
         {
@@ -42,56 +41,85 @@ namespace Red.Framework.Client
         #region Constructor
         public ClientMain()
         {
-            StartAudioScene("CHARACTER_CHANGE_IN_SKY_SCENE");
-            SetAudioFlag("PoliceScannerDisabled", true);
+            uint PLAYER = Game.GenerateHashASCII("PLAYER");
+
             SetRandomTrains(false);
             SetRandomBoats(false);
 
-            // NUI
-            RegisterNuiCallback("cancelNUI", new Action<IDictionary<string, object>, CallbackDelegate>(CancelNUI));
-            RegisterNuiCallback("disconnect", new Action<IDictionary<string, object>, CallbackDelegate>(DisconnectServer));
+            StartAudioScene("CHARACTER_CHANGE_IN_SKY_SCENE");
+            SetAudioFlag("PoliceScannerDisabled", true);
+
             RegisterNuiCallback("quitGame", new Action<IDictionary<string, object>, CallbackDelegate>(QuitGame));
+            RegisterNuiCallback("disconnect", new Action<IDictionary<string, object>, CallbackDelegate>(Disconnect));
+            RegisterNuiCallback("hideUI", new Action<IDictionary<string, object>, CallbackDelegate>(HideNUI));
+            RegisterNuiCallback("setCharacterOnline", new Action<IDictionary<string, object>, CallbackDelegate>(SetCharacterOnline));
             RegisterNuiCallback("createCharacter", new Action<IDictionary<string, object>, CallbackDelegate>(CreateCharacter));
             RegisterNuiCallback("deleteCharacter", new Action<IDictionary<string, object>, CallbackDelegate>(DeleteCharacter));
             RegisterNuiCallback("editCharacter", new Action<IDictionary<string, object>, CallbackDelegate>(EditCharacter));
-            RegisterNuiCallback("setCharacterOnline", new Action<IDictionary<string, object>, CallbackDelegate>(SetCharacterOnline));
+
+            foreach (string scenarioType in scenarioTypes)
+            {
+                SetScenarioTypeEnabled(scenarioType, false);
+            }
+
+            foreach (string scenarioGroup in scenarioGroups)
+            {
+                SetScenarioGroupEnabled(scenarioGroup, false);
+            }
+
+            foreach (string relationshipGroup in relationshipGroups)
+            {
+                SetRelationshipBetweenGroups(1, Game.GenerateHashASCII(relationshipGroup), (uint)PLAYER);
+            }
+
+            foreach (string suppressedModel in suppressedModels)
+            {
+                SetVehicleModelIsSuppressed(Game.GenerateHashASCII(suppressedModel), true);
+            }
+
+            for (int i = 0; i < 15; i++)
+            {
+                EnableDispatchService(i, false);
+            }
         }
         #endregion
 
         #region Commands
         [Command("framework")]
-        private void FrameworkCommand() => DisplayNUI();
+        private void FrameworkCommand() => DisplayFrameworkNUI();
 
         [Command("fw")]
-        private void FwCommand() => DisplayNUI();
+        private void FwCommand() => DisplayFrameworkNUI();
 
         [Command("changecharacter")]
-        private void ChangeCharacter() => DisplayNUI();
-        
-        [Command("dob")]
-        private void DobCommand()
-        {
-            if (currentCharacter is null)
-            {
-                AddChatMessage("SYSTEM", "You must choose a character in the framework before using this command!", 0, 73, 83);
-            }
-            else
-            {
-                AddChatMessage("SYSTEM", $"{currentCharacter.FirstName} {currentCharacter.LastName}'s date of birth is {currentCharacter.DoB:MM/dd/yyyy}", 0, 73, 83);
-            }
-        }
+        private void ChangeCharacterCommand() => DisplayFrameworkNUI();
+
         #endregion
 
         #region Methods
-        private void AddIfNotExists(string dept)
+        private void DisplayFrameworkNUI(bool display = true)
         {
-            if (!allowedDepartments.Contains(dept))
+            if (display)
             {
-                allowedDepartments.Add(dept);
+                SendNuiMessage(Json.Stringify(new
+                {
+                    type = "DISPLAY_UI"
+                }));
+
+                SetNuiFocus(true, true);
+            }
+            else if (display is false)
+            {
+                SendNuiMessage(Json.Stringify(new
+                {
+                    type = "CANCEL_UI"
+                }));
+
+                SetNuiFocus(false, false);
             }
         }
 
-        private Character CreateCharacter(string firstName, string lastName, string gender, string dob, string dept, string charId)
+        private Character CreateCharacter(string firstName, string lastName, string gender, string dob, string twitterName, string department, string charId)
         {
             Character createdCharacter = new()
             {
@@ -100,46 +128,70 @@ namespace Red.Framework.Client
                 LastName = lastName,
                 Gender = gender,
                 DoB = DateTime.Parse(dob),
-                Department = dept
+                TwitterName = twitterName,
+                Department = department
             };
 
             return createdCharacter;
         }
         #endregion
 
-        #region NUI Callbacks
-        private void DisplayNUI()
+        #region Event Handlers
+        [EventHandler("Framework:Client:updateAOP")]
+        private void OnUpdateAOP(string newAOP, string aopSetter)
         {
-            SetNuiFocus(true, true);
-            
+            currentAOP = newAOP;
+            AddChatMessage("~r~SYSTEM", $"AOP set to ^5^*{newAOP}^r^7 by ^5^*{aopSetter}^r^7");
+
             SendNuiMessage(Json.Stringify(new
             {
-                type = "DISPLAY_NUI"
+                type = "UPDATE_AOP",
+                aop = $"Welcome to Red Framework! (AOP: {newAOP}"
+            }));
+        }
+        #endregion
+
+        #region NUI Callbacks
+        private void QuitGame(IDictionary<string, object> data, CallbackDelegate result) => ForceSocialClubUpdate();
+        
+        private void Disconnect(IDictionary<string, object> data, CallbackDelegate result) => TriggerServerEvent("Framework:Server:dropUser", "Dropped via framework.");
+
+        private void HideNUI(IDictionary<string, object> data, CallbackDelegate result) => DisplayFrameworkNUI(false);
+
+        private void SetCharacterOnline(IDictionary<string, object> data, CallbackDelegate result)
+        {
+            string charId = data.GetValue("charId", "0");
+            string firstName = data.GetValue<string>("firstName", null);
+            string lastName = data.GetValue<string>("lastName", null);
+            string gender = data.GetValue<string>("gender", null);
+            string dob = data.GetValue<string>("dob", null);
+            string twitterName = data.GetValue<string>("twitterName", null);
+            string department = data.GetValue<string>("department", null);
+
+            if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName) || string.IsNullOrWhiteSpace(gender) || string.IsNullOrWhiteSpace(department) || string.IsNullOrWhiteSpace(dob) || cash == "-1" || bank == "-1")
+            {
+                SendNuiMessage(Json.Stringify(new
+                {
+                    type = "ERROR",
+                    msg = "We ran into an unexpected error choosing this character, try again."
+                }));
+                result(new { success = false, message = "not valid character data" });
+                return;
+            }
+
+            Character createdCharacter = CreateCharacter(firstName, lastName, gender, dob, twitterName, department, charId);
+
+            currentCharacter = createdCharacter;
+
+            SendNuiMessage(Json.Stringify(new
+            {
+                type = "CLOSE_UI"
             }));
 
-            FrameworkLog.Info("Invoking Framework NUI");
-        }
-
-        private void CancelNUI(IDictionary<string, object> data, CallbackDelegate result)
-        {
             SetNuiFocus(false, false);
 
-            SendNuiMessage(Json.Stringify(new
-            {
-                type = "CANCEL_NUI"
-            }));
-
-            FrameworkLog.Info("Revoking Framework NUI");
-        }
-
-        private void DisconnectServer(IDictionary<string, object> data, CallbackDelegate result)
-        {
-            TriggerServerEvent("Framework:Server:DropUser", "Disconnected via framework.");
-        }
-
-        private void QuitGame(IDictionary<string, object> data, CallbackDelegate result)
-        {
-            ForceSocialClubUpdate();
+            AddChatMessage("", $"You're now playing as {createdCharacter.FirstName} {createdCharacter.LastName} ({createdCharacter.Department})");
+            TriggerEvent("Framework:Client:characterSelected", Json.Stringify(currentCharacter));
         }
 
         private void CreateCharacter(IDictionary<string, object> data, CallbackDelegate result)
@@ -148,42 +200,52 @@ namespace Red.Framework.Client
             string lastName = data.GetValue<string>("lastName", null);
             string gender = data.GetValue<string>("gender", null);
             string dob = data.GetValue<string>("dob", null);
+            string twitterName = data.GetValue<string>("twitterName", null);
             string department = data.GetValue<string>("department", null);
 
-            if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName) || string.IsNullOrWhiteSpace(gender) || string.IsNullOrWhiteSpace(dob) || string.IsNullOrWhiteSpace(department))
+            if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName) || string.IsNullOrWhiteSpace(gender) || string.IsNullOrWhiteSpace(dob) || string.IsNullOrWhiteSpace(department) || string.IsNullOrWhiteSpace(twitterName))
             {
                 SendNuiMessage(Json.Stringify(new
                 {
                     type = "ERROR",
-                    msg = "We ran into an unexpected error creating this character, try again."
+                    message = "We ran into an unexpected error creating this character, try again."
                 }));
-
-                result(new { success = false, message = "not valid character data" });
                 return;
             }
 
-            Character createdCharacter = CreateCharacter(firstName, lastName, gender, dob, department, "0");
+            Character createdCharacter = CreateCharacter(firstName, lastName, gender, dob, twitterName,department, "0");
+
             TriggerServerEvent("Framework:Server:createCharacter", Json.Stringify(createdCharacter));
 
             SendNuiMessage(Json.Stringify(new
             {
                 type = "SUCCESS",
-                msg = $"{firstName} {lastName} ({department}) has been created!"
+                message = $"{firstName} {lastName} ({department}) has been created!"
             }));
-
-            result(new { success = true, message = "success" });
         }
 
-        private async void EditCharacter(IDictionary<string, object> data, CallbackDelegate result)
+        private void DeleteCharacter(IDictionary<string, object> data, CallbackDelegate result)
         {
-            string firstName = data.GetVal<string>("firstName", null);
-            string lastName = data.GetVal<string>("lastName", null);
-            string gender = data.GetVal<string>("gender", null);
-            string department = data.GetVal<string>("department", null);
-            string dob = data.GetVal<string>("dob", null);
-            string charId = data.GetVal("charId", "-1");
+            string characterId = data.GetValue<string>("characterId", null);
+            TriggerServerEvent("Framework:Server:deleteCharacter", long.Parse(characterId));
 
-            if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName) || string.IsNullOrWhiteSpace(gender) || string.IsNullOrWhiteSpace(dob) || string.IsNullOrWhiteSpace(department))
+            SendNuiMessage(Json.Stringify(new
+            {
+                type = "SUCCESS",
+                message = "Character deleted!"
+            }));
+        }
+        private void EditCharacter(IDictionary<string, object> data, CallbackDelegate result)
+        {
+            string firstName = data.GetValue<string>("firstName", null);
+            string lastName = data.GetValue<string>("lastName", null);
+            string gender = data.GetValue<string>("gender", null);
+            string dob = data.GetValue<string>("dob", null);
+            string twitterName = data.GetValue<string>("twitterName", null);
+            string department = data.GetValue<string>("department", null);
+            string charId = data.GetValue("charId", "-1");
+
+            if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName) || string.IsNullOrWhiteSpace(gender) || string.IsNullOrWhiteSpace(dob) || string.IsNullOrWhiteSpace(twitterName) || string.IsNullOrWhiteSpace(department))
             {
                 SendNuiMessage(Json.Stringify(new
                 {
@@ -204,94 +266,40 @@ namespace Red.Framework.Client
                 Department = department
             };
 
-            TriggerServerEvent("Framework:Server:editCharacter", Json.Stringify(editedCharacter));
+            TriggerServerEvent("pnw:framework:server:editCharacter", Json.Stringify(editedCharacter));
 
             SendNuiMessage(Json.Stringify(new
             {
                 type = "SUCCESS",
                 msg = "Character edited!"
             }));
-
-            result(new { success = true, message = "success" });
-        }
-
-        private async void DeleteCharacter(IDictionary<string, object> data, CallbackDelegate result)
-        {
-            string characterId = data.GetValue<string>("characterId", null);
-
-            TriggerServerEvent("Framework:Server:deleteCharacter", long.Parse(characterId));
-
-            SendNuiMessage(Json.Stringify(new
-            {
-                type = "SUCCESS",
-                msg = "Character deleted!"
-            }));
-
-            result(new { success = true, message = "success" });
-        }
-
-        private async void SetCharacterOnline(IDictionary<string, object> data, CallbackDelegate result)
-        {
-            string charId = data.GetValue("charId", "0");
-            string firstName = data.GetValue<string>("firstName", null);
-            string lastName = data.GetValue<string>("lastName", null);
-            string gender = data.GetValue<string>("gender", null);
-            string dob = data.GetValue<string>("dob", null);
-            string department = data.GetValue<string>("department", null);
-
-            if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName) || string.IsNullOrWhiteSpace(gender) || string.IsNullOrWhiteSpace(dob) || string.IsNullOrWhiteSpace(department))
-            {
-                SendNuiMessage(Json.Stringify(new
-                {
-                    type = "ERROR",
-                    msg = "We ran into an unexpected error choosing this character, try again."
-                }));
-
-                result(new { success = false, message = "not valid character data" });
-                return;
-            }
-
-            Character createdCharacter = CreateCharacter(firstName, lastName, gender, dob, department, charId);
-
-            currentCharacter = createdCharacter;
-
-            SendNuiMessage(Json.Stringify(new
-            {
-                type = "CANCEL_NUI"
-            }));
-        }
-        #endregion
-
-        #region Event Handlers
-        [EventHandler("Framework:Client:updateAOP")]
-        private void OnUpdateAOP(string newAOP, string setter)
-        {
-            currentAOP = newAOP;
-            AddChatMessage("Framework", $"AOP set to ^5^*{newAOP}^r^7 by ^5^*{setter}^r^7");
-
-            SendNuiMessage(Json.Stringify(new
-            {
-                type = "UPDATE_AOP",
-                aop = $"Welcome to San Andreas! (AOP: {newAOP})"
-            }));
         }
         #endregion
 
         #region Ticks
         [Tick]
-        private async Task PrimaryTick()
+        private async Task MainFrameworkTick()
         {
-            await Delay(55000);
-            foreach (Vehicle vehicle in World.GetAllVehicles().Where(v => suppressedModels.Contains(v.DisplayName.ToLower()) && !v.PreviouslyOwnedByPlayer))
+            DistantCopCarSirens(false);
+
+            foreach (Ped ped in World.GetAllPeds())
             {
-                vehicle.Delete();
+                ped.BlockPermanentEvents = true;
             }
+
+            await Delay(250);
         }
 
         [Tick]
-        private async Task SecondaryTick()
+        private async Task SecondaryFrameworkTick()
         {
-            DisablePlayerVehicleRewards(Game.PlayerPed.Handle);
+            SetVehicleDensityMultiplierThisFrame(densityMultiplier);
+            SetParkedVehicleDensityMultiplierThisFrame(densityMultiplier);
+            SetRandomVehicleDensityMultiplierThisFrame(densityMultiplier);
+            SetPedDensityMultiplierThisFrame(densityMultiplier);
+            SetScenarioPedDensityMultiplierThisFrame(densityMultiplier, densityMultiplier);
+
+            DisablePlayerVehicleRewards(Game.Player.Handle);
             SetRadarZoom(1100);
         }
         #endregion
