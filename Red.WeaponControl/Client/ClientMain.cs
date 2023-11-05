@@ -3,11 +3,11 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
 using CitizenFX.Core;
+using CitizenFX.Core.UI;
 using static CitizenFX.Core.Native.API;
 using static CitizenFX.Core.UI.Screen;
 using static Red.Common.Client.Hud.HUD;
 using static Red.Common.Client.Client;
-using System.Threading;
 
 namespace Red.WeaponControl.Client
 {

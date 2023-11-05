@@ -129,6 +129,8 @@ namespace Red.Common.Client.Hud
         }
 
         public static void DrawText2d(float x, float y, float size, string text, int r = 255, int g = 255, int b = 255, int a = 255) => DrawText2d(x, y, size, text, r, g, b, a, Alignment.Left);
+        public static void DrawText2d(float x, float y, float size, string text, int r = 255, int g = 255, int b = 255, Alignment justification = Alignment.Left) => DrawText2d(x, y, size, text, r, g, b, 255, justification);
+        public static void DrawText2d(float x, float y, float size, string text, int r = 255, int g = 255, int b = 255) => DrawText2d(x, y, size, text, r, g, b, Alignment.Left);
         public static void DrawText2d(float x, float y, float size, string text, Alignment justification) => DrawText2d(x, y, size, text, 255, 255, 255, 255, justification);
 
         public static void DisplayHelpText(string text) => DisplayHelpTextThisFrame(text);
