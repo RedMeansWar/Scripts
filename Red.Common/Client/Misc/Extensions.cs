@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
-using static Red.Common.Client.Client;
 
 namespace Red.Common.Client.Misc
 {
@@ -11,15 +10,11 @@ namespace Red.Common.Client.Misc
     {
         #region Variables
         private static Random random = new Random(Environment.TickCount);
-
         #endregion
 
         #region Model Extensions
         public static bool DoesModelExist(uint modelHash) => IsModelInCdimage(modelHash);
         public static bool DoesModelExist(string modelName) => DoesModelExist((uint)GetHashKey(modelName));
-        #endregion
-
-        #region Get Closest Extensions
         #endregion
 
         #region Vector3 Extensions

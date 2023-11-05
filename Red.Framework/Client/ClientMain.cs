@@ -168,7 +168,7 @@ namespace Red.Framework.Client
             string twitterName = data.GetValue<string>("twitterName", null);
             string department = data.GetValue<string>("department", null);
 
-            if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName) || string.IsNullOrWhiteSpace(gender) || string.IsNullOrWhiteSpace(department) || string.IsNullOrWhiteSpace(dob) || cash == "-1" || bank == "-1")
+            if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName) || string.IsNullOrWhiteSpace(gender) || string.IsNullOrWhiteSpace(department) || string.IsNullOrWhiteSpace(dob) || string.IsNullOrWhiteSpace(twitterName))
             {
                 SendNuiMessage(Json.Stringify(new
                 {

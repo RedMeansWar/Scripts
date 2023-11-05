@@ -1,7 +1,8 @@
 ﻿using CitizenFX.Core;
+using CitizenFX.Core.Native;
 using CitizenFX.Core.UI;
 using Red.Common.Client.Misc;
-using System;
+using System.Threading.Tasks;
 using static CitizenFX.Core.Native.API;
 using static CitizenFX.Core.UI.Screen;
 
@@ -78,8 +79,10 @@ namespace Red.Common.Client.Hud
         #endregion
 
         #region Rectangles
-        public static void DrawRectangle(float x, float y, float width, float height) => DrawRectangle(x, y, width, height, 3, 188, 255);
-        public static void DrawRectangle(float x, float y, float width, float height, int r, int g, int b, int a = 255) => DrawRect(x, y, width, height, r, g, b, a);
+        public static void DrawRect(float x, float y, float width, float height) => API.DrawRect(x, y, width, height, 255, 255, 255, 255);
+        public static void DrawRect(float x, float y, float width, float height, int r = 255, int g = 255, int b = 255) => API.DrawRect(x, y, width, height, r, g, b, 255);
+        public static void DrawRect(float x, float y, float width, float height, int r = 255, int g = 255, int b = 255, int a = 255) => API.DrawRect(x, y, width, height, r, g, b, a);
+        public static void DrawRect(float x, float y, float width, float height, int a = 255) => API.DrawRect(x, y, width, height, 255, 255, 255, a);
         #endregion
 
         #region Drawing Text
@@ -108,34 +111,25 @@ namespace Red.Common.Client.Hud
             }
         }
 
-        public static void DrawText2d(float x, float y, float size, string text, int r, int g, int b, int a = 255)
+        public static void DrawText2d(float x, float y, float size, string text, int r, int g, int b, int a = 255, Alignment justification = Alignment.Left)
         {
-            float referenceScreenWidth = 1920f;
-            float referenceScreenHeight = 1080f;
+            SetTextFont(4);
+            SetTextScale(0f, size);
+            
+            if (justification == Alignment.Right)
+            {
+                SetTextWrap(0f, x);
+            }
 
-            float screenWidth = Resolution.Width;
-            float screenHeight = Resolution.Height;
-
-            float safezoneOffsetX = (referenceScreenWidth - screenWidth) / 2.0f;
-            float safezoneOffsetY = (referenceScreenHeight - screenHeight) / 2.0f;
-
-            float scaleX = screenWidth / referenceScreenWidth;
-            float scaleY = screenHeight / referenceScreenHeight;
-
-            x += safezoneOffsetX;
-            y += safezoneOffsetY;
-
-            size *= Math.Min(scaleX, scaleY);
-
-            SetTextScale(1.0f, size);
-            SetTextColour(r, g, b, a);
-            SetTextDropShadow();
+            SetTextJustification((int)justification);
             SetTextOutline();
-            SetTextEntry("STRING");
-            DrawText(x, y);
+            BeginTextCommandDisplayText("STRING");
+            AddTextComponentSubstringPlayerName(text);
+            EndTextCommandDisplayText(x, y);
         }
 
-        public static void DrawText2d(float x, float y, float size, string text) => DrawText2d(x, y, size, text, 255, 255, 255, 255);
+        public static void DrawText2d(float x, float y, float size, string text, int r = 255, int g = 255, int b = 255, int a = 255) => DrawText2d(x, y, size, text, r, g, b, a, Alignment.Left);
+        public static void DrawText2d(float x, float y, float size, string text, Alignment justification) => DrawText2d(x, y, size, text, 255, 255, 255, 255, justification);
 
         public static void DisplayHelpText(string text) => DisplayHelpTextThisFrame(text);
         
@@ -144,7 +138,38 @@ namespace Red.Common.Client.Hud
         #endregion
 
         #region User Input
+        public static async Task<string> GetUserInput(string windowTitle, string defaultText, int maxInputLength)
+        {
+            var spacer = "\t";
 
+            AddTextEntry($"{GetCurrentResourceName().ToUpper()}_WINDOW_TITLE", $"{windowTitle ?? "Enter"}:{spacer}(MAX {maxInputLength} Characters)");
+            DisplayOnscreenKeyboard(1, $"{GetCurrentResourceName().ToUpper()}_WINDOW_TITLE", "", defaultText ?? "", "", "", "", maxInputLength);
+
+            await Delay(0);
+
+            while (true)
+            {
+                var keyboardStatus = UpdateOnscreenKeyboard();
+
+                switch (keyboardStatus)
+                {
+                    case 1: // finished editing
+                        return GetOnscreenKeyboardResult();
+                    case 2: // cancelled
+                    case 3: // not displaying input
+                        return null;
+                    default:
+                        await Delay(0);
+                        break;
+                }
+            }
+        }
+
+        public static async Task GetUserInput() => await GetUserInput(null, null, 30);
+        public static async Task GetUserInput(int maxInputLength) => await GetUserInput(null, null, maxInputLength);
+        public static async Task GetUserInput(string windowTitle) => await GetUserInput(windowTitle, null, 30);
+        public static async Task GetUserInput(string windowTitle, int maxInputLength) => await GetUserInput(windowTitle, null, maxInputLength);
+        public static async Task GetUserInput(string windowTitle, string defaultText) => await GetUserInput(windowTitle, defaultText, 30);
         #endregion
 
         public static async void RequestTextureDictionary(string textureDict)

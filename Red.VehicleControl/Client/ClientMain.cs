@@ -357,7 +357,6 @@ namespace Red.VehicleControl.Client
                     return;
                 }
 
-
                 if (Game.GetControlValue(0, Control.VehicleAccelerate) > 250f)
                 {
                     float current = targetSpeed * 2.236936f;
@@ -444,7 +443,7 @@ namespace Red.VehicleControl.Client
         [Tick]
         private async Task CruiseControlUiTick()
         {
-            if (!Screen.Hud.IsVisible || Game.PlayerPed.CurrentVehicle is null)
+            if (!HUDIsVisable || Game.PlayerPed.CurrentVehicle is null)
             {
                 await Delay(1000);
                 return;
@@ -458,11 +457,11 @@ namespace Red.VehicleControl.Client
 
                 if (targetSpeed - Game.PlayerPed.CurrentVehicle.Speed > 1f)
                 {
-                    cruise += $"~s~: {Math.Ceiling(targetSpeed * 3.6f)}mph";
+                    cruise += $"~s~: {Math.Ceiling(targetSpeed * 2.236936f)}mph";
                 }
             }
 
-            DrawText2d(0.0299f, 3.95f, 0.47f, cruise, 255, 255, 255, 210);
+            DrawText2d(0.018f, 0.745f, 0.5f, cruise, 255, 255, 255, 210);
         }
         #endregion
     }
