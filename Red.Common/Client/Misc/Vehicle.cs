@@ -277,5 +277,9 @@ namespace Red.Common.Client.Misc
             return color = Color.FromArgb(red, green, blue);
         }
         #endregion
+
+        #region Data
+        
+        #endregion
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using MenuAPI;
 using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
-using static Red.InteractionMenu.Client.Variables;
+using static Red.InteractionMenu.Client.MenuHelper;
 using Red.InteractionMenu.Client.Submenus;
 using CitizenFX.Core.UI;
 
@@ -14,7 +14,10 @@ namespace Red.InteractionMenu.Client.Menus
 {
     public class PoliceMenu : BaseScript
     {
-        protected static Vehicle closestVehicle = GetClosestVehicleToPlayer(1f); 
+        protected static Vehicle closestVehicle = GetClosestVehicleToPlayer(1f);
+        protected Prop cuffsProp;
+        protected Ped PlayerPed = Game.PlayerPed;
+        protected bool isCuffed, isFrontCuffed;
 
         public static Menu GetMenu()
         {

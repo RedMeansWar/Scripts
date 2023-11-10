@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SharpConfig;
 using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
 
@@ -10,19 +11,75 @@ namespace Red.Chat.Client
     public class ClientMain : BaseScript
     {
         #region Variables
-        protected bool hasChatInit, chatActive;
-        protected string twitterUsername;
+        protected bool chatInit, chatActive, usingFramework;
+        protected string twitterName, systemName;
+        protected List<Suggestion> suggestionList;
         protected Character currentCharacter;
-        protected List<ChatSuggestion> suggestionsList;
-        protected Ped PlayerPed = Game.PlayerPed;
         #endregion
 
         #region Constructor
-        public ClientMain() => RegisterNuiCallback("chatResult", new Action<IDictionary<string, object>, CallbackDelegate>(OnChatResult));
+        public ClientMain()
+        {
+            ReadConfigFile();
+            RegisterNuiCallback("chatResult", new Action<IDictionary<string, object>, CallbackDelegate>(ChatResult));
+        }
+        #endregion
+
+        #region Commands
+        [Command("settwitter")]
+        private void OnSetTwitter(string[] args)
+        {
+            if (args.Length == 0 || string.IsNullOrEmpty(args[0]))
+            {
+                TriggerEvent("chat:addMessage", systemName, new[] { 0, 73, 83 }, "Invalid twitter name. Usage: /settwitter [username]");
+                return;
+            }
+
+            string username = args[0];
+
+            if (username.Length > 18)
+            {
+                TriggerEvent("chat:addMessage", systemName, new[] { 0, 73, 83 }, "Invalid twitter name. Username must not exceed 18 characters. Usage: /settwitter [username]");
+                return;
+            }
+
+            if (username.All(c => char.IsLetterOrDigit(c) || c.Equals("_")))
+            {
+                TriggerServerEvent("chat:addMessage", systemName, new[] { 0, 73, 83 }, "Invalid twitter name. Username must not include special characters. Usage: /settwitter [username]");
+                return;
+            }
+
+            if (usingFramework)
+            {
+                twitterName = username;
+                SetResourceKvp($"chat_twitter_{currentCharacter.CharacterId}", username);
+                TriggerEvent("chat:addMessage", systemName, new[] { 0, 73, 83 }, $"Twitter username set to ^*{username}^r");
+            }
+
+            twitterName = username;
+            SetResourceKvp($"chat_twitter_{Game.Player.Character.NetworkId}", username);
+            TriggerEvent("chat:addMessage", systemName, new[] { 0, 73, 83 }, $"Twitter username set to ^*{username}^r");
+        }
         #endregion
 
         #region Methods
-        private void LoadSuggestions()
+        private void ReadConfigFile()
+        {
+            var data = LoadResourceFile(GetCurrentResourceName(), "config.ini");
+
+            if (Configuration.LoadFromString(data).Contains("Chat", "UsingFramework") == true)
+            {
+                Configuration loaded = Configuration.LoadFromString(data);
+                usingFramework = loaded["Chat"]["UsingFramework"].BoolValue;
+                systemName = loaded["Chat"]["ChatName"].StringValue;
+            }
+            else
+            {
+                Debug.WriteLine($"[Death]: Config file has not been configured correctly.");
+            }
+        }
+
+        private void LoadChatSuggestion()
         {
             try
             {
@@ -31,21 +88,21 @@ namespace Red.Chat.Client
                 if (string.IsNullOrWhiteSpace(json))
                 {
                     Debug.WriteLine("'suggestions.json' is null or whitespace! Won't be able to populate chat suggestions list.");
-                    suggestionsList = new();
+                    suggestionList = new();
                     return;
                 }
 
-                List<ChatSuggestion> list = Json.Parse<List<ChatSuggestion>>(json);
-
-                if (list is null)
+                List<Suggestion> suggestions = Json.Parse<List<Suggestion>>(json);
+                
+                if (suggestions is null)
                 {
-                    Debug.WriteLine("Couldn't populate chat suggestion list!");
-                    suggestionsList = new();
+                    Debug.WriteLine("Couldn't populate suggestion list!");
+                    suggestionList = new();
                     return;
                 }
 
-                suggestionsList = list;
-                Debug.WriteLine($"Loaded {suggestionsList.Count} chat suggestion(s)");
+                suggestionList = suggestions;
+                Debug.WriteLine($"Loaded {suggestionList.Count} chat suggestion(s)");
             }
             catch (Exception ex)
             {
@@ -54,134 +111,8 @@ namespace Red.Chat.Client
         }
         #endregion
 
-        #region Event Handlers
-        [EventHandler("Framework:Client:characterSelected")]
-        private void OnCharacterSelected(string json)
-        {
-            currentCharacter = Json.Parse<Character>(json);
-            twitterUsername = GetResourceKvpString($"red_chat_twitter_{currentCharacter.CharacterId}");
-
-            if (string.IsNullOrEmpty(twitterUsername))
-            {
-                twitterUsername = $"{currentCharacter.FirstName}{currentCharacter.LastName}{currentCharacter.DoB:yy}";
-            }
-        }
-
-        [EventHandler("chat:addMessage")]
-        private void OnAddChatMessate(dynamic chatMessage)
-        {
-            SendNuiMessage(Json.Stringify(new
-            {
-                type = "ON_MESSAGE",
-                message = chatMessage
-            }));
-        }
-
-        [EventHandler("chat:addTemplate")]
-        private void OnChatAddTemplate(string id, string template)
-        {
-            SendNuiMessage(Json.Stringify(new
-            {
-                type = "ON_TEMPLATE_ADD",
-                template = new
-                {
-                    id,
-                    html = template
-                }
-            }));
-        }
-
-        [EventHandler("chat:chatMessage")]
-        private void onChatMessage(dynamic author, dynamic colors, dynamic chatMessage, Vector3 authorPos)
-        {
-            string distanceString = "";
-
-            if (!authorPos.IsZero)
-            {
-                distanceString = $" ({Math.Round(Vector3.DistanceSquared(authorPos, PlayerPed.Position))}m)";
-            }
-
-            SendNuiMessage(Json.Stringify(new
-            {
-                type = "ON_MESSAGE",
-                template = author == "" ? "defaultAlt" : "default",
-                message = new
-                {
-                    color = new[] { colors[0], colors[1], colors[2] },
-                    multiline = true,
-                    args = author == "" ? new[] { $"{chatMessage}" } : new[] { $"{author}{distanceString}", $"{chatMessage}" }
-                }
-             }));
-        }
-
-        [EventHandler("chat:radioMessage")]
-        private void OnRadioMessage(string name, string message)
-        {
-            if (currentCharacter?.Department == "Civ")
-            {
-                return;
-            }
-
-            SendNuiMessage(Json.Stringify(new
-            {
-                type = "ON_MESSAGE",
-                message = new
-                {
-                    color = new[] { 60, 179, 113 },
-                    multiline = true,
-                    args = new[] { $"[Radio] {name}", message }
-                }
-            }));
-        }
-
-        [EventHandler("chat:twitterMessage")]
-        private void OnTwitterMessage(string name, string message)
-        {
-            SendNuiMessage(Json.Stringify(new
-            {
-                type = "ON_MESSAGE",
-                message = new
-                {
-                    color = new[] { 0, 172, 238 },
-                    multiline = true,
-                    args = new[] { $"[Twitter] {name}", message }
-                }
-            }));
-        }
-
-        [EventHandler("chat:911Message")]
-        private void On911Message(string name, string message)
-        {
-            SendNuiMessage(Json.Stringify(new
-            {
-                type = "ON_MESSAGE",
-                message = new
-                {
-                    color = new[] { 205, 92, 92 },
-                    multiline = true,
-                    args = new[] { $"[911] {name}", message }
-                }
-            }));
-        }
-
-        [EventHandler("chat:311Message")]
-        private void On311Message(string name, string message)
-        {
-            SendNuiMessage(Json.Stringify(new
-            {
-                type = "ON_MESSAGE",
-                message = new
-                {
-                    color = new[] { 205, 92, 92 },
-                    multiline = true,
-                    args = new[] { $"[311] {name}", message }
-                }
-            }));
-        }
-        #endregion
-
         #region NUI Callbacks
-        private async void OnChatResult(IDictionary<string, object> data, CallbackDelegate result)
+        private void ChatResult(IDictionary<string, object> data, CallbackDelegate result)
         {
             chatActive = false;
             SetNuiFocus(false, false);
@@ -190,111 +121,73 @@ namespace Red.Chat.Client
 
             if (!cancel && !string.IsNullOrWhiteSpace(message))
             {
-                Vector3 plyPos = Game.PlayerPed.Position;
+                Vector3 playerPos = Game.PlayerPed.Position;
 
                 message = message.Trim();
                 string[] args = message.Split(' ');
                 string firstArg = args[0].ToLower();
-                string joinedArgs = string.Join(" ", args.Skip(1));
+                string joinedArg = string.Join(" ", args.Skip(1));
 
                 switch (firstArg)
                 {
                     case "/ooc":
-                        if (!string.IsNullOrWhiteSpace(joinedArgs))
-                        {
-                            TriggerServerEvent("Chat:Server:chatNearby", $"^* ^4[OOC] {Game.Player.Name} (#{Game.Player.ServerId})^r", new[] { 0, 115, 255 }, joinedArgs, Players.Where(p => Vector3.DistanceSquared(p.Character.Position, plyPos) < 20f).Select(p => p.ServerId).ToList(), plyPos);
-                        }
                         break;
 
                     case "/gooc":
-                        if (!string.IsNullOrWhiteSpace(joinedArgs))
-                        {
-                            TriggerServerEvent("Chat:Server:messageEntered", $"^*[GOOC] {Game.Player.Name} (#{Game.Player.ServerId})^r", new[] { 255, 140, 0 }, joinedArgs);
-                        }
                         break;
 
                     case "/me":
-                        if (!string.IsNullOrWhiteSpace(joinedArgs))
-                        {
-                            TriggerServerEvent("Chat:Server:chatNearby", $"^* ^2[ME] {currentCharacter?.FirstName} {currentCharacter?.LastName} [{currentCharacter?.Department}] (#{Game.Player.ServerId})^r", new[] { 255, 255, 255 }, joinedArgs, Players.Where(p => Vector3.DistanceSquared(p.Character.Position, plyPos) < 20f).Select(p => p.ServerId).ToList(), plyPos);
-                        }
                         break;
 
                     case "/mer":
-                        if (!string.IsNullOrWhiteSpace(joinedArgs))
-                        {
-                            TriggerServerEvent("Chat:Server:chatNearby", $"^*[ME] {currentCharacter?.FirstName} {currentCharacter.LastName} [{currentCharacter?.Department}] (#{Game.Player.ServerId})^r", new[] { 255, 0, 0 }, joinedArgs, Players.Where(p => Vector3.DistanceSquared(p.Character.Position, plyPos) < 20f).Select(p => p.ServerId).ToList(), plyPos);
-                        }
                         break;
+
                     case "/meb":
-                        if (!string.IsNullOrWhiteSpace(joinedArgs))
-                        {
-                            TriggerServerEvent("Chat:Server:chatNearby", $"^*[ME] {currentCharacter?.FirstName} {currentCharacter.LastName} [{currentCharacter?.Department}] (#{Game.Player.ServerId})^r", new[] { 60, 139, 250 }, joinedArgs, Players.Where(p => Vector3.DistanceSquared(p.Character.Position, plyPos) < 20f).Select(p => p.ServerId).ToList(), plyPos);
-                        }
-                        break;
-                    case "/gme":
-                        if (!string.IsNullOrWhiteSpace(joinedArgs))
-                        {
-                            TriggerServerEvent("Chat:Server:messageEntered", $"^* ^5[GME] {currentCharacter?.FirstName} {currentCharacter?.LastName} [{currentCharacter?.Department}] (#{Game.Player.ServerId})^r", new[] { 255, 140, 0 }, joinedArgs);
-                        }
                         break;
 
                     case "/rt":
-                        if (currentCharacter?.Department == "Civ")
+                        break;
+
+                    case "/911":
+                        uint streetNameAsHash = 0;
+                        uint crossingRoadHash = 0;
+
+                        GetStreetNameAtCoord(Game.PlayerPed.Position.X, Game.PlayerPed.Position.Y, Game.PlayerPed.Position.Z, ref streetNameAsHash, ref crossingRoadHash);
+                        string streetName = GetStreetNameFromHashKey(streetNameAsHash);
+                        string crossingRoad = GetStreetNameFromHashKey(crossingRoadHash);
+
+                        string location = $"{Exports["nearestpostal"].getClosestPostal(Game.PlayerPed.Position)}, {streetName}";
+
+                        if (!string.IsNullOrWhiteSpace(crossingRoad))
                         {
-                            TriggerEvent("Chat:Server:chatMessage", "System", new[] { 194, 39, 39 }, "You aren't authorized to use the /rt command. You must not be a civilian character.");
-                            result(new { success = false, message = "not authorized" });
-                            return;
+                            location += $" / {crossingRoad}";
                         }
 
-                        if (!string.IsNullOrWhiteSpace(joinedArgs))
+                        TriggerServerEvent("chat:911Message", location, joinedArg);
+                        break;
+
+                    case "/311":
+                        uint streetNameAsHash2 = 0;
+                        uint crossingRoadHash2 = 0;
+
+                        GetStreetNameAtCoord(Game.PlayerPed.Position.X, Game.PlayerPed.Position.Y, Game.PlayerPed.Position.Z, ref streetNameAsHash2, ref crossingRoadHash2);
+                        string streetName2 = GetStreetNameFromHashKey(streetNameAsHash2);
+                        string crossingRoad2 = GetStreetNameFromHashKey(crossingRoadHash2);
+
+                        string location2 = $"{Exports["nearestpostal"].getClosestPostal(Game.PlayerPed.Position)}, {streetName2}";
+
+                        if (!string.IsNullOrWhiteSpace(crossingRoad2))
                         {
-                            TriggerServerEvent("Chat:Server:radioMessage", joinedArgs);
+                            location2 += $" / {crossingRoad2}";
                         }
+
+                        TriggerServerEvent("chat:311Message", location2, joinedArg);
                         break;
 
                     case "/twt":
+                        break;
+
                     case "/twitter":
-                        if (!string.IsNullOrWhiteSpace(joinedArgs))
-                        {
-                            TriggerServerEvent("Chat:Server:twitterMessage", $"@{twitterUsername}", joinedArgs);
-                        }
-                        break;
-                    case "/911":
-                        if (!string.IsNullOrWhiteSpace(joinedArgs))
-                        {
-                            uint streetNameAsHash = 0;
-                            uint crossingRoadAsHash = 0;
-
-                            GetStreetNameAtCoord(PlayerPed.Position.X, PlayerPed.Position.Y, PlayerPed.Position.Z, ref streetNameAsHash, ref crossingRoadAsHash);
-                            string streetName = GetStreetNameFromHashKey(streetNameAsHash);
-                            string crossingRoad = GetStreetNameFromHashKey(crossingRoadAsHash);
-
-                            string location = $"{Exports["core_framework"].getClosestPostal(PlayerPed.Position)}, {streetName}";
-
-                            if (!string.IsNullOrWhiteSpace(crossingRoad))
-                            {
-                                location += $" / {crossingRoad}";
-                            }
-
-                            TriggerServerEvent("Chat:Server:911Message", location, joinedArgs);
-                        }
-                        break;
-                    case "/311":
-                        uint streetNameHash = 0;
-                        uint crossingRoadHash = 0;
-
-                        GetStreetNameAtCoord(PlayerPed.Position.X,PlayerPed.Position.Y, PlayerPed.Position.Z, ref streetNameHash, ref crossingRoadHash);
-                        string street = GetStreetNameFromHashKey(streetNameHash);
-                        string crossRoad = GetStreetNameFromHashKey(crossingRoadHash);
-
-                        string nonEmergencyLocation = $"{Exports["core_framework"].getClosestPostal(PlayerPed.Position)}, {street}";
-
-                        if (!string.IsNullOrWhiteSpace(crossRoad))
-                        {
-                            nonEmergencyLocation += $" / {crossRoad}";
-                        }
-                        TriggerServerEvent("Chat:Server:311Message", nonEmergencyLocation, joinedArgs);
                         break;
                     default:
                         if (message.StartsWith("/"))
@@ -305,6 +198,126 @@ namespace Red.Chat.Client
                         break;
                 }
             }
+
+            if (!cancel && !string.IsNullOrWhiteSpace(message) && !usingFramework)
+            {
+                Vector3 playerPos = Game.PlayerPed.Position;
+
+                message = message.Trim();
+                string[] args = message.Split(' ');
+                string firstArg = args[0].ToLower();
+                string joinedArg = string.Join(" ", args.Skip(1));
+
+                switch (firstArg)
+                {
+                    case "/ooc":
+                        break;
+
+                    case "/gooc":
+                        break;
+
+                    case "/me":
+                        break;
+
+                    case "/mer":
+                        break;
+
+                    case "/meb":
+                        break;
+
+                    case "/rt":
+                        break;
+
+                    case "/911":
+                        uint streetNameAsHash = 0;
+                        uint crossingRoadHash = 0;
+
+                        GetStreetNameAtCoord(Game.PlayerPed.Position.X, Game.PlayerPed.Position.Y, Game.PlayerPed.Position.Z, ref streetNameAsHash, ref crossingRoadHash);
+                        string streetName = GetStreetNameFromHashKey(streetNameAsHash);
+                        string crossingRoad = GetStreetNameFromHashKey(crossingRoadHash);
+
+                        string location = $"{Exports["nearestpostal"].getClosestPostal(Game.PlayerPed.Position)}, {streetName}";
+
+                        if (!string.IsNullOrWhiteSpace(crossingRoad))
+                        {
+                            location += $" / {crossingRoad}";
+                        }
+
+                        TriggerServerEvent("chat:911Message", location, joinedArg);
+                        break;
+
+                    case "/311":
+                        uint streetNameAsHash2 = 0;
+                        uint crossingRoadHash2 = 0;
+
+                        GetStreetNameAtCoord(Game.PlayerPed.Position.X, Game.PlayerPed.Position.Y, Game.PlayerPed.Position.Z, ref streetNameAsHash2, ref crossingRoadHash2);
+                        string streetName2 = GetStreetNameFromHashKey(streetNameAsHash2);
+                        string crossingRoad2 = GetStreetNameFromHashKey(crossingRoadHash2);
+
+                        string location2 = $"{Exports["nearestpostal"].getClosestPostal(Game.PlayerPed.Position)}, {streetName2}";
+
+                        if (!string.IsNullOrWhiteSpace(crossingRoad2))
+                        {
+                            location2 += $" / {crossingRoad2}";
+                        }
+
+                        TriggerServerEvent("chat:311Message", location2, joinedArg);
+                        break;
+
+                    case "/twt":
+                        break;
+
+                    case "/twitter":
+                        break;
+                    default:
+                        if (message.StartsWith("/"))
+                        {
+                            ExecuteCommand(message.Substring(1));
+                            CancelEvent();
+                        }
+                        break;
+                }
+            }
+
+            result(new { success = false, message = "success" });
+        }
+        #endregion
+
+        #region Event Handlers
+        [EventHandler("chat:addMessage")]
+        private void OnAddMessage()
+        {
+
+        }
+
+        [EventHandler("chat:addTemplate")]
+        private void OnAddTemplate()
+        {
+
+        }
+
+        [EventHandler("chat:addSuggestion")]
+        private void OnAddSuggestion()
+        {
+
+        }
+
+        [EventHandler("chat:clear")]
+        private void OnClear()
+        {
+
+        }
+        // Internal Events
+        [EventHandler("__cfx_internal:serverPrint")]
+        private void OnInternalServerPrint()
+        {
+
+        }
+
+        [EventHandler("_chat:messageEntered")]
+        private void OnInternatMessageEntered()
+        {
+
         }
         #endregion
 
@@ -312,48 +325,21 @@ namespace Red.Chat.Client
         [Tick]
         private async Task ChatTick()
         {
-            if (!hasChatInit)
+            if (!chatInit)
             {
-                hasChatInit = true;
+                chatInit = true;
 
-                LoadSuggestions();
-
-                foreach (ChatSuggestion suggestion in suggestionsList)
-                {
-                    SendNuiMessage($"{{\"type\":\"ON_SUGGESTION_ADD\",\"suggestion\":{{\"name\":\"{suggestion.Command}\",\"help\":\"{suggestion.Example}\",\"params\":\"\"}}}}");
-                }
-
-                SetTextChatEnabled(false);
-                await Delay(1000);
-            }
-
-            if (!chatActive && Game.IsControlJustPressed(0, Control.MpTextChatAll) && UpdateOnscreenKeyboard() != 0)
-            {
-                chatActive = true;
-                SetNuiFocus(true, false);
-
-                SendNuiMessage("{\"type\":\"ON_OPEN\"}");
-                await Delay(10);
-
-                if (Game.IsControlJustPressed(0, Control.SkipCutscene))
-                {
-                    await Delay(10);
-                    chatActive = false;
-                    SetNuiFocus(false, false);
-                }
+                LoadChatSuggestion();
             }
         }
         #endregion
     }
 
-    public class Character
+    #region Extensions / Classes
+    public class Suggestion
     {
-        public long CharacterId { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public DateTime DoB { get; set; }
-        public string Gender;
-        public string Department;
+        public string Command { get; set; }
+        public string Description { get; set; }
     }
 
     public class Data
@@ -362,22 +348,26 @@ namespace Red.Chat.Client
         public string Message { get; set; }
     }
 
-    public class ChatSuggestion
+    public class Character
     {
-        public string Command { get; set; }
-        public string Example { get; set; }
+        public long CharacterId { get; set; }
+        public long FirstName { get; set; }
+        public long LastName { get; set; }
+        public string Gender { get; set; }
+        public DateTime DoB { get; set; }
+        public string TwitterName { get; set; }
+        public string Department { get; set; }
     }
 
-    internal static class Extensions
+    public static class Extensions
     {
-        internal static T GetVal<T>(this IDictionary<string, object> dict, string key, T defaultVal)
+        public static T GetVal<T>(this IDictionary<string, object> dict, string key, T defaultVal)
         {
-            if (dict.TryGetValue(key, out object value) && value is T t)
-            {
-                return t;
-            }
-
+            if (dict.ContainsKey(key))
+                if (dict[key] is T)
+                    return (T)dict[key];
             return defaultVal;
         }
     }
+    #endregion
 }

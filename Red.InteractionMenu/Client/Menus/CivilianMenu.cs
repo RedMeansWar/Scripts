@@ -7,7 +7,7 @@ using MenuAPI;
 using Red.InteractionMenu.Client.Submenus;
 using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
-using static Red.InteractionMenu.Client.Variables;
+using static Red.InteractionMenu.Client.MenuHelper;
 
 namespace Red.InteractionMenu.Client.Menus
 {

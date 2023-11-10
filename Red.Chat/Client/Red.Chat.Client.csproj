@@ -6,8 +6,14 @@
         <Compile Include="../Shared/**/*.cs" />
     </ItemGroup>
     <ItemGroup>
+      <None Remove="ClientMain.cs~RFdfd71da.TMP" />
+    </ItemGroup>
+    <ItemGroup>
       <Reference Include="Newtonsoft.Json">
         <HintPath>..\..\_References_\Newtonsoft.Json.dll</HintPath>
+      </Reference>
+      <Reference Include="SharpConfig">
+        <HintPath>..\..\_References_\SharpConfig.dll</HintPath>
       </Reference>
     </ItemGroup>
 </Project>

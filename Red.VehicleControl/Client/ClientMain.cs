@@ -49,7 +49,7 @@ namespace Red.VehicleControl.Client
         private void EngineCommand() => ToggleEngine(PlayerPed.CurrentVehicle);
 
         [Command("eng")]
-        private void EngCommand() => EngineCommand();
+        private void EngCommand() => ToggleEngine(PlayerPed.CurrentVehicle);
 
         [Command("cruisecontrol")]
         private void CruiseControlCommand()
@@ -276,7 +276,13 @@ namespace Red.VehicleControl.Client
         {
             if (vehicle is null)
             {
-                ErrorNotification("You must be in a vehicle");
+                ErrorNotification("You must be in a vehicle.");
+                return;
+            }
+
+            if (vehicle.EngineHealth < 110)
+            {
+                ErrorNotification("You can't turn off an engine that is broken.");
                 return;
             }
 

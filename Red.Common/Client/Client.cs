@@ -5,6 +5,7 @@ using Red.Common.Client.Misc;
 using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
 using static Red.Common.Client.Misc.MathExtender;
+using Red.Common.Client.Diagnostics;
 
 namespace Red.Common.Client
 {

@@ -1,12 +1,17 @@
 using System;
 using System.Collections.Generic;
 using CitizenFX.Core;
+using Red.Common.Server.Diagnostics;
 using static CitizenFX.Core.Native.API;
 
 namespace Red.Common.Server
 {
     public class Server : BaseScript
     {
+        #region Variables
+        protected static ExportDictionary Exports;
+        #endregion
+
         #region Constructor
         public Server()
         {
@@ -46,6 +51,7 @@ namespace Red.Common.Server
             return players.Find(player => player.Handle == id.ToString());
         }
 
+        #region Chat
         public static void AddChatMessage(string author, string text, bool multiLineEnabled = true, int r = 255, int g = 255, int b = 255)
         {
             TriggerEvent("chat:addMessage", new
@@ -72,6 +78,7 @@ namespace Red.Common.Server
                 args = new[] { author, text },
             });
         }
+        #endregion
 
         #region Event Handlers
         public static void DropUserFromServer([FromSource] Player player, string reason = "Dropped from server.") => DropPlayer(player.Handle, reason);

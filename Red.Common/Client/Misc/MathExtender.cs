@@ -14,7 +14,8 @@ namespace Red.Common.Client.Misc
         public static float PiOverTwo = Pi / 2;
         public static float PiOverFour = Pi / 4;
         
-        public static double Round(double value) => Math.Round(value);
+        public static double Round(double value, int digits = 1) => Math.Round(value, digits);
+        public static float Round(float value, int digits = 1) => (float)Round(value, digits);
         public static double RoundToNearestTen(double value) => Math.Round(value, 1);
         public static double RoundToNearestHundredth(double value) => Math.Round(value, 2);
         public static double RoundToNearestThousand(double value) => Math.Round(value, 3);
