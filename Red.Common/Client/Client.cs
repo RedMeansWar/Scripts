@@ -292,6 +292,8 @@ namespace Red.Common.Client
                 args = new[] { author, text },
             });
         }
+
+        public static void AddCommandSuggestion(string command, string suggestion) => TriggerEvent(command, suggestion, "");
         #endregion
 
         #region Players

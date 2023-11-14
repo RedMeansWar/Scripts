@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Red.Common.Client.Hud;
 using SharpConfig;
 using CitizenFX.Core;
 using CitizenFX.Core.UI;
@@ -54,41 +50,27 @@ namespace Red.VehicleControl.Client
                 return;
             }
 
-            HUD.DrawRect(0.132f, 0.9475f, 0.045f, 0.03f, 16, 16, 16, 185);
+            DrawRect(0.095f, 0.0475f, 0.046f, 0.03f, 0, 0, 0, 100);
+            DrawText2d(0.87f, -0.125f, 0.6f, $"{Math.Ceiling(Game.PlayerPed.CurrentVehicle.Speed * 2.236936f)}", 255, 255, 255, 255, Alignment.Right);
+            DrawText2d(0.875f, -0.135f, 0.4f, "mph", 255, 255, 255, 255);
 
-            if (vehicle.Model.IsCar || vehicle.Model.IsVehicle)
+            if (vehicle.Model.IsPlane || vehicle.Model.IsHelicopter)
             {
-                DrawText2d(0.018f, 0.77f, 0.5f, vehicle.EngineHealth < 110 ? "~r~Oil" : vehicle.EngineHealth < 315 ? "~y~Oil" : "Oil", 255, 255, 255, 200);
-                DrawText2d(0.04f, 0.77f, 0.5f, vehicle.IsInBurnout ? "~r~DSC" : "DSC", 255, 255, 255, 200);
-                DrawText2d(0.09f, 0.768f, 0.57f, vehicle.Mods.LicensePlate, 255, 255, 255, 200, Alignment.Center);
-                DrawText2d(0.14f, 0.77f, 0.5f, vehicle.EngineHealth < 110 ? "~r~Fluid" : vehicle.EngineHealth < 315 ? "~y~Fluid" : "Fluid", 255, 255, 255, 200, Alignment.Right);
-                DrawText2d(0.157f, 0.77f, 0.5f, vehicle.BodyHealth < 310 ? "~g~AC" : vehicle.BodyHealth < 900 ? "~y~AC" : "AC", 255, 255, 255, 200, Alignment.Right);
-                DrawText2d(0.157f, 0.745f, 0.5f, vehicle.IsEngineRunning ? "~g~ENG" : "~r~ENG", 255, 255, 255, 200, Alignment.Right);
-
-                if (usingMPH is true)
-                {
-                    DrawText2d(0.133f, 0.93f, 0.55f, "mph", 255, 255, 255, 200);
-                    DrawText2d(0.114f, 0.93f, 0.55f, $"{Math.Ceiling(vehicle.Speed * 2.236936f)}", 255, 255, 255, 200);
-                }
-                else
-                {
-                    DrawText2d(0.13f, 0.5475f, 0.55f, $"{Math.Ceiling(vehicle.Speed * 3.6f)}", 255, 255, 255, 200);
-                    DrawText2d(0.148f, 0.5475f, 0.55f, "kph", 255, 255, 255, 200);
-                }
+                DrawRect(0.095f, 0.17f, 0.046f, 0.03f, 0, 0, 0, 100);
+                DrawText2d(0.87f, 0f, 0.6f, $"{Math.Ceiling(vehicle.HeightAboveGround * 3.2808f)}", 255, 255, 255, 255, Alignment.Right);
+                DrawText2d(0.875f, -0.01f, 0.4f, "feet", 255, 255, 255, 255);
             }
 
-            if (vehicle.Model.IsHelicopter || vehicle.Model.IsPlane)
-            {
-                DrawText2d(0.018f, 0.77f, 0.5f, vehicle.EngineHealth < 110 ? "~r~Oil" : vehicle.EngineHealth < 315 ? "~y~Oil" : "Oil", 255, 255, 255, 200);
-                DrawText2d(0.04f, 0.77f, 0.5f, vehicle.IsInBurnout ? "~r~DSC" : "DSC", 255, 255, 255, 200);
-                DrawText2d(0.09f, 0.768f, 0.57f, vehicle.Mods.LicensePlate, 255, 255, 255, 200, Alignment.Center);
-                DrawText2d(0.14f, 0.77f, 0.5f, vehicle.EngineHealth < 110 ? "~r~Fluid" : vehicle.EngineHealth < 315 ? "~y~Fluid" : "Fluid", 255, 255, 255, 200, Alignment.Right);
-                DrawText2d(0.157f, 0.77f, 0.5f, vehicle.BodyHealth < 310 ? "~g~AC" : vehicle.BodyHealth < 900 ? "~y~AC" : "AC", 255, 255, 255, 200, Alignment.Right);
-                DrawText2d(0.157f, 0.745f, 0.5f, vehicle.IsEngineRunning ? "~g~ENG" : "~r~ENG", 255, 255, 255, 200, Alignment.Right);
+            DrawText2d(0.5f, .045f, 0.55f, vehicle.Mods.LicensePlate, 255, 255, 255, 255, Alignment.Center);
+            DrawText2d(1f, 0.065f, 0.45f, vehicle.IsEngineRunning ? "~g~ENG" : "~r~ENG", 255, 255, 255, 200, Alignment.Right);
+            DrawText2d(0.15f, 0.04f, 0.45f, vehicle.IsInBurnout ? "~r~DSC" : "DSC", 255, 255, 255, 200);
 
-                DrawText2d(0.133f, 0.93f, 0.55f, "mph", 255, 255, 255, 200);
-                DrawText2d(0.114f, 0.93f, 0.55f, $"{Math.Ceiling(vehicle.HeightAboveGround * 3.2808f)}", 255, 255, 255, 200);
-            }
+            float bodyHealth = vehicle.BodyHealth;
+            float engineHealth = vehicle.EngineHealth;
+
+            DrawText2d(1f, .04f, .45f, bodyHealth < 310 ? "~r~AC" : bodyHealth < 900 ? "~y~AC" : "AC", 255, 255, 255, 200, Alignment.Right);
+            DrawText2d(.75f, .04f, .45f, engineHealth < 110 ? "~r~Fluid" : engineHealth < 315 ? "~r~Fluid" : engineHealth < 900 ? "~y~Fluid" : "Fluid", 255, 255, 255, 200);
+            DrawText2d(.01f, .04f, .45f, engineHealth < 110 ? "~r~Oil" : engineHealth < 315 ? "~y~Oil" : "Oil", 255, 255, 255, 200);
         }
         #endregion
     }

@@ -35,7 +35,7 @@ using Microsoft.Xna.Framework;
 using UnityEngine;
 #endif
 
-namespace TinyTween
+namespace Red.Common.Client
 {
     /// <summary>
     /// Takes in progress which is the percentage of the tween complete and returns

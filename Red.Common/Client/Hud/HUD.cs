@@ -1,10 +1,12 @@
-﻿using CitizenFX.Core;
+﻿using System;
+using System.Threading.Tasks;
+using Red.Common.Client.Misc;
+using CitizenFX.Core;
 using CitizenFX.Core.Native;
 using CitizenFX.Core.UI;
-using Red.Common.Client.Misc;
-using System.Threading.Tasks;
 using static CitizenFX.Core.Native.API;
 using static CitizenFX.Core.UI.Screen;
+using System.Text.RegularExpressions;
 
 namespace Red.Common.Client.Hud
 {
@@ -79,10 +81,69 @@ namespace Red.Common.Client.Hud
         #endregion
 
         #region Rectangles
-        public static void DrawRect(float x, float y, float width, float height) => API.DrawRect(x, y, width, height, 255, 255, 255, 255);
-        public static void DrawRect(float x, float y, float width, float height, int r = 255, int g = 255, int b = 255) => API.DrawRect(x, y, width, height, r, g, b, 255);
-        public static void DrawRect(float x, float y, float width, float height, int r = 255, int g = 255, int b = 255, int a = 255) => API.DrawRect(x, y, width, height, r, g, b, a);
-        public static void DrawRect(float x, float y, float width, float height, int a = 255) => API.DrawRect(x, y, width, height, 255, 255, 255, a);
+        public static void DrawRect(float x, float y, float width, float height, int r, int g, int b)
+        {
+            Minimap anchor = GetMinimapAnchor();
+            DrawRect(anchor.LeftX + x + (width / 2), anchor.BottomY - y + (height / 2), width, height, r, g, b);
+        }
+
+        public static void DrawRectangle(float x, float y, float width, float height) => DrawRectangle(x, y, width, height, 255, 255, 255, 255);
+        public static void DrawRectangle(float x, float y, float width, float height, int r = 255, int g = 255, int b = 255, int a = 255) => DrawRectangle(x, y, width, height, r, g, b, a);
+        public static void DrawRectangle(float x, float y, float width, float height, int a = 255) => DrawRectangle(x, y, width, height, 255, 255, 255, a);
+        #endregion
+
+        #region Minimap
+        // Minimap Anchor made by https://github.com/glitchdetector/fivem-minimap-anchor/blob/master/MINIANCHOR.lua
+        // 16:9 Modifications give to by traditionalism https://github.com/traditionalism
+        private static Minimap GetMinimapAnchor()
+        {
+            // 0.05 * ((safezone - 0.9) * 10)
+            float safeZoneSize = GetSafeZoneSize();
+            float aspectRatio = GetAspectRatio(false);
+
+            float factor1 = 0.05f;
+            float factor2 = 0.05f;
+
+            int resX = 1920;
+            int resY = 1080;
+
+            if ((double)aspectRatio > 2.0)
+            {
+                aspectRatio = 1.77777779f; // aspect ratio of 16:9
+            }
+
+            GetActiveScreenResolution(ref resX, ref resY);
+
+            float unitX = 1f / resX; 
+            float unitY = 1f / resY;
+            
+            Minimap minimap = new Minimap()
+            {
+                Width = unitX * (resX / (4f * aspectRatio)),
+                Height = unitY * (resY / 5.674f),
+                LeftX = unitX * (resX * (factor1 * (Math.Abs(safeZoneSize - 1f) * 10f)))
+            };
+            if ((double)aspectRatio > 2.0)
+            {
+                minimap.LeftX += minimap.Width * 0.845f;
+                minimap.Width *= 0.76f;
+            }
+            else if ((double)aspectRatio > 1.7999999523162842)
+            {
+                minimap.LeftX += minimap.Width * 0.2225f;
+                minimap.Width *= 0.995f;
+            }
+
+            minimap.BottomY = (float)(1.0f - (double)unitX * (resY * ((double)factor2 * ((double)Math.Abs(safeZoneSize - 1f) * 10.0))));
+            minimap.RightX = minimap.LeftX + minimap.Width;
+            minimap.TopY = minimap.BottomY - minimap.Height;
+            minimap.X = minimap.LeftX;
+            minimap.Y = minimap.TopY;
+            minimap.XUnit = unitX;
+            minimap.YUnit = unitY;
+
+            return minimap;
+        }
         #endregion
 
         #region Drawing Text
@@ -107,31 +168,40 @@ namespace Red.Common.Client.Hud
                 SetTextCentre(true);
                 AddTextComponentString(text);
                 DrawText(screenXPos, screenYPos);
-                DrawRect(screenXPos, screenYPos + 0.125f, (float)text.Length / 300, 0.03f, 23, 23, 23, 70);
+                API.DrawRect(screenXPos, screenYPos + 0.125f, (float)text.Length / 300, 0.03f, 23, 23, 23, 70);
             }
         }
 
-        public static void DrawText2d(float x, float y, float size, string text, int r, int g, int b, int a = 255, Alignment justification = Alignment.Left)
+        public static void DrawText2d(float x, float y, float size, string text, int r = 255, int g = 255, int b = 255, int a = 255, Alignment alignment = Alignment.Left) 
         {
+            Minimap anchor = GetMinimapAnchor();
+            x = anchor.X + anchor.Width * x;
+            y = anchor.Y - y;
+
             SetTextFont(4);
-            SetTextScale(0f, size);
-            
-            if (justification == Alignment.Right)
+            SetTextScale(size, size);
+            SetTextColour(r, g, b, a);
+            SetTextDropShadow();
+            SetTextOutline();
+
+            if (alignment == Alignment.Right)
             {
-                SetTextWrap(0f, x);
+                SetTextWrap(0, x);
+                SetTextJustification(2);
+            }
+            else
+            {
+                SetTextJustification(alignment == Alignment.Center ? 0 : 1);
             }
 
-            SetTextJustification((int)justification);
-            SetTextOutline();
-            BeginTextCommandDisplayText("STRING");
-            AddTextComponentSubstringPlayerName(text);
-            EndTextCommandDisplayText(x, y);
+            SetTextEntry("STRING");
+            AddTextComponentString(text);
+            DrawText(x, y);
         }
 
-        public static void DrawText2d(float x, float y, float size, string text, int r = 255, int g = 255, int b = 255, int a = 255) => DrawText2d(x, y, size, text, r, g, b, a, Alignment.Left);
-        public static void DrawText2d(float x, float y, float size, string text, int r = 255, int g = 255, int b = 255, Alignment justification = Alignment.Left) => DrawText2d(x, y, size, text, r, g, b, 255, justification);
-        public static void DrawText2d(float x, float y, float size, string text, int r = 255, int g = 255, int b = 255) => DrawText2d(x, y, size, text, r, g, b, Alignment.Left);
-        public static void DrawText2d(float x, float y, float size, string text, Alignment justification) => DrawText2d(x, y, size, text, 255, 255, 255, 255, justification);
+        public static void DrawText2d(float x, float y, float size, string text) => DrawText2d(x, y, size, text);
+        public static void DrawText2d(float x, float y, float size, string text, Alignment alignment) => DrawText2d(x, y, size, text, 255, 255, 255, 255, alignment);
+        public static void DrawText2d(float x, float y, float size, string text, int a) => DrawText2d(x, y, size, text, 255, 255, 255, a);
 
         public static void DisplayHelpText(string text) => DisplayHelpTextThisFrame(text);
         
@@ -174,6 +244,7 @@ namespace Red.Common.Client.Hud
         public static async Task GetUserInput(string windowTitle, string defaultText) => await GetUserInput(windowTitle, defaultText, 30);
         #endregion
 
+        #region Texture Dictionary
         public static async void RequestTextureDictionary(string textureDict)
         {
             RequestStreamedTextureDict(textureDict, true);
@@ -184,5 +255,6 @@ namespace Red.Common.Client.Hud
         }
 
         public static async void RequestTextureDict(string textureDict) => RequestTextureDictionary(textureDict);
+        #endregion
     }
 }

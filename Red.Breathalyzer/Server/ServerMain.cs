@@ -9,7 +9,15 @@ namespace Red.Breathalyzer.Server
     public class ServerMain : BaseScript
     {
         #region Variables
-        protected static double limit;
+        protected double limit;
+        #endregion
+
+        #region Commands
+        [Command("setbac")]
+        private void OpenBreathalyzerCommand()
+        {
+            TriggerClientEvent("Breathalyzer:Client:OpenUI");
+        }
         #endregion
 
         #region Methods
@@ -27,6 +35,14 @@ namespace Red.Breathalyzer.Server
             {
                 Debug.WriteLine($"[Breathalyzer]: Config file has not been configured correctly.");
             }
+        }
+        #endregion
+
+        #region Event Handlers
+        [EventHandler("Breathalyzer:Server:setBAC")]
+        private void OnSetBAC(double bacLevel)
+        {
+            
         }
         #endregion
     }

@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
 using CitizenFX.Core;
-using CitizenFX.Core.UI;
 using static CitizenFX.Core.Native.API;
 using static Red.Common.Client.Client;
 using static Red.Common.Client.Hud.HUD;
@@ -463,11 +462,11 @@ namespace Red.VehicleControl.Client
 
                 if (targetSpeed - Game.PlayerPed.CurrentVehicle.Speed > 1f)
                 {
-                    cruise += $"~s~: {Math.Ceiling(targetSpeed * 2.236936f)}mph";
+                    cruise += $"~s~: {Math.Ceiling(Game.PlayerPed.CurrentVehicle.Speed * 2.236936f)}mph";
                 }
             }
 
-            DrawText2d(0.018f, 0.745f, 0.5f, cruise, 255, 255, 255, 210);
+            DrawText2d(0.01f, 0.065f, 0.45f, cruise, 255, 255, 255, 200);
         }
         #endregion
     }
