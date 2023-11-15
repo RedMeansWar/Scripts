@@ -154,6 +154,9 @@ namespace Red.Common.Client.Misc
 
         public static string GetVehicleNameFromModel(string modelName) => GetLabelText(GetDisplayNameFromVehicleModel((uint)GetHashKey(modelName)));
         public static void GetVehicleNameFromHash(uint hash) => GetDisplayNameFromVehicleModel(hash);
+
+        public static void RepairVehicle() => PlayerPed.CurrentVehicle.Repair();
+
         #region Tires
         public static float GetClosestTireHeading() => GetHeadingFromVector_2d(ClosestTire.BonePosition.X - PlayerPed.Position.X, ClosestTire.BonePosition.Y - PlayerPed.Position.Y);
 
@@ -213,15 +216,6 @@ namespace Red.Common.Client.Misc
             }
         }
 
-        public static void FixVehicle()
-        {
-            if (Player != null && Character != null && Character.CurrentVehicle != null && Character.Exists())
-            {
-                Vehicle vehicle = Character.CurrentVehicle;
-                vehicle.Repair();
-            }
-        }
-
         public static void ToggleDoor(VehicleDoorIndex index)
         {
             VehicleDoor door = Character.CurrentVehicle.Doors[index];
@@ -276,10 +270,6 @@ namespace Red.Common.Client.Misc
 
             return color = Color.FromArgb(red, green, blue);
         }
-        #endregion
-
-        #region Data
-        
         #endregion
     }
 }

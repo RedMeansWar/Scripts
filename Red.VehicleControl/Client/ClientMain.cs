@@ -7,6 +7,7 @@ using static CitizenFX.Core.Native.API;
 using static Red.Common.Client.Client;
 using static Red.Common.Client.Hud.HUD;
 using static Red.Common.Client.Diagnostics.Log;
+using static Red.Common.Client.Misc.Vehicles;
 
 namespace Red.VehicleControl.Client
 {
@@ -15,7 +16,9 @@ namespace Red.VehicleControl.Client
         #region Variables
         protected bool cruising, radarCruise, usingMPH;
         protected float targetSpeed = -1f;
+        protected int repairShop;
         protected Ped PlayerPed = Game.PlayerPed;
+        protected Random random = new();
 
         protected readonly IReadOnlyList<VehicleClass> ignoredVehicleClasses = new List<VehicleClass>
         {
@@ -26,20 +29,28 @@ namespace Red.VehicleControl.Client
         {
             0, 1, 2, 3, 4, 5, 45, 47
         };
+
+        protected static readonly IReadOnlyList<Vector3> repairLocations = new List<Vector3>()
+        {
+            new(2006.27f, 3797.94f, 32.18f),
+            new(535.96f, -178.87f, 54.4f)
+        };
         #endregion
 
         #region Constructor
         public ClientMain()
         {
+            CreateBlips();
             RegisterKeyMapping("cruisecontrol", "Toggle cruise control", "keyboard", "f7");
 
-            TriggerEvent("chat:addSuggestion", "/engine", "Turns on or off a vehicle's engine.", "");
-            TriggerEvent("chat:addSuggestion", "/eng", "Turns on or off a vehicle's engine.", "");
-            TriggerEvent("chat:addSuggestion", "/cruisecontrol", "Sets the vehicle speed to a static speed. (also can be activated using F7)", "");
-            TriggerEvent("chat:addSuggestion", "/flip", "Flips an upside down vehicle to be upright.", "");
-            TriggerEvent("chat:addSuggestion", "/trunk", "Opens and closes a vehicle's trunk.", "");
-            TriggerEvent("chat:addSuggestion", "/hood", "Opens and closes s vehicle's hood.", "");
-            TriggerEvent("chat:addSuggestion", "/door", "Open a vehicle's door. (Ex: /door 1)", "");
+            AddCommandSuggestion("/engine", "Turns on or off a vehicle's engine.");
+            AddCommandSuggestion("/eng", "Turns on or off a vehicle's engine.");
+            AddCommandSuggestion("/cruisecontrol", "Sets the vehicle speed to a static speed. (also can be activated using F7)");
+            AddCommandSuggestion("/flip", "Flips an upside down vehicle to be upright.");
+            AddCommandSuggestion("/trunk", "Opens and closes a vehicle's trunk.");
+            AddCommandSuggestion("/hood", "Opens and closes s vehicle's hood.");
+            AddCommandSuggestion("/door", "Open a vehicle's door. (Ex: /door 1)");
+            AddCommandSuggestion("/fix", "Fixes the vehicle you are in. (must be near a vehicle shop to use this)");
         }
         #endregion
 
@@ -145,7 +156,7 @@ namespace Red.VehicleControl.Client
         }
 
         [Command("hood")]
-        private void OnHoodCommand()
+        private void HoodCommand()
         {
             Vehicle vehicle = PlayerPed.CurrentVehicle ?? GetClosestVehicle(1f);
 
@@ -268,6 +279,34 @@ namespace Red.VehicleControl.Client
                 SuccessNotification("Door opened.");
             }
         }
+
+        [Command("fix")]
+        private async void FixCommand()
+        {
+            Vector3 playerPos = PlayerPed.Position;
+            Vehicle closestVehicle = GetClosestVehicle(1f);
+
+            if (!PlayerPed.IsInVehicle() && PlayerPed.CurrentVehicle is null)
+            {
+                DisplayNotification("~r~You must be in a vehicle to repair it at a shop.");
+                return;
+            }
+
+            if (DistanceFromBlip(repairShop, playerPos.X, playerPos.Y, playerPos.Z) <= 10f)
+            {
+                DisplayNotification("~g~The mechanic is working on your vehicle.");
+                await Delay(10000);
+
+                DisplayNotification("~g~The vehicle has been repaired.");
+                await Delay(500);
+                PlayerPed.CurrentVehicle.Repair();
+
+                if (DistanceFromBlip(repairShop, playerPos.X, playerPos.Y, playerPos.Z) > 1f)
+                {
+                    DisplayNotification("~r~You must be near a repair shop.");
+                }
+            }
+        }
         #endregion
 
         #region Methods
@@ -297,6 +336,19 @@ namespace Red.VehicleControl.Client
         }
 
         private bool HaveAnyTiresBurst() => tireIndex.Any(t => IsVehicleTyreBurst(Game.PlayerPed.CurrentVehicle.Handle, t, false));
+
+        private void CreateBlips()
+        {
+            foreach (var location in repairLocations)
+            {
+                repairShop = AddBlipForCoord(location.X, location.Y, location.Z);
+
+                SetBlipSprite(repairShop, 446);
+                BeginTextCommandSetBlipName("STRING");
+                AddTextComponentSubstringPlayerName("Repair Shop");
+                EndTextCommandSetBlipName(repairShop);
+            }
+        }
         #endregion
 
         #region Event Handlers

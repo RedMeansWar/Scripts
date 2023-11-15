@@ -50,13 +50,13 @@ namespace Red.VehicleControl.Client
                 return;
             }
 
-            DrawRect(0.095f, 0.0475f, 0.046f, 0.03f, 0, 0, 0, 100);
-            DrawText2d(0.87f, -0.125f, 0.6f, $"{Math.Ceiling(Game.PlayerPed.CurrentVehicle.Speed * 2.236936f)}", 255, 255, 255, 255, Alignment.Right);
-            DrawText2d(0.875f, -0.135f, 0.4f, "mph", 255, 255, 255, 255);
+            DrawRectangle(0.095f, 0.06f, 0.046f, 0.03f, 0, 0, 0, 100);
+            DrawText2d(0.847f, -0.111f, 0.6f, $"{Math.Ceiling(Game.PlayerPed.CurrentVehicle.Speed * 2.236936f)}", 255, 255, 255, 255, Alignment.Right);
+            DrawText2d(0.875f, -0.118f, 0.4f, "mph", 255, 255, 255, 255);
 
             if (vehicle.Model.IsPlane || vehicle.Model.IsHelicopter)
             {
-                DrawRect(0.095f, 0.17f, 0.046f, 0.03f, 0, 0, 0, 100);
+                DrawRectangle(0.095f, 0.17f, 0.046f, 0.03f, 0, 0, 0, 100);
                 DrawText2d(0.87f, 0f, 0.6f, $"{Math.Ceiling(vehicle.HeightAboveGround * 3.2808f)}", 255, 255, 255, 255, Alignment.Right);
                 DrawText2d(0.875f, -0.01f, 0.4f, "feet", 255, 255, 255, 255);
             }

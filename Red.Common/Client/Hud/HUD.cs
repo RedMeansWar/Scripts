@@ -2,11 +2,12 @@
 using System.Threading.Tasks;
 using Red.Common.Client.Misc;
 using CitizenFX.Core;
-using CitizenFX.Core.Native;
 using CitizenFX.Core.UI;
 using static CitizenFX.Core.Native.API;
 using static CitizenFX.Core.UI.Screen;
-using System.Text.RegularExpressions;
+using System.Reflection.Metadata;
+using System.Drawing;
+using Mono.CSharp;
 
 namespace Red.Common.Client.Hud
 {
@@ -54,21 +55,21 @@ namespace Red.Common.Client.Hud
         #endregion
 
         #region Notifications
-        public static string SuccessNotification(string message)
+        public static string SuccessNotification(string message, bool blink = true)
         {
-            ShowNotification($"~g~~h~Success~h~~s~: {message}", true);
+            ShowNotification($"~g~~h~Success~h~~s~: {message}", blink);
             return message;
         }
 
-        public static string ErrorNotification(string message)
+        public static string ErrorNotification(string message, bool blink = true)
         {
-            ShowNotification($"~r~~h~Error~h~~s~: {message}", true);
+            ShowNotification($"~r~~h~Error~h~~s~: {message}", blink);
             return message; 
         }
 
-        public static string AlertNotification(string message)
+        public static string AlertNotification(string message, bool blink = true)
         {
-            ShowNotification($"~y~~h~Alert~h~~s~: {message}", true);
+            ShowNotification($"~y~~h~Alert~h~~s~: {message}", blink);
             return message;
         }
 
@@ -81,14 +82,14 @@ namespace Red.Common.Client.Hud
         #endregion
 
         #region Rectangles
-        public static void DrawRect(float x, float y, float width, float height, int r, int g, int b)
+        public static void DrawRectangle(float x, float y, float width, float height, int r, int g, int b, int a = 255)
         {
             Minimap anchor = GetMinimapAnchor();
-            DrawRect(anchor.LeftX + x + (width / 2), anchor.BottomY - y + (height / 2), width, height, r, g, b);
+            DrawRect(anchor.LeftX + x + (width / 2), anchor.BottomY - y + (height / 2), width, height, r, g, b, a);
         }
 
         public static void DrawRectangle(float x, float y, float width, float height) => DrawRectangle(x, y, width, height, 255, 255, 255, 255);
-        public static void DrawRectangle(float x, float y, float width, float height, int r = 255, int g = 255, int b = 255, int a = 255) => DrawRectangle(x, y, width, height, r, g, b, a);
+        public static void DrawRectangle(float x, float y, float width, float height, int r = 255, int g = 255, int b = 255) => DrawRectangle(x, y, width, height, r, g, b);
         public static void DrawRectangle(float x, float y, float width, float height, int a = 255) => DrawRectangle(x, y, width, height, 255, 255, 255, a);
         #endregion
 
@@ -168,7 +169,7 @@ namespace Red.Common.Client.Hud
                 SetTextCentre(true);
                 AddTextComponentString(text);
                 DrawText(screenXPos, screenYPos);
-                API.DrawRect(screenXPos, screenYPos + 0.125f, (float)text.Length / 300, 0.03f, 23, 23, 23, 70);
+                DrawRect(screenXPos, screenYPos + 0.125f, (float)text.Length / 300, 0.03f, 23, 23, 23, 70);
             }
         }
 

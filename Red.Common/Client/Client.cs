@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Red.Common.Client.Misc;
+using System.Threading.Tasks;
 using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
 using static Red.Common.Client.Misc.MathExtender;
-using Red.Common.Client.Diagnostics;
 
 namespace Red.Common.Client
 {
@@ -16,6 +15,7 @@ namespace Red.Common.Client
         protected static Player Player = Game.Player;
         protected static Vector3 PlayerPosition = PlayerPed.Position;
         protected static Random random = new();
+        protected static Blip targetBlip;
 
         protected static readonly IReadOnlyList<Control> cameraControls = new List<Control>()
         {
@@ -210,11 +210,13 @@ namespace Red.Common.Client
         public static void ClearAllTaskImmediately() => PlayerPed.Task.ClearAllImmediately();
         public static void ClearAllTasks() => PlayerPed.Task.ClearAll();
 
-        public static void PlayAnim(string dictionary, string name) => PlayerPed.Task.PlayAnimation(dictionary, name);
+        public static void PlayAnim(string dictionary, string name, float blendInSpeed = 8.0f, int duration = -1, int flags = 0) => PlayerPed.Task.PlayAnimation(dictionary, name, blendInSpeed, duration, (AnimationFlags)flags);
         public static void PlayAnim(string dictionary, string name, float blindInSpeed, int duration, AnimationFlags flags) => PlayerPed.Task.PlayAnimation(dictionary, name, blindInSpeed, duration, flags);
         public static void PlayAnim(string dictionary, string name, float blindInSpeed, float blindOutSpeed, int duration, AnimationFlags flags, float playbackRate) => PlayerPed.Task.PlayAnimation(dictionary, name, blindInSpeed, blindOutSpeed, duration, flags, playbackRate);
         public static void PlayAnim(string dictionary, string name, int blindInSpeed, int duration, AnimationFlags flags) => PlayAnim(dictionary, name, ConvertIntToFloat(blindInSpeed), duration, flags);
         public static void PlayAnim(string dictionary, string name, int blindInSpeed, int blindOutSpeed, int duration, AnimationFlags flags, int playbackRate) => PlayerPed.Task.PlayAnimation(dictionary, name, ConvertIntToFloat(blindInSpeed), ConvertIntToFloat(blindOutSpeed), duration, flags, ConvertIntToFloat(playbackRate));
+        public static void PlayAnim(int ped, string dictionary, string name, float blendInSpeed, float blendOutSpeed, int duration, int flag, float playbackRate, bool lockX, bool lockY, bool lockZ) => TaskPlayAnim(ped, dictionary, name, blendInSpeed, blendOutSpeed, duration, flag, playbackRate, lockX, lockY, lockZ);
+        public static void PlayAnim(int ped, string dictionary, string name, float blendInSpeed, float blendOutSpeed, int duration, AnimationFlags flag, float playbackRate, bool lockX, bool lockY, bool lockZ) => TaskPlayAnim(ped, dictionary, name, blendInSpeed, blendOutSpeed, duration, (int)flag, playbackRate, lockX, lockY, lockZ);
         #endregion
 
         #region Props
@@ -310,6 +312,34 @@ namespace Red.Common.Client
             }
 
             return players;
+        }
+        #endregion
+
+        #region Distance
+        public static float Distance(float x1, float y1, float z1, float x2, float y2, float z2) => Vdist(x1, y1, z1, x2, y2, z2);
+        public static float Distance(Vector3 position1, Vector3 position2) => Distance(position1.X, position1.Y, position1.Z, position2.X, position2.Y, position2.Z);
+        
+        public static float DistanceFromPlayer(Vector3 playerPos, float x, float y, float z) => Vdist(playerPos.X, playerPos.Y, playerPos.Z, x, y, z);
+        public static float DistanceFromPlayer(Player playerPos, Vector3 position) => DistanceFromPlayer(new(playerPos.Character.Position.X, playerPos.Character.Position.Y, playerPos.Character.Position.Z), position.X, position.Y, position.Z);
+        
+        public static float DistanceFromPed(Ped ped, Vector3 position) => Vdist(ped.Position.X, ped.Position.Y, ped.Position.Z, position.X, position.Y, position.Z);
+        public static float DistanceFromPed(Ped ped, float x, float y, float z) => DistanceFromPed(ped, new(x, y, z));
+        
+        public static int DistanceFromBlip(Blip blip, float x, float y, float z) => DistanceFromBlip(blip.Handle, x, y, z);
+        public static int DistanceFromBlip(Blip blip, Vector3 position) => DistanceFromBlip(blip.Handle, position.X, position.Y, position.Z);
+        public static int DistanceFromBlip(int blip, float x, float y, float z)
+        {
+            if (DoesBlipExist(blip))
+            {
+                Vector3 blipPos = GetBlipCoords(blip);
+                float distance = Vdist(blipPos.X, blipPos.Y, blipPos.Z, x, y, z);
+
+                return (int)distance;
+            }
+            else
+            {
+                return -1;
+            }
         }
         #endregion
     }
