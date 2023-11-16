@@ -16,7 +16,7 @@ namespace Red.VehicleControl.Client
         #region Variables
         protected bool cruising, radarCruise, usingMPH;
         protected float targetSpeed = -1f;
-        protected int repairShop;
+        protected int repairShop, lsCustom, benny;
         protected Ped PlayerPed = Game.PlayerPed;
         protected Random random = new();
 
@@ -34,6 +34,16 @@ namespace Red.VehicleControl.Client
         {
             new(2006.27f, 3797.94f, 32.18f),
             new(535.96f, -178.87f, 54.4f)
+        };
+
+        protected static readonly IReadOnlyList<Vector3> repairLoc = new List<Vector3>()
+        {
+            new(1175.89f, 2640.16f, 37.75f),
+            new(-336.81f, -135.94f, 39),
+            new(731.23f, -1088.13f, 22.17f),
+            new(-1153.8f, -2004.81f, 13.18f),
+            new(110.62f, 6625.71f, 31.79f),
+            new(-211.63f, 1323.38f, 30.89f)
         };
         #endregion
 
@@ -284,7 +294,6 @@ namespace Red.VehicleControl.Client
         private async void FixCommand()
         {
             Vector3 playerPos = PlayerPed.Position;
-            Vehicle closestVehicle = GetClosestVehicle(1f);
 
             if (!PlayerPed.IsInVehicle() && PlayerPed.CurrentVehicle is null)
             {
@@ -300,11 +309,6 @@ namespace Red.VehicleControl.Client
                 DisplayNotification("~g~The vehicle has been repaired.");
                 await Delay(500);
                 PlayerPed.CurrentVehicle.Repair();
-
-                if (DistanceFromBlip(repairShop, playerPos.X, playerPos.Y, playerPos.Z) > 1f)
-                {
-                    DisplayNotification("~r~You must be near a repair shop.");
-                }
             }
         }
         #endregion
@@ -344,6 +348,7 @@ namespace Red.VehicleControl.Client
                 repairShop = AddBlipForCoord(location.X, location.Y, location.Z);
 
                 SetBlipSprite(repairShop, 446);
+                SetBlipScale(repairShop, 1f); 
                 BeginTextCommandSetBlipName("STRING");
                 AddTextComponentSubstringPlayerName("Repair Shop");
                 EndTextCommandSetBlipName(repairShop);
