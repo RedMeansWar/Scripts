@@ -295,7 +295,19 @@ namespace Red.Common.Client
             });
         }
 
-        public static void AddCommandSuggestion(string command, string suggestion) => TriggerEvent(command, suggestion, "");
+        public static void AddChatTemplate(string templateIdentifer, string htmlString, string id)
+        {
+            TriggerEvent("chat:addTemplate", templateIdentifer, htmlString);
+
+            TriggerEvent("chat:addMessage", new
+            {
+                templateId = id
+            });
+        }
+
+        public static void AddChatTemplate(int templateId, string htmlString) => TriggerEvent("chat:addTemplate", templateId, htmlString);
+
+        public static void AddCommandSuggestion(string command, string suggestion) => TriggerEvent("chat:addSuggestion", command, suggestion);
         #endregion
 
         #region Players

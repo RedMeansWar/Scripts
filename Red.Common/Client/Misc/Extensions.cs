@@ -61,16 +61,6 @@ namespace Red.Common.Client.Misc
 
             return defaultVal;
         }
-
-        public static T GetValue<T>(this IDictionary<string, object> dict, string key, T defaultVal)
-        {
-            if (dict.TryGetValue(key, out object value) && value is T t)
-            {
-                return t;
-            }
-
-            return defaultVal;
-        }
         #endregion
     }
     #region TupleList Extensions

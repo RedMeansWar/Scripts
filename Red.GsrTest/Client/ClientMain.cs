@@ -51,6 +51,9 @@ namespace Red.GsrTest.Client
                 AlertNotification("You haven't shot recently.");
             }
         }
+
+        [Command("gsrwipe")]
+        private void GsrWhipeCommand() => ExecuteCommand("gsrclear");
         #endregion
 
         #region Methods

@@ -6,31 +6,28 @@ using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
 using static Red.Common.Client.Client;
 using static Red.Common.Client.Hud.HUD;
+using static Red.Common.Client.Diagnostics.Log;
 
 namespace Red.Breathalyzer.Client
 {
     public class ClientMain : BaseScript
     {
         #region Variables
-        protected bool displayUI, firstStart, setBAC;
         protected double bacLimit;
-        protected Task bacLevel = GetUserInput("Set your BAC level", "0.00", 4);
+        protected bool startBac, displayNUI, bacBeenSet;
         #endregion
 
         #region Constructor
         public ClientMain()
         {
             ReadConfigFile();
-            // Callbacks
-            RegisterNuiCallback("startBac", new Action<IDictionary<string, object>, CallbackDelegate>(StartBAC));
-            RegisterNuiCallback("resetBac", new Action<IDictionary<string, object>, CallbackDelegate>(ResetBAC));
-            RegisterNuiCallback("closeNUI", new Action<IDictionary<string, object>, CallbackDelegate>(CloseNUI));
-
-            // Suggestions
-            AddCommandSuggestion("setbac", "Set your blood alcohol concentration level");
-            AddCommandSuggestion("bac", "Open the breathalyzer UI.");
-            AddCommandSuggestion("baclevel", "Checks your BAC level");
         }
+        #endregion
+
+        #region Commands
+        #endregion
+
+        #region NUI Callbacks
         #endregion
 
         #region Methods
@@ -46,96 +43,91 @@ namespace Red.Breathalyzer.Client
             }
             else
             {
-                Debug.WriteLine($"[Breathalyzer]: Config file has not been configured correctly.");
+                Debug($"[Breathalyzer]: Config file has not been configured correctly.");
             }
         }
-        #endregion
 
-        #region Commands
-        [Command("setbac")]
-        private void SetBacCommand(string[] args)
+        private void DisplayNUI(bool display = true)
         {
-            if (args.Length < 4)
+            if (!display)
             {
-
-            }
-            else if (args.Length == 0)
-            {
-                if (setBAC is false)
+                SendNuiMessage(Json.Stringify(new
                 {
-                    PlaySoundFrontend(-1, "NAV", "HUD_AMMO_SHOP_SOUNDSET", true);
+                    type = "DISPLAY_NUI"
+                }));
 
-                    if (bacLevel is null)
-                    {
-
-                    }
-
-                    AddChatMessage("[Breathalyzer]", $"BAC Level was set to {bacLevel}");
-                    TriggerServerEvent("Breathalyzer:Server:setBAC", "0.00");
-
-                    setBAC = true;
-                }
-                else
-                {
-                    TriggerServerEvent("Breathalyzer:Server:setBAC", bacLevel);
-                    setBAC = true;
-                }
+                SetNuiFocus(false, false);
             }
-        }
-
-        [Command("baclevel")]
-        private void BacLevelCommand()
-        {
-            AddChatMessage("[Breathalyzer]", $"your BAC level is {bacLevel}", 255, 0, 0);
-        }
-        #endregion
-
-        #region NUI Callbacks
-        private void StartBAC(IDictionary<string, object> data, CallbackDelegate result)
-        {
-
-        }
-
-        private void ResetBAC(IDictionary<string, object> data, CallbackDelegate result)
-        {
-
-        }
-
-        private void CloseNUI(IDictionary<string, object> data, CallbackDelegate result)
-        {
-
-        }
-        #endregion
-
-        #region Events
-        [EventHandler("Breathalyzer:Client:OpenUI")]
-        private void OnOpenUI()
-        {
-            SetNuiFocus(true, true);
 
             SendNuiMessage(Json.Stringify(new
             {
-                type = "DISPLAY_UI"
+                type = "DISPLAY_NUI"
             }));
-        }
 
-        [EventHandler("Breathalyzer:Client:Success")]
-        private void OnBacSuccess()
+            SetNuiFocus(true, true);
+        }
+        #endregion
+
+        #region Event Handlers
+        [EventHandler("Breathalyzer:Client:openNUI")]
+        private void OnOpenNUI()
         {
+            DisplayNUI();
 
+            if (startBac is false)
+            {
+                SendNuiMessage(Json.Stringify(new
+                {
+                    type = "BAC_LEVEL",
+                    level = "0.00"
+                }));
+            }
+
+            startBac = true;
         }
 
-        [EventHandler("Breathalyzer:Client:Error")]
+        [EventHandler("Breathalyzer:Client:bacError")]
         private void OnBacError()
         {
 
         }
 
-        [EventHandler("Breathalyer:Client:Result")]
-        private void OnResult()
+        [EventHandler("Breathalyzer:Client:bacSuccess")]
+        private void OnBacSuccess(double level)
         {
 
         }
+
+        [EventHandler("Breathalyzer:Client:bacResult")]
+        private void OnBacResult(double level)
+        {
+            Wait(5000);
+            PlaySoundFrontend(-1, "5_Second_Timer", "DLC_HEISTS_GENERAL_FRONTEND_SOUNDS", false);
+
+            if (level is -0.01)
+            {
+                level = 0.00;
+            }
+
+            if (level > bacLimit - 0.01)
+            {
+                SendNuiMessage(Json.Stringify(new
+                {
+
+                }));
+            }
+            else if (level > 0.00 && level < bacLimit)
+            {
+
+            }
+            else
+            {
+
+            }
+        }
+        #endregion
+
+        #region Ticks
         #endregion
     }
 }
