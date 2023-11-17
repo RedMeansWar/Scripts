@@ -268,13 +268,14 @@ namespace Red.Common.Client
         #endregion
 
         #region Chat Addons
-        public static void AddChatMessage(string author, string text, bool multiLineEnabled = true, int r = 255, int g = 255, int b = 255)
+        public static void AddChatMessage(string author, string text, string templateIdentifer, bool multiLineEnabled = true, int r = 255, int g = 255, int b = 255)
         {
             TriggerEvent("chat:addMessage", new
             {
                 multiline = multiLineEnabled,
                 args = new[] { author, text },
-                color = new[] { r, g, b }
+                color = new[] { r, g, b },
+                templateId = templateIdentifer
             });
         }
 
@@ -295,17 +296,28 @@ namespace Red.Common.Client
             });
         }
 
-        public static void AddChatTemplate(string templateIdentifer, string htmlString, string id)
+        public static void AddChatMessage(string author, string text, string templateIdentifer, int r = 255, int g = 255, int b = 255, bool multiLineEnabled = true)
+        {
+            TriggerEvent("chat:addMessage", new
+            {
+                args = new[] { author, text },
+                templateId = templateIdentifer,
+                color = new[] { r, g, b },
+                multiline = multiLineEnabled
+            });
+        }
+
+        public static void AddChatTemplate(string templateIdentifer, string htmlString, string chatTemplateId)
         {
             TriggerEvent("chat:addTemplate", templateIdentifer, htmlString);
 
             TriggerEvent("chat:addMessage", new
             {
-                templateId = id
+                templateId = chatTemplateId
             });
         }
 
-        public static void AddChatTemplate(int templateId, string htmlString) => TriggerEvent("chat:addTemplate", templateId, htmlString);
+        public static void AddChatTemplate(string templateId, string htmlString) => TriggerEvent("chat:addTemplate", templateId, htmlString);
 
         public static void AddCommandSuggestion(string command, string suggestion) => TriggerEvent("chat:addSuggestion", command, suggestion);
         #endregion

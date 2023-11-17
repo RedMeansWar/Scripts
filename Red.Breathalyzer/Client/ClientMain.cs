@@ -87,9 +87,10 @@ namespace Red.Breathalyzer.Client
         }
 
         [EventHandler("Breathalyzer:Client:bacError")]
-        private void OnBacError()
+        private void OnBacError(double level)
         {
-
+            AddChatTemplate("", "");
+            AddChatMessage("[Breathalyzer]", $"{level}", 44, 230, 41);
         }
 
         [EventHandler("Breathalyzer:Client:bacSuccess")]
