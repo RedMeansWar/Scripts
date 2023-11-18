@@ -8,6 +8,7 @@ using static CitizenFX.Core.UI.Screen;
 using System.Reflection.Metadata;
 using System.Drawing;
 using Mono.CSharp;
+using CitizenFX.Core.Native;
 
 namespace Red.Common.Client.Hud
 {
@@ -89,8 +90,8 @@ namespace Red.Common.Client.Hud
         }
 
         public static void DrawRectangle(float x, float y, float width, float height) => DrawRectangle(x, y, width, height, 255, 255, 255, 255);
-        public static void DrawRectangle(float x, float y, float width, float height, int r = 255, int g = 255, int b = 255) => DrawRectangle(x, y, width, height, r, g, b);
         public static void DrawRectangle(float x, float y, float width, float height, int a = 255) => DrawRectangle(x, y, width, height, 255, 255, 255, a);
+        public static void DrawRectangle(float x, float y, float width, float height, int r = 255, int g = 255, int b = 255) => DrawRectangle(x, y, width, height, r, g, b);
         #endregion
 
         #region Minimap
@@ -256,6 +257,59 @@ namespace Red.Common.Client.Hud
         }
 
         public static async void RequestTextureDict(string textureDict) => RequestTextureDictionary(textureDict);
+        #endregion
+
+        #region Misc
+        public static dynamic GetSafeZone()
+        {
+            float size = 10 - ((float)Math.Round(GetSafeZoneSize(), 2) * 100) - 90;
+
+            dynamic safeZone = new
+            {
+                X = (int)Math.Round(size * (GetAspectRatio(false) * 5.4)),
+                Y = (int)Math.Round(size * 5.4)
+            };
+
+            int screenWidth = 0, screenHeight = 0;
+            GetScreenResolution(ref screenWidth, ref screenHeight);
+
+            if (screenWidth > 1920)
+            {
+                safeZone.X += (screenWidth - 1920) / 2;
+            }
+
+            return safeZone;
+        }
+
+        public static dynamic GetResolution()
+        {
+            dynamic resolution = new
+            {
+                width = 1080.0 * GetAspectRatio(false),
+                height = 1080.0
+            };
+
+            return resolution;
+        }
+
+        public static void DrawSprite2(string dictionary, string name, float? x, float? y, float? width, float? height, float heading = 0.0f, int r = 255, int g = 255, int b = 255)
+        {
+            if (!HasStreamedTextureDictLoaded(dictionary))
+            {
+                RequestStreamedTextureDict(dictionary, true);
+            }
+
+            dynamic resolution = GetResolution();
+
+            float sizeW = (width != null) ? (float)width / resolution.width : 0;
+            float sizeH = (height != null) ? (float)height / resolution.height : 0;
+            float positionX = ((x != null) ? (float)x : 0) / resolution.width + sizeW * 0.5f;
+            float positionY = ((y != null) ? (float)y : 0) / resolution.height + sizeH * 0.5f;
+
+            DrawSprite(dictionary, name, positionX, positionY, sizeW, sizeH, heading, r, g, b, 255);
+        }
+
+        public static void DrawSprite2(string dictionary, string name, float? x, float? y, float? width, float? height, float heading = 0.0f, int r = 255, int g = 255, int b = 255, int a = 255) => DrawSprite2(dictionary, name, x, y, width, height, heading, r, g, b, a);
         #endregion
     }
 }

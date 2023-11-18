@@ -3,6 +3,9 @@ using System.Threading.Tasks;
 using CitizenFX.Core;
 using CitizenFX.Core.UI;
 using static CitizenFX.Core.Native.API;
+using static Red.Common.Client.Client;
+using static Red.Common.Client.Hud.HUD;
+using static Red.Common.Client.Misc.Object;
 
 namespace Red.Cuff.Client
 {
@@ -16,16 +19,16 @@ namespace Red.Cuff.Client
 
         #region Commands
         [Command("cuffme")]
-        private void OnCuffMeCommand() => HandleCuff();
+        private void OnCuffMeCommand() => HandleCuffMe();
 
         [Command("frontcuffme")]
-        private void OnFrontCuffMeCommand() => HandleCuff(true);
+        private void OnFrontCuffMeCommand() => HandleCuffMe(true);
 
         [Command("ziptieme")]
-        private void OnZiptieMeCommand() => HandleCuff(false, true);
+        private void OnZiptieMeCommand() => HandleCuffMe(false, true);
 
         [Command("frontziptieme")]
-        private void OnFrontZiptieMeCommand() => HandleCuff(true, true);
+        private void OnFrontZiptieMeCommand() => HandleCuffMe(true, true);
 
         [Command("cuff")]
         private void OnCuffCommand() => CuffClosestPlayer(false, false);
@@ -38,10 +41,8 @@ namespace Red.Cuff.Client
 
         [Command("frontziptie")]
         private void OnFrontZiptieCommand() => CuffClosestPlayer(true, true);
-        #endregion
 
-        #region Methods
-        private async void HandleCuff(bool isFront = false, bool isZiptie = false)
+        private async void HandleCuffMe(bool isFront = false, bool isZiptie = false)
         {
             isCuffed = !isCuffed;
             isFrontCuffed = isFront;
@@ -98,7 +99,7 @@ namespace Red.Cuff.Client
                 SetPedDropsWeapon(PlayerPed.Handle);
                 SetPedCanPlayGestureAnims(PlayerPed.Handle, false);
 
-                Tick += CuffedTick;
+                Tick += DoStuffWhileCuffed;
             }
             else
             {
@@ -115,58 +116,51 @@ namespace Red.Cuff.Client
 
                 SetPedCanPlayGestureAnims(PlayerPed.Handle, true);
 
-                Tick -= CuffedTick;
+                Tick -= DoStuffWhileCuffed;
             }
         }
 
-        private Player GetClosestPlayer(float radius = 2f)
+        #endregion
+
+        #region Event Handlers
+
+        [EventHandler("Cuff:Client:playCuffAnimation")]
+        private void OnPlayCuffAnimation(bool uncuff) => PlayerPed.Task.PlayAnimation(uncuff ? "mp_arresting" : "rcmpaparazzo_3", uncuff ? "a_uncuff" : "poppy_arrest_cop", 4f, 4f, 3000, AnimationFlags.UpperBodyOnly, 0.595f);
+
+        [EventHandler("Cuff:Client:getCuffed")]
+        private void OnGetCuffed(int cuffer, bool isFront, bool isZiptie)
         {
-            Vector3 plyPos = Game.PlayerPed.Position;
-            Player closestPlayer = null;
-            float closestDist = float.MaxValue;
-
-            foreach (Player p in Players)
-            {
-                if (p is null || p == Game.Player)
-                {
-                    continue;
-                }
-
-                float dist = Vector3.DistanceSquared(p.Character.Position, plyPos);
-                if (dist < closestDist && dist < radius)
-                {
-                    closestPlayer = p;
-                    closestDist = dist;
-                }
-            }
-
-            return closestPlayer;
+            isCuffed = !isCuffed;
+            isFrontCuffed = isFront;
+            PlayCuffedAnimation(cuffer, isZiptie);
         }
 
-        public static bool CannotDoAction(Ped ped)
-        {
-            return ped.IsCuffed
-            || ped.IsDead || ped.IsBeingStunned
-            || ped.IsClimbing || ped.IsDiving || ped.IsFalling
-            || ped.IsGettingIntoAVehicle || ped.IsJumping || ped.IsJumpingOutOfVehicle
-            || ped.IsRagdoll || ped.IsSwimmingUnderWater || ped.IsVaulting;
-        }
+        #endregion
+
+        #region Methods
 
         private void CuffClosestPlayer(bool isFront, bool isZiptie)
         {
-            Player closestPlayer = GetClosestPlayer();
-
             if (CannotDoAction(PlayerPed))
             {
-                Screen.ShowNotification("~r~~h~Error~h~~s~: You can't do this right now.", true);
+                ErrorNotification("You can't do this right now.");
+                return;
+            }
+
+            Player closestPlayer = GetClosestPlayer();
+
+            if (closestPlayer is null)
+            {
+                ErrorNotification($"You must be closer to the person you wish to {(isZiptie ? "ziptie" : "cuff")}.");
                 return;
             }
 
             TriggerServerEvent("Cuff:Server:cuffClosestPlayer", closestPlayer.ServerId, isFront, isZiptie);
         }
+
         private async void PlayCuffedAnimation(int cuffer, bool isZiptie)
         {
-            TriggerServerEvent("pnw:framework:server:playCuffAnimation", cuffer, !isCuffed);
+            TriggerServerEvent("Cuff:Server:playCuffAnimation", cuffer, !isCuffed);
 
             if (isCuffed)
             {
@@ -200,7 +194,7 @@ namespace Red.Cuff.Client
                 SetPedDropsWeapon(PlayerPed.Handle);
                 SetPedCanPlayGestureAnims(PlayerPed.Handle, false);
 
-                Tick += CuffedTick;
+                Tick += DoStuffWhileCuffed;
             }
             else
             {
@@ -219,27 +213,11 @@ namespace Red.Cuff.Client
 
                 SetPedCanPlayGestureAnims(PlayerPed.Handle, true);
 
-                Tick -= CuffedTick;
+                Tick -= DoStuffWhileCuffed;
             }
         }
-        #endregion
 
-        #region Event Handlers
-        [EventHandler("Cuff:Client:playCuffAnimation")]
-        private void OnPlayCuffAnimation(bool uncuff) => PlayerPed.Task.PlayAnimation(uncuff? "mp_arresting" : "rcmpaparazzo_3", uncuff? "a_uncuff" : "poppy_arrest_cop", 4f, 4f, 3000, AnimationFlags.UpperBodyOnly, 0.595f);
-
-        [EventHandler("Cuff:Client:getCuffed")]
-        private void OnGetCuffed(int cuffer, bool isFront, bool isZiptie)
-        {
-            isCuffed = !isCuffed;
-            isFrontCuffed = isFront;
-            PlayCuffedAnimation(cuffer, isZiptie);
-        }
-
-        #endregion
-
-        #region Ticks
-        private async Task CuffedTick()
+        private async Task DoStuffWhileCuffed()
         {
             Game.DisableControlThisFrame(0, Control.Attack);
             Game.DisableControlThisFrame(0, Control.Attack2);
@@ -268,6 +246,7 @@ namespace Red.Cuff.Client
             PlayerPed.Weapons.Select(WeaponHash.Unarmed);
             SetPedStealthMovement(PlayerPed.Handle, false, "DEFUALT_ACTION");
         }
+
         #endregion
     }
 }

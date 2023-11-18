@@ -4,11 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CitizenFX.Core;
+using Mono.CSharp;
 using static CitizenFX.Core.Native.API;
+using static Red.Common.Client.Client;
 
 namespace Red.Common.Client.Misc
 {
-    public class Object
+    public class Object : BaseScript
     {
         protected static Entity closestObject;
 
@@ -29,6 +31,40 @@ namespace Red.Common.Client.Misc
             }
 
             return closestObject;
+        }
+
+        public static Task<Prop> CreateProp(Model model, Vector3 position, bool physics = false, bool placeOnGround = false) => World.CreateProp(model, position, physics, placeOnGround);
+
+        public static Task<Prop> CreatePropOnGround(Model model, Vector3 position, bool physics = false) => CreateProp(model, position, physics, true);
+
+        public static async void RequestLoad(int model)
+        {
+
+            while (!HasModelLoaded((uint)model))
+            {
+                await Delay(0);
+            }
+
+            await Delay(100);
+        }
+
+        public static async void RequestLoad(Model model)
+        {
+            while (!HasModelLoaded((uint)model))
+            {
+                await Delay(0);
+            }
+
+            await Delay(100);
+        }
+
+        public static async void RequestPropModel(int hash)
+        {
+            RequestModel((uint)hash);
+            while (!HasModelLoaded((uint)hash))
+            {
+                await Delay(0);
+            }
         }
     }
 }

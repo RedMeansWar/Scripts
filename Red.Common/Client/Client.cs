@@ -114,6 +114,23 @@ namespace Red.Common.Client
 
             return headingNumber;
         }
+        // Forked from LondonStudios
+        public static int Raycast(float radius = 1.0f)
+        {
+            Vector3 location = GetEntityCoords(PlayerPedId(), true);
+            Vector3 offset = GetOffsetFromEntityGivenWorldCoords(PlayerPedId(), 0.0f, 2.0f, 0.0f);
+
+            int shape = StartShapeTestCapsule(location.X, location.Y, location.Z, offset.X, offset.Y, offset.Z, radius, 12, PlayerPedId(), 7);
+            bool hit = false;
+
+            Vector3 endCoords = new(0f, 0f, 0f);
+            Vector3 surface = new(0f, 0f, 0f);
+
+            int entityHit = 0;
+            var result = GetShapeTestResult(shape, ref hit, ref endCoords, ref surface, ref entityHit);
+
+            return entityHit;
+        }
 
         #region Model Checker
         public static bool DoesModelExist(uint modelHash) => IsModelInCdimage(modelHash);
@@ -209,6 +226,7 @@ namespace Red.Common.Client
         #region Animations
         public static void ClearAllTaskImmediately() => PlayerPed.Task.ClearAllImmediately();
         public static void ClearAllTasks() => PlayerPed.Task.ClearAll();
+        public static void ClearAnimation(string animDictionary, string animName) => PlayerPed.Task.ClearAnimation(animDictionary, animName);
 
         public static void PlayAnim(string dictionary, string name, float blendInSpeed = 8.0f, int duration = -1, int flags = 0) => PlayerPed.Task.PlayAnimation(dictionary, name, blendInSpeed, duration, (AnimationFlags)flags);
         public static void PlayAnim(string dictionary, string name, float blindInSpeed, int duration, AnimationFlags flags) => PlayerPed.Task.PlayAnimation(dictionary, name, blindInSpeed, duration, flags);
@@ -238,6 +256,16 @@ namespace Red.Common.Client
                     Opacity = 100
                 };
             }
+        }
+
+        public static void SyncEntity(int entity)
+        {
+            int networkId = ObjToNet(entity);
+
+            SetNetworkIdExistsOnAllMachines(networkId, true);
+            SetNetworkIdCanMigrate(networkId, false);
+            NetworkSetNetworkIdDynamic(networkId, true);
+            FreezeEntityPosition(entity, true);
         }
 
         public static void DeleteProp(string modelName)
@@ -364,6 +392,32 @@ namespace Red.Common.Client
             {
                 return -1;
             }
+        }
+        #endregion
+
+        #region Request Animation
+        public static async void RequestAnim(string dictionary)
+        {
+            RequestAnimDict(dictionary);
+            while (!HasAnimDictLoaded(dictionary))
+            {
+                await Delay(100);
+            }
+
+            await Delay(0);
+        }
+
+        public static async void RequestAnimation(string dictionary) => RequestAnim(dictionary);
+
+        public static async void RequestSet(string set)
+        {
+            RequestAnimSet(set);
+            while (!HasAnimSetLoaded(set))
+            {
+                await Delay(100);
+            }
+
+            await Delay(0);
         }
         #endregion
     }
