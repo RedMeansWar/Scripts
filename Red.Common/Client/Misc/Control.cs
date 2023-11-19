@@ -12,6 +12,8 @@ namespace Red.Common.Client.Misc
         public static int UpdateKeyboard() => UpdateOnscreenKeyboard();
         public static int TimeSinceLastInput(int inputGroup = 0) => GetTimeSinceLastInput(inputGroup);
         public static int TimeSinceLastInput(ControlType inputGroup) => TimeSinceLastInput((int)inputGroup);
+
+        public static bool IsControlJustPressedRegardlessOfDisabled(Control control, int inputGroup = 0) => Game.IsDisabledControlJustPressed(inputGroup, control) || IsDisabledControlJustPressed(0, (int)control);
         #endregion
 
         public static bool LastInputWasController()

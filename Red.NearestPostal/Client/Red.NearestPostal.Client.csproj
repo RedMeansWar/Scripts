@@ -2,16 +2,13 @@
 	<PropertyGroup>
 		<LangVersion>latest</LangVersion>
 	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-	  <NoWarn>1701;1702;1998</NoWarn>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-	  <NoWarn>1701;1702;1998</NoWarn>
-	</PropertyGroup>
     <ItemGroup>
         <Compile Include="../Shared/**/*.cs" />
     </ItemGroup>
     <ItemGroup>
+      <Reference Include="Newtonsoft.Json">
+        <HintPath>..\..\_References_\Newtonsoft.Json.dll</HintPath>
+      </Reference>
       <Reference Include="Red.Common.Client.net">
         <HintPath>..\..\_References_\Red.Common.Client.net.dll</HintPath>
       </Reference>

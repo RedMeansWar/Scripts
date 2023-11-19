@@ -6,6 +6,7 @@ using static CitizenFX.Core.Native.API;
 using static Red.Common.Client.Client;
 using static Red.Common.Client.Hud.HUD;
 using static Red.Common.Client.Misc.Object;
+using static Red.Common.Client.Diagnostics.Log;
 
 namespace Red.Cuff.Client
 {
@@ -119,11 +120,9 @@ namespace Red.Cuff.Client
                 Tick -= DoStuffWhileCuffed;
             }
         }
-
         #endregion
 
         #region Event Handlers
-
         [EventHandler("Cuff:Client:playCuffAnimation")]
         private void OnPlayCuffAnimation(bool uncuff) => PlayerPed.Task.PlayAnimation(uncuff ? "mp_arresting" : "rcmpaparazzo_3", uncuff ? "a_uncuff" : "poppy_arrest_cop", 4f, 4f, 3000, AnimationFlags.UpperBodyOnly, 0.595f);
 
@@ -135,12 +134,17 @@ namespace Red.Cuff.Client
             PlayCuffedAnimation(cuffer, isZiptie);
         }
 
+        [EventHandler("")]
+        private void OnPlayerConnecting()
+        {
+
+        }
         #endregion
 
         #region Methods
-
         private void CuffClosestPlayer(bool isFront, bool isZiptie)
         {
+            
             if (CannotDoAction(PlayerPed))
             {
                 ErrorNotification("You can't do this right now.");
@@ -248,5 +252,6 @@ namespace Red.Cuff.Client
         }
 
         #endregion
+
     }
 }

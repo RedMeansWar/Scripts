@@ -87,6 +87,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OpenInteriors", "OpenInteri
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Red.OpenInteriors.Client", "Red.OpenInteriors\Client\Red.OpenInteriors.Client.csproj", "{DBC12B0D-5DCF-4EB8-A5A5-AC2AD3711040}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NearestPostal", "NearestPostal", "{43200723-A911-4EBD-9949-DF2E10F99B31}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Red.NearestPostal.Client", "Red.NearestPostal\Client\Red.NearestPostal.Client.csproj", "{DC4DAD4F-800A-415B-A4A9-65469320F887}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -515,6 +519,22 @@ Global
 		{DBC12B0D-5DCF-4EB8-A5A5-AC2AD3711040}.Release|x64.Build.0 = Release|Any CPU
 		{DBC12B0D-5DCF-4EB8-A5A5-AC2AD3711040}.Release|x86.ActiveCfg = Release|Any CPU
 		{DBC12B0D-5DCF-4EB8-A5A5-AC2AD3711040}.Release|x86.Build.0 = Release|Any CPU
+		{DC4DAD4F-800A-415B-A4A9-65469320F887}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC4DAD4F-800A-415B-A4A9-65469320F887}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC4DAD4F-800A-415B-A4A9-65469320F887}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{DC4DAD4F-800A-415B-A4A9-65469320F887}.Debug|Win32.Build.0 = Debug|Any CPU
+		{DC4DAD4F-800A-415B-A4A9-65469320F887}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DC4DAD4F-800A-415B-A4A9-65469320F887}.Debug|x64.Build.0 = Debug|Any CPU
+		{DC4DAD4F-800A-415B-A4A9-65469320F887}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DC4DAD4F-800A-415B-A4A9-65469320F887}.Debug|x86.Build.0 = Debug|Any CPU
+		{DC4DAD4F-800A-415B-A4A9-65469320F887}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC4DAD4F-800A-415B-A4A9-65469320F887}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC4DAD4F-800A-415B-A4A9-65469320F887}.Release|Win32.ActiveCfg = Release|Any CPU
+		{DC4DAD4F-800A-415B-A4A9-65469320F887}.Release|Win32.Build.0 = Release|Any CPU
+		{DC4DAD4F-800A-415B-A4A9-65469320F887}.Release|x64.ActiveCfg = Release|Any CPU
+		{DC4DAD4F-800A-415B-A4A9-65469320F887}.Release|x64.Build.0 = Release|Any CPU
+		{DC4DAD4F-800A-415B-A4A9-65469320F887}.Release|x86.ActiveCfg = Release|Any CPU
+		{DC4DAD4F-800A-415B-A4A9-65469320F887}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -546,6 +566,7 @@ Global
 		{2064C250-CF98-46A2-9EA0-A272B7CB2EA2} = {AF637F5D-4196-4D8C-A2A0-EE2BEDD6F12F}
 		{FC423B4D-D1EC-4E45-975D-B8D00DD8C479} = {AF637F5D-4196-4D8C-A2A0-EE2BEDD6F12F}
 		{DBC12B0D-5DCF-4EB8-A5A5-AC2AD3711040} = {8EF0597C-0D15-481D-B6BB-A8C1AE576A4B}
+		{DC4DAD4F-800A-415B-A4A9-65469320F887} = {43200723-A911-4EBD-9949-DF2E10F99B31}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {36ACF107-4F74-41D0-BF27-E57624FC17A5}
