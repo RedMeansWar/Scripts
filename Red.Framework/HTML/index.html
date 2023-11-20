@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/css/bootstrap.min.css" integrity="sha512-SbiR/eusphKoMVVXysTKG/7VseWii+Y3FdHrt0EpKgpToZeemhqHeZeLWLhJutz/2ut2Vw1uQEj2MbRF+TVBUA==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/css/bootstrap-datepicker.min.css" integrity="sha512-34s5cpvaNG3BknEWSuOncX28vz97bRI59UnVtEEpFX536A7BtZSJHsDyFoCl8S7Dt2TPzcrCEoHBGeM4SUBDBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body style="display: none">
+    <div class="content-container">
+    <img src="imgs/logo.png" class="logo" loading="lazy">
+    <h2 class="titleHeader" id="titleHeader">Welcome to San Andreas! (AOP: Statewide)</h2>
+    <div class="mainBody" id="mainBody" style="display: none">
+      <ul id="charList" class="characterList">
+        <li class="characterItem">
+          <button class="btn btn-primary">Play As: Brandon O (CIV)</button>
+          <button class="btn btn-success">Edit</button>
+        </li>
+      </ul>
+    </div>
+
+    <div class="quitButton">
+      <button class="btn btn-danger" onclick="quitGame()">Quit Game</button>
+    </div>
+
+    <div class="cancelButton">
+        <button class="btn btn-warning" onclick="CancelNUI()">Cancel</button>
+    </div>
+
+    <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-body text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-3">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12" y2="16"></line>
+            </svg>
+            <h5 class="modal-title mb-3">Error!</h5>
+            <p style="color: red;" id="errorMsg">Error: Something went wrong.</p>
+          </div>
+          <div class="modal-footer justify-content-center">
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="confDeleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="confDeleteModalHeader">Are you sure?</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="text-center mb-3">
+              <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-3">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="8 12 12 16 16 12"></polyline>
+                <line x1="12" y1="8" x2="12" y2="16"></line>
+              </svg>
+              <h5 style="color: red;" id="confDeleteMessage">Are you sure you wish to delete this character? We won't be able to help you recover this character.</h5>
+            </div>
+          </div>
+          <div class="modal-footer" id="confDeleteModalFooter">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="createChar" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Create New Character</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="createCharFirstName">First Name:</label>
+                  <input type="text" class="form-control" id="createCharFirstName" required>
+                  <small class="form-text text-muted">Only alphabetic characters are allowed.</small>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="createCharLastName">Last Name:</label>
+                  <input type="text" class="form-control" id="createCharLastName" required>
+                  <small class="form-text text-muted">Only alphabetic characters are allowed.</small>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="createCharGender">Gender:</label>
+                  <select class="form-control" id="createCharGender" required>
+                    <option value="" selected disabled>Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="createCharDOB">Date of Birth (MM/DD/YYYY):</label>
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+                    <input type="text" class="form-control datepicker" id="createCharDOB" aria-label="MM/DD/YYYY" required>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="createCharCash">Cash:</label>
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input type="number" class="form-control" id="createCharCash" aria-label="Amount" required>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="createCharBank">Bank:</label>
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input type="number" class="form-control" id="createCharBank" aria-label="Amount" required>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="createCharDept">Department:</label>
+                  <select class="form-control" id="createCharDept" required>
+                    <option value="" selected disabled>Select Department</option>
+                  </select>
+                </div>
+                <small id="deptHelp" class="form-text text-muted">The departments available above are based on your discord roles. If you're missing a department, contact your department CoC.</small>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" onclick="ValidateCreateCharacter()">Create Character</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="editChar" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" role="dialog">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editCharHeader">Edit Character</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="editCharFirstName">First Name:</label>
+                  <input type="text" class="form-control" id="editCharFirstName" placeholder="Enter first name">
+                  <small class="form-text text-muted">Only alphabetic characters are allowed.</small>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="editCharLastName">Last Name:</label>
+                  <input type="text" class="form-control" id="editCharLastName" placeholder="Enter last name">
+                  <small class="form-text text-muted">Only alphabetic characters are allowed.</small>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="editCharGender">Gender:</label>
+                  <select class="form-control" id="editCharGender">
+                    <option selected disabled>Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="editCharDept">Department:</label>
+                  <select class="form-control" id="editCharDept">
+                    <option selected disabled>Select Department</option>
+                    <option value="LSPD">LSPD</option>
+                    <option value="SASP">SASP</option>
+                    <option value="LSFD">LSFD</option>
+                    <option value="Civ">Civ</option>
+                  </select>
+                  <small id="editDeptHelp" class="form-text text-muted">The departments available above are based on your discord roles. If you're missing a department, contact your department CoC.</small>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="editCharDOB">Date of Birth (MM/DD/YYYY):</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+                <input type="text" class="form-control" aria-label="MM/DD/YY" id="editCharDOB" placeholder="Enter date of birth">
+                <input type="text" class="form-control" id="editCharIdHandlerHidden" style="display: none;">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer" id="editModalFooter">
+            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Delete Character</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" onclick="validateCreateValuesAndEditCharacter()">Save Character</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-body text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="green" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-3">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            <h5 class="modal-title mb-3">Success!</h5>
+            <p style="color: green;" id="successMsg">Success: Success!</p>
+          </div>
+          <div class="modal-footer justify-content-center">
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js" integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.7/js/tether.min.js" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/js/bootstrap.min.js" integrity="sha512-1/RvZTcCDEUjY/CypiMz+iqqtaoQfAITmNSJY17Myp4Ms5mdxPS5UV7iOfdZoxcGhzFbOm6sntTKJppjvuhg4g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js" integrity="sha512-LsnSViqQyaXpD4mBBdRYeP6sRwJiJveh2ZIbW41EBrNmKxgr/LFZIiWT6yr+nycvhvauz8c2nYMhrP80YhG7Cw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="script.js" defer></script>
+  </body>
+</html>
