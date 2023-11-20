@@ -133,12 +133,6 @@ namespace Red.Cuff.Client
             isFrontCuffed = isFront;
             PlayCuffedAnimation(cuffer, isZiptie);
         }
-
-        [EventHandler("")]
-        private void OnPlayerConnecting()
-        {
-
-        }
         #endregion
 
         #region Methods

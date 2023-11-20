@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CitizenFX.Core;
+using Newtonsoft.Json;
 using Red.Common.Client.Misc;
 using static CitizenFX.Core.Native.API;
 using static Red.Common.Client.Client;
@@ -13,9 +15,12 @@ namespace Red.Framework.Client
     {
         #region Variables
         protected bool ranSpawnChecker;
-        protected float densityMultiplyer = 1f;
+        protected float densityMultiplier = 1f;
         protected string currentAOP = "Statewide";
         protected Ped PlayerPed = Game.PlayerPed;
+        protected ISet<string> allowedDepartments = new HashSet<string>();
+        protected int plyrCount = 1;
+
         public static Character currentCharacter;
 
         protected readonly IReadOnlyList<string> scenarioTypes = new List<string>
@@ -56,6 +61,9 @@ namespace Red.Framework.Client
             StartAudioScene("CHARACTER_CHANGE_IN_SKY_SCENE");
             SetAudioFlag("PoliceScannerDisabled", true);
 
+            TriggerServerEvent("Framework:Server:syncInfo");
+            TriggerServerEvent("Framework:Server:getDiscordRoles");
+
             // NUI Callbacks
             RegisterNuiCallback("selectCharacter", new Action<IDictionary<string, object>, CallbackDelegate>(SelectCharacter));
             RegisterNuiCallback("createCharacter", new Action<IDictionary<string, object>, CallbackDelegate>(CreateCharacter));
@@ -63,6 +71,7 @@ namespace Red.Framework.Client
             RegisterNuiCallback("editCharacter", new Action<IDictionary<string, object>, CallbackDelegate>(EditCharacter));
             RegisterNuiCallback("disconnect", new Action<IDictionary<string, object>, CallbackDelegate>(Disconnect));
             RegisterNuiCallback("quitGame", new Action<IDictionary<string, object>, CallbackDelegate>(QuitGame));
+            RegisterNuiCallback("cancelNUI", new Action<IDictionary<string, object>, CallbackDelegate>(CancelNUI));
 
             uint PLAYER = Game.GenerateHashASCII("PLAYER");
 
@@ -95,13 +104,13 @@ namespace Red.Framework.Client
 
         #region Commands
         [Command("framework")]
-        private void FrameworkCommand() => DisplayNUI(true);
+        private void FrameworkCommand() => DisplayNUI();
 
         [Command("fw")]
-        private void FwCommand() => DisplayNUI(true);
+        private void FwCommand() => DisplayNUI();
 
         [Command("changecharacter")]
-        private void ChangeCharacterCommand() => DisplayNUI(true);
+        private void ChangeCharacterCommand() => DisplayNUI();
         #endregion
 
         #region NUI Callbacks
@@ -117,40 +126,52 @@ namespace Red.Framework.Client
             result(new { success = true, message = "success" });
         }
 
+        public void CancelNUI(IDictionary<string, object> data, CallbackDelegate result)
+        {
+            SendNuiMessage(Json.Stringify(new
+            {
+                type = "CLOSE_UI"
+            }));
+
+            SetNuiFocus(false, false);
+            Info("[Framework]: Revoking Nui Callback");
+            
+            result(new { success = true, message = "success" });
+        }
+
         private void SelectCharacter(IDictionary<string, object> data, CallbackDelegate result)
         {
             string charId = data.GetVal("charId", "0");
             string firstName = data.GetVal<string>("firstName", null);
             string lastName = data.GetVal<string>("lastName", null);
             string gender = data.GetVal<string>("gender", null);
+            string department = data.GetVal<string>("department", null);
             string dob = data.GetVal<string>("dob", null);
-            string department = data.GetVal<string>("dept", null);
-            string twitterName = data.GetVal<string>("twitterName", null);
+            string cash = data.GetVal("cash", "-1");
+            string bank = data.GetVal("bank", "-1");
 
-            if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName) || string.IsNullOrWhiteSpace(gender) || string.IsNullOrWhiteSpace(dob) || string.IsNullOrWhiteSpace(department) || string.IsNullOrWhiteSpace(twitterName))
+            if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName) || string.IsNullOrWhiteSpace(gender) || string.IsNullOrWhiteSpace(department) || string.IsNullOrWhiteSpace(dob) || cash == "-1" || bank == "-1")
             {
                 SendNuiMessage(Json.Stringify(new
                 {
                     type = "ERROR",
-                    msg = "We ran into an eunexpected error choosing this character, try again."
+                    msg = "We ran into an unexpected error choosing this character, try again."
                 }));
-
                 result(new { success = false, message = "not valid character data" });
                 return;
             }
 
-            Character createdCharacter = CreateCharacter(firstName, lastName, gender, dob, department, twitterName, charId);
+            Character createdCharacter = CreateCharacter(firstName, lastName, gender, department, dob, cash, bank, charId);
 
             currentCharacter = createdCharacter;
 
             SendNuiMessage(Json.Stringify(new
             {
-                type = "CLOSE_NUI"
+                type = "CLOSE_UI"
             }));
 
+            Info($"[Framework]: Selected Character [{currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})]");
             SetNuiFocus(false, false);
-
-            TriggerEvent("Framework:Client:selectCharacter", Json.Stringify(currentCharacter));
         }
 
         private void CreateCharacter(IDictionary<string, object> data, CallbackDelegate result)
@@ -158,23 +179,23 @@ namespace Red.Framework.Client
             string firstName = data.GetVal<string>("firstName", null);
             string lastName = data.GetVal<string>("lastName", null);
             string gender = data.GetVal<string>("gender", null);
+            string department = data.GetVal<string>("department", null);
             string dob = data.GetVal<string>("dob", null);
-            string department = data.GetVal<string>("dept", null);
-            string twitterName = data.GetVal<string>("twitterName", null);
+            string cash = data.GetVal("cash", "-1");
+            string bank = data.GetVal("bank", "-1");
 
-            if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName) || string.IsNullOrWhiteSpace(gender) || string.IsNullOrWhiteSpace(dob) || string.IsNullOrWhiteSpace(department) || string.IsNullOrWhiteSpace(twitterName))
+            if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName) || string.IsNullOrWhiteSpace(gender) || string.IsNullOrWhiteSpace(department) || string.IsNullOrWhiteSpace(dob) || cash == "-1" || bank == "-1")
             {
                 SendNuiMessage(Json.Stringify(new
                 {
                     type = "ERROR",
                     msg = "We ran into an unexpected error creating this character, try again."
                 }));
-
                 result(new { success = false, message = "not valid character data" });
                 return;
             }
 
-            Character createdCharacter = CreateCharacter(firstName, lastName, gender, dob, department, twitterName, "0");
+            Character createdCharacter = CreateCharacter(firstName, lastName, gender, department, dob, cash, bank, "0");
 
             TriggerServerEvent("Framework:Server:createCharacter", Json.Stringify(createdCharacter));
 
@@ -196,28 +217,28 @@ namespace Red.Framework.Client
             SendNuiMessage(Json.Stringify(new
             {
                 type = "SUCCESS",
-                msg = "Deleted character!"
+                msg = "Character deleted!"
             }));
+
+            result(new { success = true, message = "success" });
         }
 
         private void EditCharacter(IDictionary<string, object> data, CallbackDelegate result)
         {
-            string charId = data.GetVal("charId", "-1");
             string firstName = data.GetVal<string>("firstName", null);
             string lastName = data.GetVal<string>("lastName", null);
             string gender = data.GetVal<string>("gender", null);
+            string department = data.GetVal<string>("department", null);
             string dob = data.GetVal<string>("dob", null);
-            string department = data.GetVal<string>("dept", null);
-            string twitterName = data.GetVal<string>("twitterName", null);
+            string charId = data.GetVal("charId", "-1");
 
-            if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName) || string.IsNullOrWhiteSpace(gender) || string.IsNullOrWhiteSpace(dob) || string.IsNullOrWhiteSpace(department) ||  string.IsNullOrWhiteSpace(twitterName)) 
+            if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName) || string.IsNullOrWhiteSpace(gender) || string.IsNullOrWhiteSpace(department) || string.IsNullOrWhiteSpace(dob))
             {
                 SendNuiMessage(Json.Stringify(new
                 {
                     type = "ERROR",
-                    msg = "We ran into an unexpected error edit this character, try again."
+                    msg = "We ran into an unexpected error editing this character, try again."
                 }));
-
                 result(new { success = false, message = "not valid character data" });
                 return;
             }
@@ -245,46 +266,172 @@ namespace Red.Framework.Client
         #endregion
 
         #region Methods
-        private Character CreateCharacter(string firstName, string lastName, string gender, string dob, string department, string twitterName, string characterId)
+        private Character CreateCharacter(string firstName, string lastName, string gender, string department, string dob, string cash, string bank, string charId)
         {
             Character createdCharacter = new()
             {
-                CharacterId = int.Parse(characterId),
+                CharacterId = int.Parse(charId),
+                DoB = DateTime.Parse(dob),
                 FirstName = firstName,
                 LastName = lastName,
-                DoB = DateTime.Parse(dob),
                 Gender = gender,
                 Department = department,
-                TwitterName = twitterName,
+                Cash = int.Parse(cash),
+                Bank = int.Parse(bank)
             };
 
             return createdCharacter;
         }
 
-        private void DisplayNUI(bool display)
+        private void DisplayNUI()
         {
-            display = true;
-
-            if (!display)
+            if (IsNuiFocused())
             {
-                SendNuiMessage(Json.Stringify(new
-                {
-                    type = "CANCEL_NUI"
-                }));
-
-                SetNuiFocus(false, false);
+                return;
             }
+
+            TriggerServerEvent("Framework:Server:getCharacters");
+        }
+
+        private void AddIfNotExist(string department)
+        {
+            if (!allowedDepartments.Contains(department))
+            {
+                allowedDepartments.Add(department);
+            }
+        }
+        #endregion
+
+        #region Event Handlers
+        [EventHandler("Framework:Client:changeAOP")]
+        private void OnChangeAOP(string newAOP, string aopSetter)
+        {
+            currentAOP = newAOP;
+            AddChatMessage("System", $"Current AOP is ^5^*{currentAOP}^r^7 (Set by: ^5^*{aopSetter}^r^7)");
 
             SendNuiMessage(Json.Stringify(new
             {
-                type = "DISPLAY_NUI"
+                type = "UPDATE_AOP",
+                aop = $"Welcome to San Andreas! (AOP: {newAOP})"
             }));
+        }
+
+        [EventHandler("Framework:Client:syncInfo")]
+        private void OnSyncInfo(string aop) => currentAOP = aop;
+
+        [EventHandler("Framework:Client:returnDiscordRoles")]
+        private void OnReturnDiscordRoles(dynamic rolesJson)
+        {
+            Dictionary<string, string> roles = JsonConvert.DeserializeObject<Dictionary<string, string>>(rolesJson);
+
+            if (roles.ContainsValue("Development") || roles.ContainsValue("Head Administration"))
+            {
+                AddIfNotExist("LSPD");
+                AddIfNotExist("SAHP");
+                AddIfNotExist("BCSO");
+                AddIfNotExist("LSFD");
+                AddIfNotExist("CIV");
+            }
+
+            if (roles.ContainsValue("LSPD"))
+            {
+                AddIfNotExist("LSPD");
+            }
+
+            if (roles.ContainsValue("SAHP"))
+            {
+                AddIfNotExist("SAHP");
+            }
+
+            if (roles.ContainsValue("BCSO"))
+            {
+                AddIfNotExist("BCSO");
+            }
+
+            if (roles.ContainsValue("LSFD"))
+            {
+                AddIfNotExist("LSFD");
+            }
+
+            if (roles.ContainsValue("CIV"))
+            {
+                AddIfNotExist("CIV");
+            }
+        }
+
+        [EventHandler("Framework:Client:returnCharacters")]
+        private void OnReturnCharacters(dynamic characters)
+        {
+            List<Character> characterList = JsonConvert.DeserializeObject<List<Character>>(JsonConvert.SerializeObject(characters));
+
+            /*
+            foreach (Character character in characterList)
+            {
+                Info($"CharacterId: {character.CharacterId}");
+                Info($"FirstName: {character.FirstName}");
+                Info($"LastName: {character.LastName}");
+                Info($"DoB: {character.DoB}");
+                Info($"Gender: {character.Gender}");
+                Info($"Cash: {character.Cash}");
+                Info($"Bank: {character.Bank}");
+                Info($"Department: {character.Department}");
+            }
+            */
+            Info($"[Framework] - Returned {characterList.Count} character(s)");
 
             SetNuiFocus(true, true);
+
+            SendNuiMessage(Json.Stringify(new
+            {
+                type = "DISPLAY_NUI",
+                characters = characterList,
+                departments = allowedDepartments,
+                firstLoad = currentCharacter is null,
+                aop = $"Welcome to San Andreas! (AOP: {currentAOP})"
+            }));
+        }
+
+        [EventHandler("playerSpawned")]
+        private async void OnPlayerSpawn()
+        {
+            if (!ranSpawnChecker)
+            {
+                DisplayNUI();
+
+                Exports["spawnmanager"].spawnPlayer(true);
+                await Delay(3000);
+                Exports["spawnmanager"].setAutoSpawn(false);
+
+                ranSpawnChecker = true;
+            }
         }
         #endregion
 
         #region Ticks
+        [Tick]
+        private async Task MainTick()
+        {
+            await Delay(55000);
+            TriggerServerEvent("Framework:Server:syncInfo");
+
+            foreach (Vehicle vehicle in World.GetAllVehicles().Where(v => suppressedModels.Contains(v.DisplayName.ToLower()) && !v.PreviouslyOwnedByPlayer))
+            {
+                vehicle.Delete();
+            }
+        }
+
+        [Tick]
+        private async Task Secondary()
+        {
+            SetVehicleDensityMultiplierThisFrame(densityMultiplier);
+            SetParkedVehicleDensityMultiplierThisFrame(densityMultiplier);
+            SetRandomVehicleDensityMultiplierThisFrame(densityMultiplier);
+            SetPedDensityMultiplierThisFrame(densityMultiplier);
+            SetScenarioPedDensityMultiplierThisFrame(densityMultiplier, densityMultiplier);
+
+            DisablePlayerVehicleRewards(Game.Player.Handle);
+            SetRadarZoom(1100);
+        }
         #endregion
     }
 }
