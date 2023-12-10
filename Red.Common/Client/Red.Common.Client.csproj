@@ -1,19 +1,11 @@
-﻿<Project Sdk="CitizenFX.Sdk.Client/0.2.3">
+<Project Sdk="CitizenFX.Sdk.Client/0.2.3">
 	<PropertyGroup>
 		<LangVersion>latest</LangVersion>
-		<TargetName>$(AssemblyName).net</TargetName>
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-	  <NoWarn>1701;1702;1998</NoWarn>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-	  <NoWarn>1701;1702;1998</NoWarn>
 	</PropertyGroup>
     <ItemGroup>
         <Compile Include="../Shared/**/*.cs" />
     </ItemGroup>
     <ItemGroup>
-      <None Remove="Client.cs~RFcb4644.TMP" />
+      <None Remove="ClientMain.cs~RF1e1ac970.TMP" />
     </ItemGroup>
 </Project>

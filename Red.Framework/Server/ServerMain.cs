@@ -1,12 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Reflection;
 using System.Threading.Tasks;
 using CitizenFX.Core;
-using Red.Common.Server.Diagnostics;
 using static CitizenFX.Core.Native.API;
-using static Red.Common.Server.Server;
 
 namespace Red.Framework.Server
 {
@@ -15,6 +10,10 @@ namespace Red.Framework.Server
         #region Variables
         protected string currentAOP = "Not Set";
         protected string aopSetter = "System";
+        #endregion
+
+        #region Constructor
+        public ServerMain() => SetMapName("San Andreas");
         #endregion
 
         #region Commands
@@ -29,13 +28,17 @@ namespace Red.Framework.Server
             }
             else if (currentAOP is null || aopSetter is null)
             {
-                AddChatMessage("System", "We couldn't retrieve the current AOP, try again later.");
+                TriggerClientEvent("_chat:chatMessage", "SYSTEM", new[] { 255, 255, 255 }, $"Current AOP is ^5^*{currentAOP}^r^7 (Set by: ^5^*{aopSetter}^r^7)");
             }
             else
             {
-                AddChatMessage("System", $"Current AOP is ^5^*{currentAOP}^r^7 (Set by: ^5^*{aopSetter}^r^7)");
+                TriggerClientEvent("_chat:chatMessage", "SYSTEM", new[] { 255, 255, 255 }, $"Current AOP is ^5^*{currentAOP}^r^7 (Set by: ^5^*{aopSetter}^r^7)");
             }
         }
+        #endregion
+
+        #region Methods
+        private void DropUserFromServer([FromSource] Player player, string reason = "Dropped from server.") => DropPlayer(player.Handle, reason);
         #endregion
 
         #region Event Handlers

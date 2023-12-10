@@ -3,13 +3,13 @@ using System.Threading.Tasks;
 using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
 
-namespace Red.Death.Client
+namespace Red.Economy.Client
 {
     public class ClientMain : BaseScript
     {
         public ClientMain()
         {
-            Debug.WriteLine("Hi from Red.Death.Client!");
+            Debug.WriteLine("Hi from Red.Economy.Client!");
         }
 
         [Tick]

@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using CitizenFX.Core;
 using Newtonsoft.Json;
 using Red.Common.Client.Misc;
+using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
-using static Red.Common.Client.Client;
 using static Red.Common.Client.Diagnostics.Log;
+using static Red.Common.Client.Hud.HUD;
 
 namespace Red.Framework.Client
 {
@@ -111,6 +111,19 @@ namespace Red.Framework.Client
 
         [Command("changecharacter")]
         private void ChangeCharacterCommand() => DisplayNUI();
+
+        [Command("dob")]
+        private void CharacterDoBCommand()
+        {
+            if (currentCharacter is null)
+            {
+                TriggerEvent("chat:addMessage", new { color = new[] { 255, 0, 0 }, args = new[] { "SYSTEM", "You must choose a character in the framework before using this command!" } });
+            }
+            else
+            {
+                TriggerEvent("chat:addMessage", new { color = new[] { 255, 0, 0 }, args = new[] { "SYSTEM", $"{currentCharacter.FirstName} {currentCharacter.LastName}'s date of birth is {currentCharacter.DoB:MM/dd/yyyy}" } });
+            }
+        }
         #endregion
 
         #region NUI Callbacks
@@ -135,7 +148,7 @@ namespace Red.Framework.Client
 
             SetNuiFocus(false, false);
             Info("[Framework]: Revoking Nui Callback");
-            
+
             result(new { success = true, message = "success" });
         }
 
@@ -172,6 +185,9 @@ namespace Red.Framework.Client
 
             Info($"[Framework]: Selected Character [{currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})]");
             SetNuiFocus(false, false);
+
+            TriggerEvent("_chat:chatMessage", "SYSTEM", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
+            TriggerEvent("Framework:Client:characterSelected", Json.Stringify(createdCharacter));
         }
 
         private void CreateCharacter(IDictionary<string, object> data, CallbackDelegate result)
@@ -307,7 +323,7 @@ namespace Red.Framework.Client
         private void OnChangeAOP(string newAOP, string aopSetter)
         {
             currentAOP = newAOP;
-            AddChatMessage("System", $"Current AOP is ^5^*{currentAOP}^r^7 (Set by: ^5^*{aopSetter}^r^7)");
+            TriggerEvent("_chat:chatMessage", "SYSTEM", new[] { 255, 255, 255 }, $"Current AOP is ^5^*{currentAOP}^r^7 (Set by: ^5^*{aopSetter}^r^7)");
 
             SendNuiMessage(Json.Stringify(new
             {
@@ -421,7 +437,7 @@ namespace Red.Framework.Client
         }
 
         [Tick]
-        private async Task Secondary()
+        private async Task SecondaryTick()
         {
             SetVehicleDensityMultiplierThisFrame(densityMultiplier);
             SetParkedVehicleDensityMultiplierThisFrame(densityMultiplier);
@@ -431,6 +447,12 @@ namespace Red.Framework.Client
 
             DisablePlayerVehicleRewards(Game.Player.Handle);
             SetRadarZoom(1100);
+        }
+
+        [Tick]
+        private async Task TertiaryTick()
+        {
+            DrawText2d(1.133f, -0.065f, 0.43f, $"Current AOP: ~g~{currentAOP}", 255, 255, 255, 255);
         }
         #endregion
     }

@@ -1,41 +1,11 @@
-using System;
 using System.Linq;
 using CitizenFX.Core;
-using SharpConfig;
 using static CitizenFX.Core.Native.API;
-
 
 namespace Red.Chat.Server
 {
     public class ServerMain : BaseScript
     {
-
-        #region Varibles
-        protected string communityName;
-        #endregion
-
-        #region Constructor
-        public ServerMain() => ReadConfigFile();
-        #endregion
-
-        #region Methods
-        private void ReadConfigFile()
-        {
-            var data = LoadResourceFile(GetCurrentResourceName(), "config.ini");
-
-            if (Configuration.LoadFromString(data).Contains("Chat", "CommunityName") == true)
-            {
-                Configuration loaded = Configuration.LoadFromString(data);
-
-                communityName = loaded["Chat"]["CommunityName"].StringValue;
-            }
-            else
-            {
-                Debug.WriteLine($"[Chat]: Config file has not been configured correctly.");
-            }
-        }
-        #endregion
-
         #region Commands
         [Command("say")]
         private void OnSayCommand([FromSource] Player player, string[] args)
@@ -45,7 +15,7 @@ namespace Red.Chat.Server
                 return;
             }
 
-            TriggerLatentClientEvent("chat:addMessage", 5000, "pnw", new int[] { 194, 39, 39 }, string.Join(" ", args));
+            TriggerLatentClientEvent("_chat:chatMessage", 5000, "SYSTEM", new int[] { 194, 39, 39 }, string.Join(" ", args));
         }
         #endregion
 
@@ -66,7 +36,7 @@ namespace Red.Chat.Server
                         chatMessageArgs = chatMessageArgs.Append(authorPos).ToArray();
                     }
 
-                    ply.TriggerEvent("chat:addMessage", chatMessageArgs);
+                    ply.TriggerEvent("_chat:chatMessage", chatMessageArgs);
                 }
             }
         }
@@ -78,7 +48,7 @@ namespace Red.Chat.Server
 
             if (!WasEventCanceled() && !message.StartsWith("/"))
             {
-                TriggerClientEvent("chat:chatMessage", author, color, message);
+                TriggerClientEvent("_chat:chatMessage", author, color, message);
             }
         }
 
@@ -88,16 +58,22 @@ namespace Red.Chat.Server
             TriggerClientEvent("chat:radioMessage", $"{player.Name} (#{int.Parse(player.Handle)})", message);
         }
 
-        [EventHandler("Chat:Server:twitterMessage")]
-        private void OnTwitterMessage([FromSource] Player player, string username, string message)
+        [EventHandler("Chat:Server:twotterMessage")]
+        private void OnTwotterMessage([FromSource] Player player, string username, string message)
         {
-            TriggerClientEvent("chat:twitterMessage", username, message);
+            TriggerClientEvent("chat:twotterMessage", username, message);
         }
 
         [EventHandler("Chat:Server:911Message")]
         private void On911Message([FromSource] Player player, string location, string message)
         {
             TriggerClientEvent("chat:911Message", $"{player.Name} [{location}] (#{int.Parse(player.Handle)})", message);
+        }
+
+        [EventHandler("Chat:Server:311Message")]
+        private void On311Message([FromSource] Player player, string location, string message)
+        {
+            TriggerClientEvent("chat:311Message", $"{player.Name} [{location}] (#{int.Parse(player.Handle)})", message);
         }
         #endregion
     }

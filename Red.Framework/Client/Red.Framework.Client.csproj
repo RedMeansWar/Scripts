@@ -1,13 +1,10 @@
 <Project Sdk="CitizenFX.Sdk.Client/0.2.3">
-    <ItemGroup>
-        <Compile Include="../Shared/**/*.cs" />
-    </ItemGroup>
 	<PropertyGroup>
 		<LangVersion>latest</LangVersion>
 	</PropertyGroup>
-	<ItemGroup>
-	  <Compile Remove="..\Shared\Events.cs" />
-	</ItemGroup>
+    <ItemGroup>
+        <Compile Include="../Shared/**/*.cs" />
+    </ItemGroup>
     <ItemGroup>
       <Reference Include="Newtonsoft.Json">
         <HintPath>..\..\_References_\Newtonsoft.Json.dll</HintPath>

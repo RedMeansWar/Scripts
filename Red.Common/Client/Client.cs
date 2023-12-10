@@ -1,22 +1,13 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
-using static Red.Common.Client.Misc.MathExtender;
 
 namespace Red.Common.Client
 {
     public class Client : BaseScript
     {
-        protected static Ped PlayerPed = Game.PlayerPed;
-        protected static Ped Character = Game.Player.Character;
-        protected static Player Player = Game.Player;
-        protected static Vector3 PlayerPosition = PlayerPed.Position;
-        protected static Random random = new();
-        protected static Blip targetBlip;
-
+        #region Private Lists
         protected static readonly IReadOnlyList<Control> cameraControls = new List<Control>()
         {
             Control.LookBehind, Control.LookDown, Control.LookDownOnly, Control.LookLeft, Control.LookLeftOnly, Control.LookLeftRight, Control.LookRight,
@@ -42,383 +33,281 @@ namespace Red.Common.Client
 
         protected static readonly IReadOnlyList<WeaponHash> automaticWeapons = new List<WeaponHash>()
         {
-            WeaponHash.MicroSMG, WeaponHash.MachinePistol, WeaponHash.MiniSMG, WeaponHash.SMG, WeaponHash.SMGMk2, WeaponHash.AssaultSMG, WeaponHash.CombatPDW, 
-            WeaponHash.MG, WeaponHash.CombatMG, WeaponHash.CombatMGMk2, WeaponHash.Gusenberg, WeaponHash.AssaultRifle, WeaponHash.AssaultRifleMk2, WeaponHash.CarbineRifle, 
-            WeaponHash.CarbineRifleMk2, WeaponHash.AdvancedRifle, WeaponHash.SpecialCarbine, WeaponHash.SpecialCarbineMk2, WeaponHash.BullpupRifle, WeaponHash.BullpupRifleMk2, 
+            WeaponHash.MicroSMG, WeaponHash.MachinePistol, WeaponHash.MiniSMG, WeaponHash.SMG, WeaponHash.SMGMk2, WeaponHash.AssaultSMG, WeaponHash.CombatPDW,
+            WeaponHash.MG, WeaponHash.CombatMG, WeaponHash.CombatMGMk2, WeaponHash.Gusenberg, WeaponHash.AssaultRifle, WeaponHash.AssaultRifleMk2, WeaponHash.CarbineRifle,
+            WeaponHash.CarbineRifleMk2, WeaponHash.AdvancedRifle, WeaponHash.SpecialCarbine, WeaponHash.SpecialCarbineMk2, WeaponHash.BullpupRifle, WeaponHash.BullpupRifleMk2,
             WeaponHash.CompactRifle
         };
-
-        public static float CalculateDistanceTo(Vector3 vec1, Vector3 vec2, bool useZ) => useZ ? (float)Math.Sqrt((double)((Vector3)vec1).DistanceToSquared(vec2)) : (float)Math.Sqrt(Math.Pow(x: (double)vec2.X - vec1.X, 2.0) + Math.Pow(vec2.Y - (double)vec1.Y, 2.0));
-
-        #region Weapons
-        public static Weapon GiveWeapon(WeaponHash weaponHash, bool equip) => PlayerPed.Weapons.Give(weaponHash, 9999, equip, true);
-        public static Weapon GiveWeapon(WeaponHash weaponHash, int ammoAmount, bool equip) => PlayerPed.Weapons.Give(weaponHash, ammoAmount, equip, true);
-        public static Weapon GiveWeapon(uint weaponHash, bool equip) => PlayerPed.Weapons.Give((WeaponHash)weaponHash, 9999, equip, true);
-        public static Weapon GiveWeapon(uint weaponHash, int ammoAmount, bool equip) => PlayerPed.Weapons.Give((WeaponHash)weaponHash, ammoAmount, equip, true);
-
-        public static bool IsWeaponAutomatic(Weapon weapon) => automaticWeapons.Contains(weapon);
-        #endregion
-
-        public static Player GetClosestPlayerToClient(float radius = 2f)
-        {
-            Player closestPlayer = null;
-            PlayerList PlayerList = PlayerList.Players;
-
-            float closestDistance = float.MaxValue;
-            float distance = Vector3.DistanceSquared(Character.Position, PlayerPosition);
-
-            foreach (Player player in PlayerList)
-            {
-                if (player is null || player == Game.Player)
-                    continue;
-
-                if (distance < closestDistance && distance < radius)
-                {
-                    closestPlayer = player;
-                    closestDistance = distance;
-                }
-            }
-
-            return closestPlayer;
-        }
-
-        public static Vehicle GetClosestVehicleToPlayer(float radius = 2f)
-        {
-            RaycastResult raycast = World.RaycastCapsule(PlayerPosition, PlayerPosition, radius, (IntersectOptions)10, PlayerPed);
-
-            return raycast.HitEntity as Vehicle;
-        }
-
-        public static bool CannotDoAction(Ped ped)
-        {
-            return ped.IsCuffed
-            || ped.IsDead || ped.IsBeingStunned
-            || ped.IsClimbing || ped.IsDiving || ped.IsFalling
-            || ped.IsGettingIntoAVehicle || ped.IsJumping || ped.IsJumpingOutOfVehicle
-            || ped.IsRagdoll || ped.IsSwimmingUnderWater || ped.IsVaulting;
-        }
-
-        #region Spawn Local Vehicle
-        public static void SpawnLocalVehicle(Vehicle vehicle, Vector3 coords, float heading) => CreateVehicle(vehicle.Model, coords.X, coords.Y, coords.Z, heading, false, false);
-        public static void SpawnLocalVehicle(uint vehicle, Vector3 coords, float heading) => CreateVehicle(vehicle, coords.X, coords.Y, coords.Z, heading, false, false);
-        #endregion
-
-        public static float CorrectHeading(Entity entity)
-        {
-            float headingNumber = 360f - entity.Heading;
-
-            if ((double)headingNumber > 360.0f)
-            {
-                headingNumber -= 360f;
-            }
-
-            return headingNumber;
-        }
-        // Forked from LondonStudios
-        public static int Raycast(float radius = 1.0f)
-        {
-            Vector3 location = GetEntityCoords(PlayerPedId(), true);
-            Vector3 offset = GetOffsetFromEntityGivenWorldCoords(PlayerPedId(), 0.0f, 2.0f, 0.0f);
-
-            int shape = StartShapeTestCapsule(location.X, location.Y, location.Z, offset.X, offset.Y, offset.Z, radius, 12, PlayerPedId(), 7);
-            bool hit = false;
-
-            Vector3 endCoords = new(0f, 0f, 0f);
-            Vector3 surface = new(0f, 0f, 0f);
-
-            int entityHit = 0;
-            var result = GetShapeTestResult(shape, ref hit, ref endCoords, ref surface, ref entityHit);
-
-            return entityHit;
-        }
-
-        #region Model Checker
-        public static bool DoesModelExist(uint modelHash) => IsModelInCdimage(modelHash);
-        public static bool DoesModelExist(string modelName) => DoesModelExist((uint)GetHashKey(modelName));
         #endregion
 
         #region Extensions
-        public static Player GetClosestPlayer(float radius = 2f) => GetClosestPlayerToClient(radius);
-        public static Player GetClosestPlayerToPed(float radius = 2f) => GetClosestPlayerToClient(radius);
-        public static Player GetClosestPlayerInRadius(float radius = 2f) => GetClosestPlayerToClient(radius);
-
-        public static Vehicle GetClosestVehicle(float radius = 2f) => GetClosestVehicleToPlayer(radius);
-        public static Vehicle GetClosestVehicleToPed(float radius = 2f) => GetClosestVehicleToPlayer(radius);
-        public static Vehicle GetClosestVehicleInRadius(float radius = 2f) => GetClosestVehicleToPlayer(radius);
+        public static Ped ClientPed = Game.PlayerPed;
+        public static Ped ClientCharacter = Game.Player.Character;
+        public static Player ClientPlayer = Game.Player;
+        /// <summary>
+        /// Shortened version of GetClosestPlayerToClient without ClientPlayer to access it.
+        /// </summary>
+        /// <param name="radius"></param>
+        /// <returns></returns>
+        public static Player GetClosestPlayer(float radius = 2f) => ClientPlayer.GetClosestPlayerToClient(radius);
+        /// <summary>
+        /// Shortened version of GetClosestPlayerToClient without ClientPlayer to access it.
+        /// </summary>
+        /// <param name="radius"></param>
+        /// <returns></returns>
+        public static Player GetClosestPlayerToPed(float radius = 2f) => ClientPlayer.GetClosestPlayerToClient(radius);
+        /// <summary>
+        /// Shortened version of GetClosestVehicle without ClientPed to access it.
+        /// </summary>
+        /// <param name="radius"></param>
+        /// <returns></returns>
+        public static Vehicle GetClosestVehicle(float radius = 2f) => ClientPed.GetClosestVehicle(radius);
+        /// <summary>
+        /// Shortened version of GetClosestVehicle without ClientPed to access it.
+        /// </summary>
+        /// <param name="radius"></param>
+        /// <returns></returns>
+        public static Vehicle GetClosestVehicleToPlayer(float radius = 2f) => ClientPed.GetClosestVehicle(radius);
+        /// <summary>
+        /// Shortened version of GetClosestVehicle without ClientPed to access it.
+        /// </summary>
+        /// <param name="radius"></param>
+        /// <returns></returns>
+        public static Vehicle GetClosestVehicleToPed(float radius = 2f) => ClientPed.GetClosestVehicle(radius);
+        /// <summary>
+        /// Shortened version of ClientPed.LastVehicle
+        /// </summary>
+        public static Vehicle ClientLastVehicle => ClientPed?.LastVehicle;
+        /// <summary>
+        /// Shortened version of ClientPed.CurrentVehicle
+        /// </summary>
+        public static Vehicle ClientCurrentVehicle = ClientPed?.CurrentVehicle;
+        /// <summary>
+        /// Gets the Clients ped position.
+        /// </summary>
+        public static Vector3 ClientPedPostition = ClientPed.Position;
+        /// <summary>
+        /// Gets the Clients character position.
+        /// </summary>
+        public static Vector3 ClientCharacterPosition = ClientCharacter.Position;
+        /// <summary>
+        /// Plays an animation
+        /// </summary>
+        /// <param name="dictionary"></param>
+        /// <param name="name"></param>
+        public static void PlayAnim(string dictionary, string name) => ClientPed.Task.PlayAnimation(dictionary, name);
+        /// <summary>
+        /// Plays an animation
+        /// </summary>
+        /// <param name="dictionary"></param>
+        /// <param name="name"></param>
+        /// <param name="blindInSpeed"></param>
+        /// <param name="duration"></param>
+        /// <param name="flags"></param>
+        public static void PlayAnim(string dictionary, string name, float blindInSpeed, int duration, AnimationFlags flags) => ClientPed.Task.PlayAnimation(dictionary, name, blindInSpeed, duration, flags);
+        /// <summary>
+        /// Plays an animation
+        /// </summary>
+        /// <param name="dictionary"></param>
+        /// <param name="name"></param>
+        /// <param name="blindInSpeed"></param>
+        /// <param name="blindOutSpeed"></param>
+        /// <param name="duration"></param>
+        /// <param name="flags"></param>
+        /// <param name="playbackRate"></param>
+        public static void PlayAnim(string dictionary, string name, float blindInSpeed, float blindOutSpeed, int duration, AnimationFlags flags, float playbackRate) => ClientPed.Task.PlayAnimation(dictionary, name, blindInSpeed, blindOutSpeed, duration, flags, playbackRate);
         #endregion
 
-        #region Disable Actions
-        public static void DisableAttackControls()
-        {
-            foreach (Control control in attackControls)
-            {
-                Game.DisableControlThisFrame(0, control);
-            }
-        }
-
-        public static void DisableMovement(bool disableCameraMovement = false)
-        {
-            foreach (Control control in movementControls)
-            {
-                Game.DisableControlThisFrame(0, control);
-            }
-
-            if (disableCameraMovement is true)
-            {
-                foreach (Control control in cameraControls)
-                {
-                    Game.DisableControlThisFrame(0, control);
-                }
-            }
-        }
+        #region Model Checker
+        /// <summary>
+        /// Checks if a model exist.
+        /// </summary>
+        /// <param name="modelHash"></param>
+        /// <returns></returns>
+        public static bool DoesModelExist(uint modelHash) => IsModelInCdimage(modelHash);
+        /// <summary>
+        /// Checks if a model exist.
+        /// </summary>
+        /// <param name="modelName"></param>
+        /// <returns></returns>
+        public static bool DoesModelExist(string modelName) => DoesModelExist((uint)GetHashKey(modelName));
+        /// <summary>
+        /// Checks if a model exist.
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public static bool DoesModelExist(Model model) => DoesModelExist((uint)model.Hash);
         #endregion
-
-        #region Heading Calculation
-        public static float CalculateHeadingTowardsEntity(Entity entity, Entity targetEntity)
-        {
-            Vector3 dirToTargetEnt = targetEntity.Position - entity.Position;
-            dirToTargetEnt.Normalize();
-
-            return ConvertDirectionToHeading(dirToTargetEnt);
-        }
-
-        public static float CalculateHeadingTowardsPosition(Vector3 start, Vector3 target)
-        {
-            Vector3 dirToTargetEnt = target - start;
-            dirToTargetEnt.Normalize();
-
-            return ConvertDirectionToHeading(dirToTargetEnt);
-        }
-        #endregion
-
-        #region Teleportation
-        // Forked from vMenu
+        /// <summary>
+        /// Teleports a player to a specific set of coords
+        /// freezing them or teleporting the player with their vehicle is optional
+        /// </summary>
+        /// <param name="playerId"></param>
+        /// <param name="pos"></param>
+        /// <param name="withVehicle"></param>
+        /// <param name="freezePlayer"></param>
         public static void TeleportPlayer(int playerId, Vector3 pos, bool withVehicle, bool freezePlayer)
         {
             PlayerList Players = PlayerList.Players;
             Player player = Players[playerId];
 
-
-            if (freezePlayer && player != null && Character != null && Character.Exists())
+            if (freezePlayer && player is not null && ClientCharacter.Exists())
             {
-                Character.IsPositionFrozen = true;
-
-                FreezeEntityPosition(Character.Handle, true);
-                ClearPedTasksImmediately(Character.Handle);
-                ClearPedTasks(Character.Handle);
+                ClientCharacter.IsPositionFrozen = true;
+                FreezeEntityPosition(ClientCharacter.Handle, true);
+                ClearPedTasksImmediately(ClientCharacter.Handle);
+                ClearPedTasks(ClientCharacter.Handle);
             }
 
-            if (withVehicle && player != null && Character != null && Character.Exists() && player.Character.IsInVehicle())
+            if (withVehicle && player is not null && ClientCharacter.Exists() && player.Character.IsInVehicle())
             {
-                SetPedCoordsKeepVehicle(Character.Handle, pos.X, pos.Y, pos.Z);
+                SetPedCoordsKeepVehicle(ClientCharacter.Handle, pos.X, pos.Y, pos.Z);
             }
         }
-        #endregion
-
-        #region Field of View
-        public static void ForceFirstPerson() => SetFollowPedCamViewMode(4);
-        public static void ForceThirdPersonClose() => SetFollowPedCamViewMode(0);
-        public static void ForceThirdPerson() => SetFollowPedCamViewMode(1);
-        public static void ForceThirdPersonFar() => SetFollowPedCamViewMode(2);
-        public static void ForceCinematic() => SetFollowPedCamViewMode(3);
-        #endregion
-
-        #region Animations
-        public static void ClearAllTaskImmediately() => PlayerPed.Task.ClearAllImmediately();
-        public static void ClearAllTasks() => PlayerPed.Task.ClearAll();
-        public static void ClearAnimation(string animDictionary, string animName) => PlayerPed.Task.ClearAnimation(animDictionary, animName);
-
-        public static void PlayAnim(string dictionary, string name, float blendInSpeed = 8.0f, int duration = -1, int flags = 0) => PlayerPed.Task.PlayAnimation(dictionary, name, blendInSpeed, duration, (AnimationFlags)flags);
-        public static void PlayAnim(string dictionary, string name, float blindInSpeed, int duration, AnimationFlags flags) => PlayerPed.Task.PlayAnimation(dictionary, name, blindInSpeed, duration, flags);
-        public static void PlayAnim(string dictionary, string name, float blindInSpeed, float blindOutSpeed, int duration, AnimationFlags flags, float playbackRate) => PlayerPed.Task.PlayAnimation(dictionary, name, blindInSpeed, blindOutSpeed, duration, flags, playbackRate);
-        public static void PlayAnim(string dictionary, string name, int blindInSpeed, int duration, AnimationFlags flags) => PlayAnim(dictionary, name, ConvertIntToFloat(blindInSpeed), duration, flags);
-        public static void PlayAnim(string dictionary, string name, int blindInSpeed, int blindOutSpeed, int duration, AnimationFlags flags, int playbackRate) => PlayerPed.Task.PlayAnimation(dictionary, name, ConvertIntToFloat(blindInSpeed), ConvertIntToFloat(blindOutSpeed), duration, flags, ConvertIntToFloat(playbackRate));
-        public static void PlayAnim(int ped, string dictionary, string name, float blendInSpeed, float blendOutSpeed, int duration, int flag, float playbackRate, bool lockX, bool lockY, bool lockZ) => TaskPlayAnim(ped, dictionary, name, blendInSpeed, blendOutSpeed, duration, flag, playbackRate, lockX, lockY, lockZ);
-        public static void PlayAnim(int ped, string dictionary, string name, float blendInSpeed, float blendOutSpeed, int duration, AnimationFlags flag, float playbackRate, bool lockX, bool lockY, bool lockZ) => TaskPlayAnim(ped, dictionary, name, blendInSpeed, blendOutSpeed, duration, (int)flag, playbackRate, lockX, lockY, lockZ);
-        #endregion
-
-        #region Props
-        public static void SpawnPreviewProp(string model)
+        /// <summary>
+        /// Sets the current players vehicle license plate to the desired name.
+        /// Forked from Albo1125
+        /// </summary>
+        /// <param name="plate"></param>
+        public static void SetPlate(string plate)
         {
-            Prop previewProp;
-
-            Vector3 pedPos = PlayerPed.Position;
-            RaycastResult raycast = World.RaycastCapsule(pedPos, pedPos, 2f, (IntersectOptions)10, PlayerPed);
-
-            if (!raycast.DitHitEntity)
+            if (ClientPed is not null && ClientCharacter is not null && ClientCharacter.Exists())
             {
-                Vector3 previewCoords = PlayerPed.GetOffsetPosition(new(0.0f, 1.2f, 1.32f));
-
-                previewProp = new(CreateObjectNoOffset((uint)GetHashKey(model), previewCoords.X, previewCoords.Y, previewCoords.Z, false, false, false))
+                if (plate.Length > 8)
                 {
-                    Rotation = PlayerPed.Rotation + new Vector3(-20f, 0f, 0f),
-                    IsCollisionEnabled = false,
-                    Opacity = 100
-                };
+                    Debug.WriteLine("Plate was set but the text is too long. Must have a total of 8 characters. (Numbers and Letters)");
+                }
+                else
+                {
+                    SetVehicleNumberPlateText(ClientCurrentVehicle.Handle, plate);
+                }
             }
         }
-
-        public static void SyncEntity(int entity)
+        /// <summary>
+        /// Fixes the current vehicle that the player is in
+        /// </summary>
+        public static void FixVehicle()
         {
-            int networkId = ObjToNet(entity);
-
-            SetNetworkIdExistsOnAllMachines(networkId, true);
-            SetNetworkIdCanMigrate(networkId, false);
-            NetworkSetNetworkIdDynamic(networkId, true);
-            FreezeEntityPosition(entity, true);
-        }
-
-        public static void DeleteProp(string modelName)
-        {
-            int hash = GetHashKey(modelName);
-            Vector3 entityCoords = GetEntityCoords(PlayerPedId(), true);
-            Vector3 coords = new()
+            if (ClientPlayer != null && ClientCharacter != null && ClientCharacter.CurrentVehicle != null && ClientCharacter.Exists())
             {
-                X = entityCoords.X,
-                Y = entityCoords.Y,
-                Z = entityCoords.Z
-            };
-
-            if (DoesObjectOfTypeExistAtCoords(coords.X, coords.Z, coords.Z, 1.5f, ConvertIntToUInt(hash), true))
-            {
-                int prop = GetClosestObjectOfType(coords.X, coords.Y, coords.Y, 1.5f, ConvertIntToUInt(hash), false, false, false);
-                DeleteObject(ref prop);
+                Vehicle vehicle = ClientCurrentVehicle;
+                vehicle.Repair();
             }
         }
-
-        public static void PlaceObjectOnGround(int model) => PlaceObjectOnGroundProperly(model);
-        public static void PlaceObjectOnGround(string model) => PlaceObjectOnGroundProperly(GetHashKey(model));
-        #endregion
-
-        #region Entity
-        public static void DeleteEntity(string entity) => DeleteEntity(entity);
+        /// <summary>
+        /// Changes the entity opacity
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="alpha"></param>
+        /// <param name="changeSkin"></param>
         public static void SetEntityOpacity(int entity, int alpha, bool changeSkin = false) => SetEntityAlpha(entity, alpha, changeSkin ? 1 : 0);
-        #endregion
-
-        #region Chat Addons
-        public static void AddChatMessage(string author, string text, string templateIdentifer, bool multiLineEnabled = true, int r = 255, int g = 255, int b = 255)
+        /// <summary>
+        /// Changes the entity opacity
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="alpha"></param>
+        /// <param name="changeSkin"></param>
+        public static void SetEntityOpacity(Entity entity, int alpha, bool changeSkin = false) => SetEntityAlpha(entity.Handle, alpha, changeSkin ? 1 : 0);
+        /// <summary>
+        /// Request an animation dictionary.
+        /// </summary>
+        /// <param name="animDict"></param>
+        public static async void RequestAnim(string animDict)
         {
-            TriggerEvent("chat:addMessage", new
+            RequestAnimDict(animDict);
+            while (!HasAnimDictLoaded(animDict))
             {
-                multiline = multiLineEnabled,
-                args = new[] { author, text },
-                color = new[] { r, g, b },
-                templateId = templateIdentifer
-            });
+                await Delay(100);
+            }
+
+            await Delay(0);
+        }
+        /// <summary>
+        /// Same as RequestAnim just extended
+        /// </summary>
+        /// <param name="animDict"></param>
+        public static async void RequestAnimation(string animDict) => RequestAnim(animDict);
+        /// <summary>
+        /// Request an animation set
+        /// </summary>
+        /// <param name="animSet"></param>
+        public static async void RequestSet(string animSet)
+        {
+            RequestAnimSet(animSet);
+            while (!HasAnimSetLoaded(animSet))
+            {
+                await Delay(100);
+            }
+
+            await Delay(0);
         }
 
-        public static void AddChatMessage(string author, string text, int r = 255, int g = 255, int b = 255)
+        public static async Task PlayAnimation(string dictionary, string name) => ClientPed.Task.PlayAnimation(dictionary, name);
+        /// <summary>
+        /// Disables movement controls on control and on keyboard
+        /// </summary>
+        /// <param name="cameraMovement"></param>
+        public static void DisableMovementControls(bool cameraMovement)
         {
-            TriggerEvent("chat:addMessage", new
+            if (cameraMovement)
             {
-                args = new[] { author, text },
-                color = new[] { r, g, b }
-            });
-        }
-
-        public static void AddChatMessage(string author, string text)
-        {
-            TriggerEvent("chat:addMessage", new
-            {
-                args = new[] { author, text },
-            });
-        }
-
-        public static void AddChatMessage(string author, string text, string templateIdentifer, int r = 255, int g = 255, int b = 255, bool multiLineEnabled = true)
-        {
-            TriggerEvent("chat:addMessage", new
-            {
-                args = new[] { author, text },
-                templateId = templateIdentifer,
-                color = new[] { r, g, b },
-                multiline = multiLineEnabled
-            });
-        }
-
-        public static void AddChatTemplate(string templateIdentifer, string htmlString, string chatTemplateId)
-        {
-            TriggerEvent("chat:addTemplate", templateIdentifer, htmlString);
-
-            TriggerEvent("chat:addMessage", new
-            {
-                templateId = chatTemplateId
-            });
-        }
-
-        public static void AddChatTemplate(string templateId, string htmlString) => TriggerEvent("chat:addTemplate", templateId, htmlString);
-
-        public static void AddCommandSuggestion(string command, string suggestion) => TriggerEvent("chat:addSuggestion", command, suggestion);
-        #endregion
-
-        #region Players
-        public static List<int> GetPlayers()
-        {
-            List<int> players = new();
-
-            for (int i = 0; i <= 255; i++)
-            {
-                if (NetworkIsPlayerActive(i))
+                foreach (Control control in cameraControls)
                 {
-                    players.Add(i);
+                    Game.DisableControlThisFrame(0, control);
+                    Game.DisableControlThisFrame(2, control);
                 }
             }
 
-            return players;
+            foreach (Control control in movementControls)
+            {
+                Game.DisableControlThisFrame(0, control);
+                Game.DisableControlThisFrame(2, control);
+            }
         }
-        #endregion
-
-        #region Distance
-        public static float Distance(float x1, float y1, float z1, float x2, float y2, float z2) => Vdist(x1, y1, z1, x2, y2, z2);
-        public static float Distance(Vector3 position1, Vector3 position2) => Distance(position1.X, position1.Y, position1.Z, position2.X, position2.Y, position2.Z);
-        
-        public static float DistanceFromPlayer(Vector3 playerPos, float x, float y, float z) => Vdist(playerPos.X, playerPos.Y, playerPos.Z, x, y, z);
-        public static float DistanceFromPlayer(Player playerPos, Vector3 position) => DistanceFromPlayer(new(playerPos.Character.Position.X, playerPos.Character.Position.Y, playerPos.Character.Position.Z), position.X, position.Y, position.Z);
-        
-        public static float DistanceFromPed(Ped ped, Vector3 position) => Vdist(ped.Position.X, ped.Position.Y, ped.Position.Z, position.X, position.Y, position.Z);
-        public static float DistanceFromPed(Ped ped, float x, float y, float z) => DistanceFromPed(ped, new(x, y, z));
-        
-        public static int DistanceFromBlip(Blip blip, float x, float y, float z) => DistanceFromBlip(blip.Handle, x, y, z);
-        public static int DistanceFromBlip(Blip blip, Vector3 position) => DistanceFromBlip(blip.Handle, position.X, position.Y, position.Z);
-        public static int DistanceFromBlip(int blip, float x, float y, float z)
+        /// <summary>
+        /// Gets the distance from a blip to the desired vector
+        /// </summary>
+        /// <param name="blip"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="z"></param>
+        /// <returns>a float value resulting in meters</returns>
+        public static float DistanceFromBlip(int blip, float x, float y, float z)
         {
             if (DoesBlipExist(blip))
             {
                 Vector3 blipPos = GetBlipCoords(blip);
                 float distance = Vdist(blipPos.X, blipPos.Y, blipPos.Z, x, y, z);
 
-                return (int)distance;
+                return distance;
             }
             else
             {
-                return -1;
+                return -1f;
             }
         }
-        #endregion
-
-        #region Request Animation
-        public static async void RequestAnim(string dictionary)
-        {
-            RequestAnimDict(dictionary);
-            while (!HasAnimDictLoaded(dictionary))
-            {
-                await Delay(100);
-            }
-
-            await Delay(0);
-        }
-
-        public static async void RequestAnimation(string dictionary) => RequestAnim(dictionary);
-
-        public static async void RequestSet(string set)
-        {
-            RequestAnimSet(set);
-            while (!HasAnimSetLoaded(set))
-            {
-                await Delay(100);
-            }
-
-            await Delay(0);
-        }
-        #endregion
+        /// <summary>
+        /// Gets the distance from a blip to the desired vector
+        /// </summary>
+        /// <param name="blip"></param>
+        /// <param name="position"></param>
+        /// <returns>a float value resulting in meters</returns>
+        public static float DistanceFromBlip(int blip, Vector3 position) => DistanceFromBlip(blip, position.X, position.Y, position.Z);
+        /// <summary>
+        /// Gets the distance from a blip to the desired vector
+        /// </summary>
+        /// <param name="blip"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="z"></param>
+        /// <returns>a float value resulting in meters</returns>
+        public static float DistanceFromBlip(Blip blip, float x, float y, float z) => DistanceFromBlip(blip.Handle, x, y, z);
+        /// <summary>
+        /// Gets the distance from a blip to the desired vector
+        /// </summary>
+        /// <param name="blip"></param>
+        /// <param name="position"></param>
+        /// <returns>a float value resulting in meters</returns>
+        public static float DistanceFromBlip(Blip blip, Vector3 position) => DistanceFromBlip(blip.Handle, position.X, position.Y, position.Z);
     }
 }

@@ -13,11 +13,5 @@
   
       <Compile Include="../Shared/**/*.cs" />
     </ItemGroup>
-  
-    <ItemGroup>
-      <Reference Include="SharpConfig">
-        <HintPath>..\..\_References_\SharpConfig.dll</HintPath>
-      </Reference>
-    </ItemGroup>
 </Project>
   
