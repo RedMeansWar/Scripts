@@ -346,7 +346,7 @@ namespace Red.Chat.Client
                         string streetName311 = GetStreetNameFromHashKey(streetNameAsHash311);
                         string crossingRoad311 = GetStreetNameFromHashKey(crossingRoadAsHash311);
 
-                        string location311 = $"{Exports["postals"].GetClosestPostal(Game.PlayerPed.Position)}, {streetName311}";
+                        string location311 = $"{Exports["nearestpostal"].GetClosestPostal(Game.PlayerPed.Position)}, {streetName311}";
 
                         if (!string.IsNullOrWhiteSpace(crossingRoad311))
                         {

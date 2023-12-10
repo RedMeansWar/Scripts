@@ -1,20 +1,24 @@
 using System;
-using System.Threading.Tasks;
 using CitizenFX.Core;
 
 namespace Red.Cuff.Server
 {
     public class ServerMain : BaseScript
     {
-        public ServerMain()
+        [EventHandler("Cuff:Server:cuffClosestPlayer")]
+        private void OnCuffClosestPlayer([FromSource] Player sender, int target, bool isFront, bool isZiptie)
         {
-            Debug.WriteLine("Hi from Red.Cuff.Server!");
+            Player targetPlayer = Players[target];
+
+            targetPlayer?.TriggerEvent("Cuff:Client:getCuffed", sender.Handle, isFront, isZiptie);
         }
 
-        [Command("hello_server")]
-        public void HelloServer()
+        [EventHandler("Cuff:Server:playCuffAnimation")]
+        private void OnPlayCuffAnimation(int cuffer, bool uncuff)
         {
-            Debug.WriteLine("Sure, hello.");
+            Player cufferPlayer = Players[cuffer];
+
+            cufferPlayer?.TriggerEvent("Cuff:Client:playCuffAnimation", uncuff);
         }
     }
 }
