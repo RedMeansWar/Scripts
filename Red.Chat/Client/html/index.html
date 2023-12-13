@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flexboxgrid/6.3.1/flexboxgrid.min.css" integrity="sha512-YHuwZabI2zi0k7c9vtg8dK/63QB0hLvD4thw44dFo/TfBFVVQOqEG9WpviaEpbyvgOIYLXF1n7xDUfU3GDs0sw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link href="vendor/animate.3.5.2.min.css" rel="stylesheet"></link>
+  <link href="index.css" rel="stylesheet"></link>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo&display=swap" rel="stylesheet">
+
+  <script src="vendor/vue.2.3.3.min.js"></script>
+  <script src="config.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js" integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script type="text/x-template" id="app_template">
+    <div id="app">
+      <div class="chat-window" :style="this.style" :class="{ 'fadeOut animated': !showWindow }">
+        <div class="chat-messages" ref="messages">
+          <message v-for="msg in messages"
+                   :templates="templates"
+                   :multiline="msg.multiline"
+                   :args="msg.args"
+                   :color="msg.color"
+                   :template="msg.template"
+                   :template-id="msg.templateId"
+                   :key="msg">
+          </message>
+        </div>
+      </div>
+      <div class="chat-input" v-show="showInput">
+        <span class="prefix"><strong>CHAT</strong> ➤ </span>
+        <textarea v-model="message"
+                  ref="input"
+                  type="text"
+                  autofocus
+                  spellcheck="false"
+                  @keyup.esc="hideInput"
+                  @keyup="keyUp"
+                  @keydown="keyDown"
+                  @keypress.enter.prevent="send">
+        </textarea>
+        <suggestions :message="message" :suggestions="suggestions" ref="suggs">
+        </suggestions>
+      </div>
+    </div>
+  </script>
+
+  <script type="text/x-template" id="message_template">
+    <div class="msg" :class="{ multiline }">
+      <span v-html="textEscaped"></span>
+    </div>
+  </script>
+
+  <script type="text/x-template" id="suggestions_template">
+    <ul class="suggestions" v-show="currentSuggestions.length > 0">
+      <li id="suggestions" class="suggestion" v-for="s in currentSuggestions">
+        <p>
+          <span :class="{ 'disabled': s.disabled }">
+            {{s.name}}
+          </span>
+          <span class="param"
+                v-for="(p, index) in s.params"
+                :class="{ 'disabled': p.disabled }">
+            [{{p.name}}]
+          </span>
+        </p>
+        <small class="help">
+          <template v-if="!s.disabled">
+            {{s.help}}
+          </template>
+          <template v-for="p in s.params" v-if="!p.disabled">
+            {{p.help}}
+          </template>
+        </small>
+      </li>
+    </ul>
+  </script>
+
+  <script type="text/javascript" src="./Suggestions.js"></script>
+  <script type="text/javascript" src="./Message.js"></script>
+  <script type="text/javascript" src="./App.js"></script>
+
+  <script type="text/javascript">
+  window.post = (url, data) => {
+    var request = new XMLHttpRequest();
+    request.open('POST', url, true);
+    request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+    request.send(data);
+  }
+
+  const instance = new Vue({
+    el: '#app',
+    render: h => h(APP),
+  });
+
+  window.emulate = (type, detail = {}) => {
+    detail.type = type;
+    window.dispatchEvent(new CustomEvent('message', {
+      detail,
+    }));
+  };
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,143 @@
+.color-1 {
+    color: #ff4444;
+}
+
+.color-2 {
+    color: #99cc00;
+}
+
+.color-3 {
+    color: #ffbb33;
+}
+
+.color-4 {
+    color: #0099cc;
+}
+
+.color-5 {
+    color: #33b5e5;
+}
+
+.color-6 {
+    color: #aa66cc;
+}
+
+.color-8 {
+    color: #cc0000;
+}
+
+.color-9 {
+    color: #cc0000;
+}
+
+* {
+    font-family: 'Archivo', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.no-grow {
+    flex-grow: 0;
+}
+
+em {
+    font-style: normal;
+}
+
+#app {
+    font-family: 'Archivo', Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: white;
+}
+
+.chat-window {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 38%;
+    height: 12.5%;
+    background-color: #ffffff;
+    -webkit-animation-duration: 2s;
+}
+
+.chat-messages {
+    position: relative;
+    height: 95%;
+    font-size: 0.9vw;
+    margin: 10px;
+    text-shadow: 2px 2px 4px #000000;
+    overflow: hidden;
+}
+
+.chat-input {
+    font-size: 0.9vw;
+    position: absolute;
+    top: 257px;
+    left: 27px;
+    width: 38%;
+    text-shadow: 1px 1px #000000;
+    box-sizing: border-box;
+}
+
+.prefix {
+    position: absolute;
+    margin-top: 2px;
+    left: 4px;
+}
+
+textarea {
+    font-size: 0.9vw;
+    display: block;
+    box-sizing: border-box;
+    padding: 5px;
+    padding-left: 11%;
+    color: white;
+    background-color: rgba(44, 62, 80, 0.0);
+    width: 100%;
+    border-width: 0;
+    height: 34px;
+    text-shadow: 1px 1px #000000;
+    overflow: hidden;
+}
+
+textarea:focus,
+input:focus {
+    outline: none;
+}
+
+.msg {
+    margin-bottom: 3px;
+}
+
+.multiline {
+    margin-left: 1.5rem;
+    text-indent: -1.5rem;
+    white-space: pre-line;
+}
+
+.suggestions {
+    padding-top: 10px;
+    list-style-type: none;
+    padding: 5px;
+    padding-left: 27px;
+    font-size: 0.9vw;
+    box-sizing: border-box;
+    color: white;
+    background-color: rgba(15, 22, 29, 0.8);
+    border-radius: 10px;
+    width: 100%;
+    box-shadow: 3px 3px 4px rgba(0, 0, 0, 0.4);
+}
+
+.help {
+    color: #b0bbbd;
+}
+
+.disabled {
+    color: #b0bbbd;
+}
+
+.suggestion {
+    margin-bottom: 5px;
+}
