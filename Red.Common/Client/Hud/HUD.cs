@@ -214,7 +214,38 @@ namespace Red.Common.Client.Hud
         /// <param name="textureDict"></param>
         public static async void RequestTextureDict(string textureDict) => RequestTextureDictionary(textureDict);
         /// <summary>
-        /// Brings up a text box that the user can type in and gets the entered text data.
+        /// Get a user input text string.
+        /// </summary>
+        /// <returns></returns>
+        public static async Task<string> GetUserInput() => await GetUserInput(null, null, 30);
+        /// <summary>
+        /// Get a user input text string.
+        /// </summary>
+        /// <param name="maxInputLength"></param>
+        /// <returns></returns>
+        public static async Task<string> GetUserInput(int maxInputLength) => await GetUserInput(null, null, maxInputLength);
+        /// <summary>
+        /// Get a user input text string.
+        /// </summary>
+        /// <param name="windowTitle"></param>
+        /// <returns></returns>
+        public static async Task<string> GetUserInput(string windowTitle) => await GetUserInput(windowTitle, null, 30);
+        /// <summary>
+        /// Get a user input text string.
+        /// </summary>
+        /// <param name="windowTitle"></param>
+        /// <param name="maxInputLength"></param>
+        /// <returns></returns>
+        public static async Task<string> GetUserInput(string windowTitle, int maxInputLength) => await GetUserInput(windowTitle, null, maxInputLength);
+        /// <summary>
+        /// Get a user input text string.
+        /// </summary>
+        /// <param name="windowTitle"></param>
+        /// <param name="defaultText"></param>
+        /// <returns></returns>
+        public static async Task<string> GetUserInput(string windowTitle, string defaultText) => await GetUserInput(windowTitle, defaultText, 30);
+        /// <summary>
+        /// Get a user input text string.
         /// </summary>
         /// <param name="windowTitle"></param>
         /// <param name="defaultText"></param>
@@ -222,36 +253,31 @@ namespace Red.Common.Client.Hud
         /// <returns></returns>
         public static async Task<string> GetUserInput(string windowTitle, string defaultText, int maxInputLength)
         {
+            // Create the window title string.
             var spacer = "\t";
-
             AddTextEntry($"{GetCurrentResourceName().ToUpper()}_WINDOW_TITLE", $"{windowTitle ?? "Enter"}:{spacer}(MAX {maxInputLength} Characters)");
+
+            // Display the input box.
             DisplayOnscreenKeyboard(1, $"{GetCurrentResourceName().ToUpper()}_WINDOW_TITLE", "", defaultText ?? "", "", "", "", maxInputLength);
-
             await Delay(0);
-
+            // Wait for a result.
             while (true)
             {
                 var keyboardStatus = UpdateOnscreenKeyboard();
 
                 switch (keyboardStatus)
                 {
+                    case 3: // not displaying input field anymore somehow
+                    case 2: // cancelled
+                        return null;
                     case 1: // finished editing
                         return GetOnscreenKeyboardResult();
-                    case 2: // cancelled
-                    case 3: // not displaying input
-                        return null;
                     default:
                         await Delay(0);
                         break;
                 }
             }
         }
-
-        public static async Task GetUserInput() => await GetUserInput(null, null, 30);
-        public static async Task GetUserInput(int maxInputLength) => await GetUserInput(null, null, maxInputLength);
-        public static async Task GetUserInput(string windowTitle) => await GetUserInput(windowTitle, null, 30);
-        public static async Task GetUserInput(string windowTitle, int maxInputLength) => await GetUserInput(windowTitle, null, maxInputLength);
-        public static async Task GetUserInput(string windowTitle, string defaultText) => await GetUserInput(windowTitle, defaultText, 30);
         /// <summary>
         /// Gets the safezone of the player
         /// </summary>
