@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Drawing;
 using System.Linq;
 using CitizenFX.Core;
+using CitizenFX.Core.Native;
 using static CitizenFX.Core.Native.API;
 
 namespace Red.Common.Client
@@ -20,7 +22,7 @@ namespace Red.Common.Client
            || ped.IsJumpingOutOfVehicle || ped.IsRagdoll
            || ped.IsSwimmingUnderWater || ped.IsVaulting;
         /// <summary>
-        /// Gets the Closest Player to the0 client with a predefined radius (2 meters by default)
+        /// Gets the Closest Player to the client with a predefined radius (2 meters by default)
         /// </summary>
         /// <param name="player"></param>
         /// <param name="radius"></param>
@@ -99,6 +101,30 @@ namespace Red.Common.Client
             {
                 return (float)Math.Sqrt(Math.Pow(v2.X - v1.X, 2) + Math.Pow(v2.Y - v1.Y, 2));
             }
+        }
+        /// <summary>
+        /// Calculeates the heading towards another entity
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="targetEntity"></param>
+        /// <returns></returns>
+        public static float CalculateHeadingTowardsEntity(this Entity entity, Entity targetEntity)
+        {
+            Vector3 directionToEntity = (targetEntity.Position - entity.Position);
+            directionToEntity.Normalize();
+            return GameMath.DirectionToHeading(directionToEntity);
+        }
+        /// <summary>
+        /// Calculates the heading of the entity towards a certain position
+        /// </summary>
+        /// <param name="startPos"></param>
+        /// <param name="targetPos"></param>
+        /// <returns></returns>
+        public static float CalculateHeadingTowardsPosition(this Vector3 startPos, Vector3 targetPos)
+        {
+            Vector3 directionToTargetEntity = (targetPos - startPos);
+            directionToTargetEntity.Normalize();
+            return GameMath.DirectionToHeading(directionToTargetEntity);
         }
         #endregion
     }

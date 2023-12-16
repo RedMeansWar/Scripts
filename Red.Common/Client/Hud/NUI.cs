@@ -13,11 +13,7 @@ namespace Red.Common.Client.Hud
         /// </summary>
         /// <param name="message"></param>
         /// <param name="callback"></param>
-        public static void RegisterNUICallback(string message, Action<IDictionary<string, object>, CallbackDelegate> callback)
-        {
-            RegisterNuiCallbackType(message);
-            RegisterNuiCallback(message, callback);
-        }
+        public static void RegisterNUICallback(string message, Action<IDictionary<string, object>, CallbackDelegate> callback) => RegisterNuiCallback(message, callback);
         /// <summary>
         /// SendNUIMessage converted from LUA to C#
         /// </summary>

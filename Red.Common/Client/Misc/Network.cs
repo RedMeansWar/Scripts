@@ -6,6 +6,11 @@ namespace Red.Common.Client.Misc
 {
     public class Network : BaseScript
     {
+        /// <summary>
+        /// Requests control of entity by network.
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
         public static async Task RequestControlOfEntity(Entity entity)
         {
             NetworkRequestControlOfEntity(entity.Handle);
@@ -22,7 +27,12 @@ namespace Red.Common.Client.Misc
 
             Debug.WriteLine("unable to get control of entity");
         }
-
+        /// <summary>
+        /// Gets a entity from their Network Id.
+        /// </summary>
+        /// <param name="networkId"></param>
+        /// <param name="networkControl"></param>
+        /// <returns></returns>
         public static async Task<Entity> GetEntityFromNetId(int networkId, bool networkControl = true)
         {
             if (networkId == 0 || !NetworkDoesNetworkIdExist(networkId))
@@ -50,8 +60,19 @@ namespace Red.Common.Client.Misc
 
             return Entity.FromNetworkId(networkId);
         }
-
+        /// <summary>
+        /// another version of GetEntityFromNetId
+        /// </summary>
+        /// <param name="networkId"></param>
+        /// <param name="networkControl"></param>
+        /// <returns></returns>
         public static Task<Entity> GetEntityFromNetworkId(int networkId, bool networkControl = true) => GetEntityFromNetId(networkId, networkControl);
+        /// <summary>
+        /// another version of GetEntityFromNetId
+        /// </summary>
+        /// <param name="networkId"></param>
+        /// <param name="networkControl"></param>
+        /// <returns></returns>
         public static Task<Entity> GetEntityFromNetwork(int networkId, bool networkControl = true) => GetEntityFromNetId(networkId, networkControl);
     }
 }
