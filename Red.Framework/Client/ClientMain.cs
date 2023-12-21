@@ -320,10 +320,10 @@ namespace Red.Framework.Client
 
         #region Event Handlers
         [EventHandler("Framework:Client:changeAOP")]
-        private void OnChangeAOP(string newAOP, string aopSetter)
+        private void OnChangeAOP(string newAOP)
         {
             currentAOP = newAOP;
-            TriggerEvent("_chat:chatMessage", "SYSTEM", new[] { 255, 255, 255 }, $"Current AOP is ^5^*{currentAOP}^r^7 (Set by: ^5^*{aopSetter}^r^7)");
+            TriggerEvent("_chat:chatMessage", "SYSTEM", new[] { 255, 255, 255 }, $"Current AOP is ^5^*{currentAOP}^r^7");
 
             SendNuiMessage(Json.Stringify(new
             {
@@ -447,12 +447,6 @@ namespace Red.Framework.Client
 
             DisablePlayerVehicleRewards(Game.Player.Handle);
             SetRadarZoom(1100);
-        }
-
-        [Tick]
-        private async Task TertiaryTick()
-        {
-            DrawText2d(1.133f, -0.065f, 0.43f, $"Current AOP: ~g~{currentAOP}", 255, 255, 255, 255);
         }
         #endregion
     }

@@ -6,7 +6,7 @@ using static CitizenFX.Core.Native.API;
 
 namespace Red.Common.Server
 {
-    public class ServerMain : BaseScript
+    public class ServerMain : ServerScript
     {
         /// <summary>
         /// Get Player Identifier
@@ -66,6 +66,12 @@ namespace Red.Common.Server
         /// <param name="reason"></param>
         [EventHandler("Server:DropPlayer")]
         private void OnDropPlayer([FromSource] Player player, string reason = "No reason given.") => DropPlayer(player.Handle, reason);
+        /// <summary>
+        /// A event form of Client:SoundToClient
+        /// </summary>
+        /// <param name="networkId"></param>
+        /// <param name="soundFile"></param>
+        /// <param name="soundVolume"></param>
         #endregion
     }
 }

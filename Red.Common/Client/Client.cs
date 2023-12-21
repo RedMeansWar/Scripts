@@ -5,7 +5,7 @@ using static CitizenFX.Core.Native.API;
 
 namespace Red.Common.Client
 {
-    public class Client : BaseScript
+    public class Client : ClientScript
     {
         #region Private Lists
         protected static readonly IReadOnlyList<Control> cameraControls = new List<Control>()
@@ -241,8 +241,38 @@ namespace Red.Common.Client
 
             await Delay(0);
         }
+        /// <summary>
+        /// Request an animation set
+        /// </summary>
+        /// <param name="animSet"></param>
+        public static async void RequestAnimationSet(string animSet) => RequestSet(animSet);
+        /// <summary>
+        /// Plays an animation
+        /// </summary>
+        /// <param name="dictionary"></param>
+        /// <param name="name"></param>
+        public static void PlayAnimation(string dictionary, string name) => PlayAnim(dictionary, name);
+        /// <summary>
+        /// Plays an animation
+        /// </summary>
+        /// <param name="dictionary"></param>
+        /// <param name="name"></param>
+        /// <param name="blindInSpeed"></param>
+        /// <param name="duration"></param>
+        /// <param name="flags"></param>
+        public static void PlayAnimation(string dictionary, string name, float blindInSpeed, int duration, AnimationFlags flags) => PlayAnim(dictionary, name, blindInSpeed, duration, flags);
+        /// <summary>
+        /// Plays an animation
+        /// </summary>
+        /// <param name="dictionary"></param>
+        /// <param name="name"></param>
+        /// <param name="blindInSpeed"></param>
+        /// <param name="blindOutSpeed"></param>
+        /// <param name="duration"></param>
+        /// <param name="flags"></param>
+        /// <param name="playbackRate"></param>
+        public static void PlayAnimation(string dictionary, string name, float blindInSpeed, float blindOutSpeed, int duration, AnimationFlags flags, float playbackRate) => PlayAnim(dictionary, name, blindInSpeed, blindOutSpeed, duration, flags, playbackRate);
 
-        public static async Task PlayAnimation(string dictionary, string name) => ClientPed.Task.PlayAnimation(dictionary, name);
         /// <summary>
         /// Disables movement controls on control and on keyboard
         /// </summary>
@@ -309,5 +339,17 @@ namespace Red.Common.Client
         /// <param name="position"></param>
         /// <returns>a float value resulting in meters</returns>
         public static float DistanceFromBlip(Blip blip, Vector3 position) => DistanceFromBlip(blip.Handle, position.X, position.Y, position.Z);
+        /// <summary>
+        /// Clears all of the peds current tasks that they are performing such as an animation within the next frame
+        /// </summary>
+        public static void ClearAllTasks() => ClientPed.Task.ClearAll();
+        /// <summary>
+        /// Clears all of the peds current tasks that they are performing such as an animation within the time of the method is called.
+        /// </summary>
+        public static void ClearAllTasksImmediately() => ClientPed.Task.ClearAllImmediately();
+        /// <summary>
+        /// Clears the secondary task of the ped that they are performing such as an animation within the next frame
+        /// </summary>
+        public static void ClearSecondaryTask() => ClientPed.Task.ClearSecondary();
     }
 }

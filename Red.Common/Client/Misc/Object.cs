@@ -5,7 +5,7 @@ using static Red.Common.Client.Hud.HUD;
 
 namespace Red.Common.Client.Misc
 {
-    public class Object : BaseScript
+    public class Object : ClientScript
     {
         #region Variables
         protected static Prop visualizedProp;

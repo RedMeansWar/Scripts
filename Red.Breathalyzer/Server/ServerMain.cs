@@ -1,17 +1,25 @@
 using System;
-using System.Threading.Tasks;
 using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
 
 namespace Red.Breathalyzer.Server
 {
-    public class ServerMain : BaseScript
+    public class ServerMain : ServerScript
     {
-        [EventHandler("Breathalyzer:Server:startTest")]
-        private void OnStartTest(int testedId)
+        #region Event Handlers
+        [EventHandler("Breathalyzer:Server:sumbitBacTest")]
+        private void OnSubmitBacTest([FromSource] Player testerPlayer, int testedId)
         {
             Player testedPlayer = Players[testedId];
-            testedPlayer?.TriggerEvent("Breathalyzer:Client:requestBacTest", testedPlayer.Handle);
+            testerPlayer?.TriggerEvent("Breathalyzer:Client:doBacTest", testedPlayer.Handle);
         }
+
+        [EventHandler("Breathalyzer:Server:returnBacTest")]
+        private void OnReturnBacTest(string testerId, string bacLevel)
+        {
+            Player testerPlayer = Players[int.Parse(testerId)];
+            testerPlayer.TriggerEvent("Breathalyzer:Client:displayClientNotification", $"The BAC test returned a value of {bacLevel}%");
+        }
+        #endregion
     }
 }

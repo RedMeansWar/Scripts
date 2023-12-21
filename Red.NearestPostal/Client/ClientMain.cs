@@ -133,13 +133,13 @@ namespace Red.NearestPostal.Client
                 blip = null;
             }
 
-            if (!HUDIsVisable)
+            if (!HUDIsVisible)
             {
                 await Delay(1000);
                 return;
             }
 
-            DrawText2d(1.133f, -0.044f, 0.4f, $"Nearest Postal: ~c~{closestPostal}", 255, 255, 255, 255);
+            DrawText2d(1.133f, -0.065f, 0.43f, $"Current AOP: ~g~{closestPostal}", 255, 255, 255, 255);
         }
         #endregion
     }

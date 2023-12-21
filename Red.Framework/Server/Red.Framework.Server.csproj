@@ -12,5 +12,11 @@
   
       <Compile Include="../Shared/**/*.cs" />
     </ItemGroup>
+  
+    <ItemGroup>
+      <Reference Include="Red.Common.Server.net">
+        <HintPath>..\..\_References_\Red.Common.Server.net.dll</HintPath>
+      </Reference>
+    </ItemGroup>
 </Project>
   

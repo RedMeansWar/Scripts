@@ -6,7 +6,7 @@ using static CitizenFX.Core.Native.API;
 
 namespace Red.Common.Client.Hud
 {
-    public class HUD : BaseScript
+    public class HUD : ClientScript
     {
         /// <summary>
         /// Toggles the clients HUD
@@ -16,7 +16,7 @@ namespace Red.Common.Client.Hud
         /// <summary>
         /// Shortened version of Screen.Hud.IsVisable
         /// </summary>
-        public static bool HUDIsVisiable => Screen.Hud.IsVisible;
+        public static bool HUDIsVisible => Screen.Hud.IsVisible;
         #region Notifications
         /// <summary>
         /// Gives a success notification using bold, green, and white text

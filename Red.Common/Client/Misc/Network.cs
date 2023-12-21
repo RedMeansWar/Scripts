@@ -4,7 +4,7 @@ using static CitizenFX.Core.Native.API;
 
 namespace Red.Common.Client.Misc
 {
-    public class Network : BaseScript
+    public class Network : ClientScript
     {
         /// <summary>
         /// Requests control of entity by network.
