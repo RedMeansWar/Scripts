@@ -26,6 +26,22 @@ namespace Red.Common.Client.Hud
         /// <param name="hasCursor"></param>
         public static void SetNUIFocus(bool hasFocus, bool hasCursor) => SetNuiFocus(hasFocus, hasCursor);
         /// <summary>
+        /// Advanced Version of SetNUIFocus with a keep input function.
+        /// </summary>
+        /// <param name="hasFocus"></param>
+        /// <param name="hasCursor"></param>
+        /// <param name="keepInput"></param>
+        public static void SetNUIFocus(bool hasFocus, bool hasCursor, bool keepInput = false)
+        {
+            SetNUIFocus(hasFocus, hasCursor);
+            SetNUIFocusKeepInput(keepInput);
+        }
+        /// <summary>
+        /// SetNUIFocusKeepInput converted from LUA to C#
+        /// </summary>
+        /// <param name="keepInput"></param>
+        public static void SetNUIFocusKeepInput(bool keepInput) => SetNuiFocusKeepInput(keepInput);
+        /// <summary>
         /// Plays a sound to client assuming the user has PlayCustomSounds made by LondonStudios
         /// </summary>
         /// <param name="soundFile"></param>

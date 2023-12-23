@@ -5,6 +5,7 @@ using CitizenFX.Core;
 using static Red.Common.Client.Client;
 using static Red.Common.Client.Hud.HUD;
 using static Red.Common.Client.Hud.NUI;
+using System.Reflection;
 
 namespace Red.Breathalyzer.Client
 {
@@ -33,16 +34,25 @@ namespace Red.Breathalyzer.Client
         [Command("resetbac")]
         private void ResetBacCommand() => bac = "0.00";
 
-        [Command("")]
-        private async void SetBacCommand()
+        [Command("setbac")]
+        private async void SetBacCommand(string[] args)
         {
-            var bacUserInput = await GetUserInput("Set BAC Level (Legal Limit is 0.08):", 0);
-            bac = bacUserInput;
-
-            if (string.IsNullOrEmpty(bacUserInput))
+            if (args.Length > 5)
             {
-                ErrorNotification("You can't leave this blank!");
+                ErrorNotification("Your BAC level can't be more than 5 characters.", false);
                 return;
+            }
+
+            if (args.Length == 0)
+            {
+                var bacUserInput = await GetUserInput("Set BAC Level (Legal Limit is 0.08):", 5);
+                bac = bacUserInput;
+
+                if (string.IsNullOrEmpty(bacUserInput))
+                {
+                    ErrorNotification("You can't leave this blank!");
+                    return;
+                }
             }
         }
         #endregion
