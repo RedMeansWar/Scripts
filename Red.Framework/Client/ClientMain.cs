@@ -456,8 +456,6 @@ namespace Red.Framework.Client
             {
                 return;
             }
-
-            TriggerEvent("Framework:Client:changeAOP", currentAOP);
         }
         #endregion
     }
