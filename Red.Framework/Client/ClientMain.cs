@@ -333,7 +333,15 @@ namespace Red.Framework.Client
         }
 
         [EventHandler("Framework:Client:syncInfo")]
-        private void OnSyncInfo(string aop) => currentAOP = aop;
+        private void OnSyncInfo(string aop)
+        {
+            currentAOP = aop;
+            SendNuiMessage(Json.Stringify(new
+            {
+                type = "UPDATE_AOP",
+                aop = $"Welcome to San Andreas! (AOP: {aop})"
+            }));
+        }
 
         [EventHandler("Framework:Client:returnDiscordRoles")]
         private void OnReturnDiscordRoles(dynamic rolesJson)

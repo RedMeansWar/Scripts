@@ -58,6 +58,19 @@ namespace Red.Essentials.Server
 
             vehicle.Owner.TriggerEvent("Essentials:Client:doorAction", netId, doorIndex, open);
         }
+
+        [EventHandler("SlashTires:Server:slashTires")]
+        private void OnSlashTires(int networkId, int tireIndex)
+        {
+            Entity vehicle = Entity.FromNetworkId(networkId);
+
+            if (vehicle is null)
+            {
+                return;
+            }
+
+            TriggerClientEvent("SlashTires:Client:slashTires", networkId, tireIndex);
+        }
         #endregion
     }
 }

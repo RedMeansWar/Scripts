@@ -141,7 +141,6 @@ namespace Red.WeaponControl.Client
                             break;
                     }
                 }
-                // mpweaponsgang0", "w_ar_carbinerifle_mag1"
                 DrawSprite("mpweaponsgang0", "w_ar_carbinerifle_mag1", (1 / GetSafeZoneSize() / 3.0f) - 0.348f + 0.19f, GetSafeZoneSize() - GetTextScaleHeight(1.3f, 4) - 0.0965f, 0.034f, 0.034f, 0.0f, 200, 200, 200, 255);
             }
             else

@@ -44,20 +44,15 @@ namespace Red.Framework.Server
 
         #region Event Handlers
         [EventHandler("playerConnecting")]
-        private void OnPlayerConnecting([FromSource] Player player)
-        {
-            if (player is null)
-            {
-                TriggerClientEvent("Framework:Client:syncInfo", currentAOP);
-            }
-            else
-            {
-                TriggerClientEvent("Framework:Client:syncInfo", currentAOP);
-            }
-        }
+        private void OnPlayerConnecting([FromSource] Player player) => TriggerClientEvent("Framework:Client:syncInfo", currentAOP);
 
         [EventHandler("Framework:DropUser")]
         private void OnDropUser([FromSource] Player player) => DropUserFromServer(player, "Dropped via framework.");
+        #endregion
+
+        #region Ticks
+        [Tick]
+        private async Task UpdateAop() => TriggerClientEvent("Framework:Client:syncInfo", currentAOP);
         #endregion
     }
 }
