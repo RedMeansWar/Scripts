@@ -17,7 +17,7 @@ namespace Red.Whitelist.Server
     {
         #region Variabless
         protected bool usingInvision;
-        protected string communityURL, apiKey, profileFieldName, profileFieldSubNode, discordToken, guildId;
+        protected string communityURL, apiKey, profileFieldName, profileFieldSubNode, botToken, guildId;
         protected string whitelistedRole = "1187946523753988116";
 
         protected List<string> groupIds = new();
@@ -176,6 +176,8 @@ namespace Red.Whitelist.Server
                 apiKey = loaded["Whitelist"]["ApiKey"].StringValue;
                 profileFieldName = loaded["Whitelist"]["ProfileFieldName"].StringValue;
                 profileFieldSubNode = loaded["Whitelist"]["ProfileFieldSubNode"].StringValue;
+                botToken = loaded["Whitelist"]["BotToken"].StringValue;
+                guildId = loaded["Whitelist"]["GuildId"].StringValue;
             }
             else
             {
@@ -245,9 +247,9 @@ namespace Red.Whitelist.Server
                 {
                     discordAPI.DefaultRequestHeaders.Accept.Clear();
                     discordAPI.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                    discordAPI.DefaultRequestHeaders.Add("Authorization", $"Bot TOKEN_HERE");
+                    discordAPI.DefaultRequestHeaders.Add("Authorization", $"Bot {botToken}");
 
-                    HttpResponseMessage memberObjRequest = discordAPI.GetAsync($"https://discord.com/api/v9/guilds/GUILD_ID_HERE/members/{player.Identifiers["discord"]}").GetAwaiter().GetResult();
+                    HttpResponseMessage memberObjRequest = discordAPI.GetAsync($"https://discord.com/api/v9/guilds/{guildId}/members/{player.Identifiers["discord"]}").GetAwaiter().GetResult();
 
                     if (!memberObjRequest.IsSuccessStatusCode)
                     {
