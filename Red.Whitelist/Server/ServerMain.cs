@@ -17,8 +17,8 @@ namespace Red.Whitelist.Server
     {
         #region Variabless
         protected bool usingInvision;
-        protected string communityURL, apiKey, profileFieldName, profileFieldSubNode, botToken, guildId;
-        protected string whitelistedRole = "1187946523753988116";
+        protected string communityURL, apiKey, profileFieldName, profileFieldSubNode;
+        protected string whitelistedRole, botToken, guildId;
 
         protected List<string> groupIds = new();
         protected HashSet<string> whitelistedSteamHexes { get; set; }
@@ -178,6 +178,7 @@ namespace Red.Whitelist.Server
                 profileFieldSubNode = loaded["Whitelist"]["ProfileFieldSubNode"].StringValue;
                 botToken = loaded["Whitelist"]["BotToken"].StringValue;
                 guildId = loaded["Whitelist"]["GuildId"].StringValue;
+                whitelistedRole = loaded["Whitelist"]["DiscordRole"].StringValue;
             }
             else
             {
@@ -215,7 +216,10 @@ namespace Red.Whitelist.Server
                 return;
             }
 
-            Task.Factory.StartNew(UpdateWhitelist);
+            if (usingInvision)
+            {
+                Task.Factory.StartNew(UpdateWhitelist);
+            }
         }
 
         [EventHandler("playerConnecting")]
