@@ -245,9 +245,9 @@ namespace Red.Whitelist.Server
                 {
                     discordAPI.DefaultRequestHeaders.Accept.Clear();
                     discordAPI.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                    discordAPI.DefaultRequestHeaders.Add("Authorization", $"Bot MTE0MjQ4MzgyMzk1NTgxMjQ3Mw.GB60uu.2an7nkwsKUdAhg0rMBFZjspnDVaZGgh_R95Xso");
+                    discordAPI.DefaultRequestHeaders.Add("Authorization", $"Bot TOKEN_HERE");
 
-                    HttpResponseMessage memberObjRequest = discordAPI.GetAsync($"https://discord.com/api/v9/guilds/1017182896211120168/members/{player.Identifiers["discord"]}").GetAwaiter().GetResult();
+                    HttpResponseMessage memberObjRequest = discordAPI.GetAsync($"https://discord.com/api/v9/guilds/GUILD_ID_HERE/members/{player.Identifiers["discord"]}").GetAwaiter().GetResult();
 
                     if (!memberObjRequest.IsSuccessStatusCode)
                     {
