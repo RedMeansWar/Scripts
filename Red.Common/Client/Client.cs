@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
 
@@ -260,7 +259,7 @@ namespace Red.Common.Client
         /// <param name="blindInSpeed"></param>
         /// <param name="duration"></param>
         /// <param name="flags"></param>
-        public static void PlayAnimation(string dictionary, string name, float blindInSpeed, int duration, AnimationFlags flags) => PlayAnim(dictionary, name, blindInSpeed, duration, flags);
+        public static void PlayAnimation(string dictionary, string name, float blendOutSpeed, int duration, AnimationFlags flags) => PlayAnim(dictionary, name, blendOutSpeed, duration, flags);
         /// <summary>
         /// Plays an animation
         /// </summary>
@@ -271,8 +270,18 @@ namespace Red.Common.Client
         /// <param name="duration"></param>
         /// <param name="flags"></param>
         /// <param name="playbackRate"></param>
-        public static void PlayAnimation(string dictionary, string name, float blindInSpeed, float blindOutSpeed, int duration, AnimationFlags flags, float playbackRate) => PlayAnim(dictionary, name, blindInSpeed, blindOutSpeed, duration, flags, playbackRate);
-
+        public static void PlayAnimation(string dictionary, string name, float blindInSpeed, float blendOutSpeed, int duration, AnimationFlags flags, float playbackRate) => PlayAnim(dictionary, name, blindInSpeed, blendOutSpeed, duration, flags, playbackRate);
+        /// <summary>
+        /// Plays an animation
+        /// </summary>
+        /// <param name="dictionary"></param>
+        /// <param name="name"></param>
+        /// <param name="blendInSpeed"></param>
+        /// <param name="blendOutSpeed"></param>
+        /// <param name="duration"></param>
+        /// <param name="animationFlags"></param>
+        /// <param name="playbackRate"></param>
+        public static void PlayAnimation(string dictionary, string name, float blendInSpeed, float blendOutSpeed, int duration, int animationFlags, float playbackRate) => PlayAnim(dictionary, name, blendInSpeed, blendOutSpeed, duration, (AnimationFlags)animationFlags, playbackRate);
         /// <summary>
         /// Disables movement controls on control and on keyboard
         /// </summary>

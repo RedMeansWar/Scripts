@@ -1,14 +1,12 @@
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using CitizenFX.Core;
 using Red.Common.Client;
-using Red.Common.Client.Misc;
 using static CitizenFX.Core.Native.API;
 using static Red.Common.Client.Client;
 using static Red.Common.Client.Hud.HUD;
 
-namespace Irp.Cuff.Client
+namespace Red.Cuff.Client
 {
     public class ClientMain : BaseScript
     {

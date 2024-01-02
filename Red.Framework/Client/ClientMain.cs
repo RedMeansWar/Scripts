@@ -448,6 +448,15 @@ namespace Red.Framework.Client
             DisablePlayerVehicleRewards(Game.Player.Handle);
             SetRadarZoom(1100);
         }
+
+        [Tick]
+        private async Task TeriaryTick()
+        {
+            if (!HUDIsVisible || IsHudHidden())
+            {
+                return;
+            }
+        }
         #endregion
     }
 }

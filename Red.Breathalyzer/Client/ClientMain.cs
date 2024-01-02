@@ -5,7 +5,6 @@ using CitizenFX.Core;
 using static Red.Common.Client.Client;
 using static Red.Common.Client.Hud.HUD;
 using static Red.Common.Client.Hud.NUI;
-using System.Reflection;
 
 namespace Red.Breathalyzer.Client
 {
@@ -59,7 +58,7 @@ namespace Red.Breathalyzer.Client
 
         #region Event Handlers
         [EventHandler("Breathalyzer:Client:doBacTest")]
-        private async void OnDoBacTeste(string testerId) => TriggerServerEvent("Breathalyzer:Server:returnBacTest", testerId, bac);
+        private async void OnDoBacTest(string testerId) => TriggerServerEvent("Breathalyzer:Server:returnBacTest", testerId, bac);
 
         [EventHandler("Breathalyzer:Client:displayClientNotification")]
         private void OnDisplayClientNotification(string message) => DisplayNotification(message);
@@ -68,7 +67,7 @@ namespace Red.Breathalyzer.Client
         #region NUI Callbacks
         private void StartBacTest(IDictionary<string, object> data, CallbackDelegate result)
         {
-            Player targetPlayer = GetClosestPlayer(1.8f);
+            Player targetPlayer = GetClosestPlayer(2f);
 
             if (targetPlayer is null)
             {
@@ -77,6 +76,7 @@ namespace Red.Breathalyzer.Client
             }
 
             TriggerServerEvent("Breathalyzer:Server:returnBacTest", targetPlayer.ServerId);
+            result(new { success = true, msg = "success" });
         }
 
         private void ResetBacTest(IDictionary<string, object> data, CallbackDelegate result) => SendNUIMessage(Json.Stringify(new { type = "RESET_NUI" }));

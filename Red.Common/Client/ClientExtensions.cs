@@ -32,7 +32,7 @@ namespace Red.Common.Client
             PlayerList Players = PlayerList.Players;
             Player character = Game.Player;
             Ped playerPed = Game.PlayerPed;
-            // Gets the closest player to the client and calculates the distance between them and the player's vector.
+            // Gets the closest player to the client and calculates the distance between them and the player's position.
             Player closestPlayer = Players.Where(player => player != null && player != character && Entity.Exists(player.Character) && 
             player.Character.Position.DistanceTo2d(playerPed.Position) < radius).OrderBy(player => player.Character.Position.DistanceTo(playerPed.Position)).FirstOrDefault();
 

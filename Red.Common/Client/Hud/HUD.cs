@@ -17,6 +17,11 @@ namespace Red.Common.Client.Hud
         /// Shortened version of Screen.Hud.IsVisable
         /// </summary>
         public static bool HUDIsVisible => Screen.Hud.IsVisible;
+        /// <summary>
+        /// Determines if the HUD is hidden another version of IsHudHidden
+        /// </summary>
+        /// <returns></returns>
+        public static bool IsHUDHidden() => IsHudHidden();
         #region Notifications
         /// <summary>
         /// Gives a success notification using bold, green, and white text

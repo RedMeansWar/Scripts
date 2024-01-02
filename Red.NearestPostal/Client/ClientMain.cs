@@ -139,7 +139,7 @@ namespace Red.NearestPostal.Client
                 return;
             }
 
-            DrawText2d(1.133f, -0.065f, 0.43f, $"Current AOP: ~g~{closestPostal}", 255, 255, 255, 255);
+            DrawText2d(1.133f, -0.065f, 0.43f, $"Nearest Postal: ~t~{closestPostal}", 255, 255, 255, 255);
         }
         #endregion
     }

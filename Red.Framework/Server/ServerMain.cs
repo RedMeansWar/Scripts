@@ -14,11 +14,7 @@ namespace Red.Framework.Server
         #endregion
 
         #region Constructor
-        public ServerMain()
-        {
-            SetMapName("San Andreas");
-            SetConvarServerInfo("AreaOfPatrol", "");
-        }
+        public ServerMain() => SetMapName("San Andreas");
         #endregion
 
         #region Commands
@@ -44,45 +40,24 @@ namespace Red.Framework.Server
 
         #region Methods
         private void DropUserFromServer([FromSource] Player player, string reason = "Dropped from server.") => DropPlayer(player.Handle, reason);
-        private string GetServerServiceName() => GetConvar("red_service", "");
-
         #endregion
 
         #region Event Handlers
+        [EventHandler("playerConnecting")]
+        private void OnPlayerConnecting([FromSource] Player player)
+        {
+            if (player is null)
+            {
+                TriggerClientEvent("Framework:Client:syncInfo", currentAOP);
+            }
+            else
+            {
+                TriggerClientEvent("Framework:Client:syncInfo", currentAOP);
+            }
+        }
+
         [EventHandler("Framework:DropUser")]
         private void OnDropUser([FromSource] Player player) => DropUserFromServer(player, "Dropped via framework.");
-
-        [EventHandler("Framework:Server:updateAOP")]
-        private void OnUpdateAOP(string responseService, string responseCode)
-        {
-            string serviceName = GetServerServiceName();
-            Player player = null;
-
-            if (serviceName == "" || serviceName != responseService)
-            {
-                return;
-            }
-
-            if (responseCode == "400" || responseCode == "401")
-            {
-                return;
-            }
-
-            responseCode = responseCode.Replace("\"", "");
-
-            if (currentAOP is null || (responseCode != "0" && currentAOP != responseCode))
-            {
-                currentAOP = responseCode;
-                TriggerClientEvent("Framework:Client:changeAOP", currentAOP, player.);
-            }
-        }
-        #endregion
-
-        #region Ticks
-        [Tick]
-        private async Task AopTick()
-        {
-        }
         #endregion
     }
 }

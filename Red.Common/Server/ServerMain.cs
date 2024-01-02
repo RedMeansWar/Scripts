@@ -58,6 +58,11 @@ namespace Red.Common.Server
         {
             return players.Find(player => player.Handle == serverId.ToString());
         }
+
+        public static void GetDiscordRole(string token, string guildId, string role)
+        {
+
+        }
         #region Event Handlers
         /// <summary>
         /// Drops a player from a player with a reason (default: No reason given.)

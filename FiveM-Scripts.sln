@@ -61,6 +61,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Red.Breathalyzer.Client", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Red.Breathalyzer.Server", "Red.Breathalyzer\Server\Red.Breathalyzer.Server.csproj", "{394CA09E-8412-496B-AE53-5506D8B48DA8}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Red.Whitelist", "Red.Whitelist", "{86FC6866-C31E-4F9C-9A1A-EDC1F37FDC75}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Red.Whitelist.Server", "Red.Whitelist\Server\Red.Whitelist.Server.csproj", "{C24F767C-993B-4E76-B39B-212A79CB0C44}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -139,6 +143,10 @@ Global
 		{394CA09E-8412-496B-AE53-5506D8B48DA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{394CA09E-8412-496B-AE53-5506D8B48DA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{394CA09E-8412-496B-AE53-5506D8B48DA8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C24F767C-993B-4E76-B39B-212A79CB0C44}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C24F767C-993B-4E76-B39B-212A79CB0C44}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C24F767C-993B-4E76-B39B-212A79CB0C44}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C24F767C-993B-4E76-B39B-212A79CB0C44}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -162,6 +170,7 @@ Global
 		{DB540D9D-FB47-44D9-9027-512679F3E557} = {AE9380C2-C409-4212-B694-F4CC8AF7D2BE}
 		{E2F96427-17A5-4A79-9FA7-0F225F3A5024} = {EBC44877-7763-4764-B67C-3E19CDD4ED35}
 		{394CA09E-8412-496B-AE53-5506D8B48DA8} = {EBC44877-7763-4764-B67C-3E19CDD4ED35}
+		{C24F767C-993B-4E76-B39B-212A79CB0C44} = {86FC6866-C31E-4F9C-9A1A-EDC1F37FDC75}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8F79F3DE-076E-4294-B734-D572D4B64ADD}

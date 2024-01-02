@@ -42,10 +42,7 @@ namespace Red.ShotSpotter.Client
 
         #region Event Handlers
         [EventHandler("Framework:Client:characterSelected")]
-        private void OnCharacterSelect(string json)
-        {
-            currentCharacter = Json.Parse<Character>(json);
-        }
+        private void OnCharacterSelect(string json) => currentCharacter = Json.Parse<Character>(json);
 
         [EventHandler("ShotSpotter:Client:shotSpotterNotify")]
         private async void OnShotSpotterNotify(Vector3 plyPos, string postal, string zoneName, string caliber)
