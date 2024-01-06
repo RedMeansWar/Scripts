@@ -9,7 +9,7 @@ namespace Red.Framework.Server
     public class ServerMain : BaseScript
     {
         #region Variables
-        protected string currentAOP = "Not Set";
+        protected string currentAOP = "Statewide";
         protected string aopSetter = "System";
         #endregion
 
@@ -44,14 +44,14 @@ namespace Red.Framework.Server
 
         #region Event Handlers
         [EventHandler("playerConnecting")]
-        private void OnPlayerConnecting([FromSource] Player player) => TriggerClientEvent("Framework:Client:syncInfo", currentAOP);
+        private void OnPlayerConnecting([FromSource] Player player) => player.TriggerEvent("Framework:Client:syncInfo", currentAOP);
 
         [EventHandler("Framework:DropUser")]
         private void OnDropUser([FromSource] Player player) => DropUserFromServer(player, "Dropped via framework.");
         #endregion
 
         #region Ticks
-        [Tick]
+        [Tick] 
         private async Task UpdateAop() => TriggerClientEvent("Framework:Client:syncInfo", currentAOP);
         #endregion
     }

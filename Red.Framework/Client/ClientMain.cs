@@ -5,16 +5,18 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Red.Common.Client.Misc;
 using CitizenFX.Core;
+using CitizenFX.Core.Native;
 using static CitizenFX.Core.Native.API;
 using static Red.Common.Client.Diagnostics.Log;
 using static Red.Common.Client.Hud.HUD;
+using static Red.Common.Client.Hud.NUI;
 
 namespace Red.Framework.Client
 {
     internal class ClientMain : BaseScript
     {
         #region Variables
-        protected bool ranSpawnChecker;
+        protected bool ranSpawnChecker, teleported;
         protected float densityMultiplier = 1f;
         protected string currentAOP = "Statewide";
         protected Ped PlayerPed = Game.PlayerPed;
@@ -42,7 +44,7 @@ namespace Red.Framework.Client
         {
             "police", "police2", "police3", "police4", "policeb", "policeold1", "policeold2", "policet", "polmav", "pranger", "sheriff", "sheriff2", "stockade3", "buffalo3", "fbi", "fbi2", "firetruk", "lguard", "ambulance", "riot", "shamal", "luxor", "luxor2", "jet", "lazer", "titan", "barracks", "barracks2", "crusader", "rhino", "airtug", "ripley", "cargobob", "cargobob2", "cargobob3", "cargobob4", "cargobob5", "buzzard", "besra", "volatus"
         };
-        #endregion
+#endregion
 
         #region Constructor
         public ClientMain()
@@ -65,13 +67,30 @@ namespace Red.Framework.Client
             TriggerServerEvent("Framework:Server:getDiscordRoles");
 
             // NUI Callbacks
-            RegisterNuiCallback("selectCharacter", new Action<IDictionary<string, object>, CallbackDelegate>(SelectCharacter));
-            RegisterNuiCallback("createCharacter", new Action<IDictionary<string, object>, CallbackDelegate>(CreateCharacter));
-            RegisterNuiCallback("deleteCharacter", new Action<IDictionary<string, object>, CallbackDelegate>(DeleteCharacter));
-            RegisterNuiCallback("editCharacter", new Action<IDictionary<string, object>, CallbackDelegate>(EditCharacter));
-            RegisterNuiCallback("disconnect", new Action<IDictionary<string, object>, CallbackDelegate>(Disconnect));
-            RegisterNuiCallback("quitGame", new Action<IDictionary<string, object>, CallbackDelegate>(QuitGame));
-            RegisterNuiCallback("cancelNUI", new Action<IDictionary<string, object>, CallbackDelegate>(CancelNUI));
+            RegisterNUICallback("selectCharacter", SelectCharacter);
+            RegisterNUICallback("createCharacter", CreateCharacter);
+            RegisterNUICallback("deleteCharacter", DeleteCharacter);
+            RegisterNUICallback("editCharacter", EditCharacter);
+            RegisterNUICallback("disconnect", Disconnect);
+            RegisterNUICallback("quitGame", QuitGame);
+            RegisterNUICallback("cancelNUI", CancelNUI);
+            RegisterNUICallback("spawnAtPrison", SpawnAtPrison);
+            RegisterNUICallback("spawnAtGrapeseed", SpawnAtGrapeseed);
+            RegisterNUICallback("spawnAtMotelNew", SpawnAtMotelNew);
+            RegisterNUICallback("spawnAtMotel", SpawnAtMotel);
+            RegisterNUICallback("spawnAtAbandonedMotel", SpawnAtAbandonedMotel);
+            RegisterNUICallback("spawnAtCasino", SpawnAtCasino);
+            RegisterNUICallback("spawnAtGroveStreet", SpawnAtGroveStreet);
+            RegisterNUICallback("spawnAtMorningwoodHotel", SpawnAtMorningwoodHotel);
+            RegisterNUICallback("spawnAtStarLane", SpawnAtStarLane);
+            RegisterNUICallback("spawnAtNikolaPlace", SpawnAtNikolaPlace);
+            RegisterNUICallback("spawnAtVinewoodPd", SpawnAtVinewoodPd);
+            RegisterNUICallback("spawnAtSandyPd", SpawnAtSandyPd);
+            RegisterNUICallback("spawnAtDavisPd", SpawnAtDavisPd);
+            RegisterNUICallback("spawnAtPaletoPd", SpawnAtPaletoPd);
+            RegisterNUICallback("spawnAtMissionRowPd", SpawnAtMissionRowPd);
+            RegisterNUICallback("spawnAtRockfordPd", SpawnAtRockfordPd);
+            RegisterNUICallback("spawnAtDelPerroPd", SpawnAtDelPerroPd);
 
             uint PLAYER = Game.GenerateHashASCII("PLAYER");
 
@@ -87,7 +106,7 @@ namespace Red.Framework.Client
 
             foreach (string relationshipGroup in relationshipGroups)
             {
-                SetRelationshipBetweenGroups(1, Game.GenerateHashASCII(relationshipGroup), (uint)PLAYER);
+                SetRelationshipBetweenGroups(1, Game.GenerateHashASCII(relationshipGroup), PLAYER);
             }
 
             foreach (string suppressedModel in suppressedModels)
@@ -141,13 +160,13 @@ namespace Red.Framework.Client
 
         public void CancelNUI(IDictionary<string, object> data, CallbackDelegate result)
         {
-            SendNuiMessage(Json.Stringify(new
+            SendNUIMessage(Json.Stringify(new
             {
                 type = "CLOSE_UI"
             }));
 
-            SetNuiFocus(false, false);
-            Info("[Framework]: Revoking Nui Callback");
+            SetNUIFocus(false, false);
+            Info("Revoking Nui Callback");
 
             result(new { success = true, message = "success" });
         }
@@ -165,7 +184,7 @@ namespace Red.Framework.Client
 
             if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName) || string.IsNullOrWhiteSpace(gender) || string.IsNullOrWhiteSpace(department) || string.IsNullOrWhiteSpace(dob) || cash == "-1" || bank == "-1")
             {
-                SendNuiMessage(Json.Stringify(new
+                SendNUIMessage(Json.Stringify(new
                 {
                     type = "ERROR",
                     msg = "We ran into an unexpected error choosing this character, try again."
@@ -177,17 +196,55 @@ namespace Red.Framework.Client
             Character createdCharacter = CreateCharacter(firstName, lastName, gender, department, dob, cash, bank, charId);
 
             currentCharacter = createdCharacter;
-
-            SendNuiMessage(Json.Stringify(new
-            {
-                type = "CLOSE_UI"
-            }));
-
-            Info($"[Framework]: Selected Character [{currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})]");
-            SetNuiFocus(false, false);
-
-            TriggerEvent("_chat:chatMessage", "SYSTEM", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             TriggerEvent("Framework:Client:characterSelected", Json.Stringify(createdCharacter));
+
+            if (currentCharacter.Department == "Civ")
+            {
+                SendNUIMessage(Json.Stringify(new
+                {
+                    type = "DISPLAY_SPAWN",
+                    department = "Civ"
+                }));
+            }
+
+            if (currentCharacter.Department == "LSPD")
+            {
+                SendNUIMessage(Json.Stringify(new
+                {
+                    type = "DISPLAY_SPAWN",
+                    department = "LSPD"
+                }));
+            }
+
+            if (currentCharacter.Department == "SAHP")
+            {
+                SendNUIMessage(Json.Stringify(new
+                {
+                    type = "DISPLAY_SPAWN",
+                    department = "SAHP"
+                }));
+            }
+
+            if (currentCharacter.Department == "BCSO")
+            {
+                SendNUIMessage(Json.Stringify(new
+                {
+                    type = "DISPLAY_SPAWN",
+                    department = "BCSO"
+                }));
+            }
+
+            if (currentCharacter.Department == "LSFD")
+            {
+                SendNUIMessage(Json.Stringify(new
+                {
+                    type = "DISPLAY_SPAWN",
+                    department = "LSFD"
+                }));
+            }
+
+            Info($"Selected Character [{currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})]");
+            TriggerEvent("_chat:chatMessage", "IRP", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
         }
 
         private void CreateCharacter(IDictionary<string, object> data, CallbackDelegate result)
@@ -202,7 +259,7 @@ namespace Red.Framework.Client
 
             if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName) || string.IsNullOrWhiteSpace(gender) || string.IsNullOrWhiteSpace(department) || string.IsNullOrWhiteSpace(dob) || cash == "-1" || bank == "-1")
             {
-                SendNuiMessage(Json.Stringify(new
+                SendNUIMessage(Json.Stringify(new
                 {
                     type = "ERROR",
                     msg = "We ran into an unexpected error creating this character, try again."
@@ -215,7 +272,7 @@ namespace Red.Framework.Client
 
             TriggerServerEvent("Framework:Server:createCharacter", Json.Stringify(createdCharacter));
 
-            SendNuiMessage(Json.Stringify(new
+            SendNUIMessage(Json.Stringify(new
             {
                 type = "SUCCESS",
                 msg = $"{firstName} {lastName} ({department}) has been created!"
@@ -230,7 +287,7 @@ namespace Red.Framework.Client
 
             TriggerServerEvent("Framework:Server:deleteCharacter", long.Parse(characterId));
 
-            SendNuiMessage(Json.Stringify(new
+            SendNUIMessage(Json.Stringify(new
             {
                 type = "SUCCESS",
                 msg = "Character deleted!"
@@ -250,7 +307,7 @@ namespace Red.Framework.Client
 
             if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName) || string.IsNullOrWhiteSpace(gender) || string.IsNullOrWhiteSpace(department) || string.IsNullOrWhiteSpace(dob))
             {
-                SendNuiMessage(Json.Stringify(new
+                SendNUIMessage(Json.Stringify(new
                 {
                     type = "ERROR",
                     msg = "We ran into an unexpected error editing this character, try again."
@@ -271,13 +328,354 @@ namespace Red.Framework.Client
 
             TriggerServerEvent("Framework:Server:editCharacter", Json.Stringify(editedCharacter));
 
-            SendNuiMessage(Json.Stringify(new
+            SendNUIMessage(Json.Stringify(new
             {
                 type = "SUCCESS",
                 msg = "Character edited!"
             }));
 
             result(new { success = true, message = "success" });
+        }
+
+        private async void SpawnAtPrison(IDictionary<string, object> data, CallbackDelegate result)
+        {
+            if (currentCharacter.Department == "Civ")
+            {
+                SendNUIMessage(Json.Stringify(new
+                {
+                    type = "CLOSE_UI"
+                }));
+
+                SetNUIFocus(false, false);
+                await Delay(100);
+
+                TeleportToSpawnLocation(1848.59f, 2585.88f, 45.67f);
+                SetEntityHeading(Game.Player.Character.Handle, 270.0f);
+
+                await Delay(0);
+                CloseSpawnModals();
+            }
+        }
+
+        private async void SpawnAtGrapeseed(IDictionary<string, object> data, CallbackDelegate result)
+        {
+            if (currentCharacter.Department == "Civ")
+            {
+                SendNUIMessage(Json.Stringify(new
+                {
+                    type = "CLOSE_UI"
+                }));
+
+                SetNUIFocus(false, false);
+                await Delay(100);
+
+                TeleportToSpawnLocation(1666.2f, 4740.12f, 41.99f);
+                SetEntityHeading(Game.Player.Character.Handle, 282.89f);
+
+                await Delay(0);
+                CloseSpawnModals();
+            }
+        }
+
+        private async void SpawnAtMotelNew(IDictionary<string, object> data, CallbackDelegate result)
+        {
+            if (currentCharacter.Department == "Civ")
+            {
+                SendNUIMessage(Json.Stringify(new
+                {
+                    type = "CLOSE_UI"
+                }));
+
+                SetNUIFocus(false, false);
+                await Delay(100);
+
+                TeleportToSpawnLocation(1114.75f, 2641.67f, 38.14f);
+                SetEntityHeading(Game.Player.Character.Handle, 354.14f);
+
+                await Delay(0);
+                CloseSpawnModals();
+            }
+        }
+
+        private async void SpawnAtMotel(IDictionary<string, object> data, CallbackDelegate result)
+        {
+            if (currentCharacter.Department == "Civ")
+            {
+                SendNUIMessage(Json.Stringify(new
+                {
+                    type = "CLOSE_UI"
+                }));
+
+                SetNUIFocus(false, false);
+                await Delay(100);
+
+                TeleportToSpawnLocation(366.72f, 2625.21f, 44.67f);
+                SetEntityHeading(Game.Player.Character.Handle, 26.68f);
+
+                await Delay(0);
+                CloseSpawnModals();
+            }
+        }
+
+        private async void SpawnAtAbandonedMotel(IDictionary<string, object> data, CallbackDelegate result)
+        {
+            if (currentCharacter.Department == "Civ")
+            {
+                SendNUIMessage(Json.Stringify(new
+                {
+                    type = "CLOSE_UI"
+                }));
+
+                SetNUIFocus(false, false);
+                await Delay(100);
+
+                TeleportToSpawnLocation(1569.59f, 3607.65f, 35.37f);
+                SetEntityHeading(Game.Player.Character.Handle, 26.12f);
+
+                await Delay(0);
+                CloseSpawnModals();
+            }
+        }
+
+        private async void SpawnAtCasino(IDictionary<string, object> data, CallbackDelegate result)
+        {
+            if (currentCharacter.Department == "Civ")
+            {
+                SendNUIMessage(Json.Stringify(new
+                {
+                    type = "CLOSE_UI"
+                }));
+
+                SetNUIFocus(false, false);
+                await Delay(100);
+
+                TeleportToSpawnLocation(885.27f, -2.63f, 78.76f);
+                SetEntityHeading(Game.Player.Character.Handle, 414.21f);
+
+                await Delay(0);
+                CloseSpawnModals();
+            }
+        }
+
+        private async void SpawnAtGroveStreet(IDictionary<string, object> data, CallbackDelegate result)
+        {
+            if (currentCharacter.Department == "Civ")
+            {
+                SendNUIMessage(Json.Stringify(new
+                {
+                    type = "CLOSE_UI"
+                }));
+
+                SetNUIFocus(false, false);
+                await Delay(100);
+
+                TeleportToSpawnLocation(90.7f, -1965.5f, 20.75f);
+                SetEntityHeading(Game.Player.Character.Handle, 316.16f);
+
+                await Delay(0);
+                CloseSpawnModals();
+            }
+        }
+
+        private async void SpawnAtMorningwoodHotel(IDictionary<string, object> data, CallbackDelegate result)
+        {
+            if (currentCharacter.Department == "Civ")
+            {
+                SendNUIMessage(Json.Stringify(new
+                {
+                    type = "CLOSE_UI"
+                }));
+
+                SetNUIFocus(false, false);
+                await Delay(100);
+
+                TeleportToSpawnLocation(-1221.59f, -184.09f, 39.18f);
+                SetEntityHeading(Game.Player.Character.Handle, 119.75f);
+
+                await Delay(0);
+                CloseSpawnModals();
+            }
+        }
+
+        private async void SpawnAtStarLane(IDictionary<string, object> data, CallbackDelegate result)
+        {
+            if (currentCharacter.Department == "Civ")
+            {
+                SendNUIMessage(Json.Stringify(new
+                {
+                    type = "CLOSE_UI"
+                }));
+
+                SetNUIFocus(false, false);
+                await Delay(100);
+
+                TeleportToSpawnLocation(1404.22f, 2169.01f, 97.88f);
+                SetEntityHeading(Game.Player.Character.Handle, 262.06f);
+
+                await Delay(0);
+                CloseSpawnModals();
+            }
+        }
+
+        private async void SpawnAtNikolaPlace(IDictionary<string, object> data, CallbackDelegate result)
+        {
+            if (currentCharacter.Department == "Civ")
+            {
+                SendNUIMessage(Json.Stringify(new
+                {
+                    type = "CLOSE_UI"
+                }));
+
+                SetNUIFocus(false, false);
+                await Delay(100);
+
+                TeleportToSpawnLocation(1395.14f, -574.76f, 74.34f);
+                SetEntityHeading(Game.Player.Character.Handle, 107.64f);
+
+                await Delay(0);
+                CloseSpawnModals();
+            }
+        }
+
+        private async void SpawnAtVinewoodPd(IDictionary<string, object> data, CallbackDelegate result)
+        {
+            if (currentCharacter.Department == "SAHP" || currentCharacter.Department == "LSPD" || currentCharacter.Department == "BCSO" || currentCharacter.Department == "LSFD")
+            {
+                SendNUIMessage(Json.Stringify(new
+                {
+                    type = "CLOSE_UI"
+                }));
+
+                SetNUIFocus(false, false);
+                await Delay(100);
+
+                TeleportToSpawnLocation(639.69f, 0.57f, 82.79f);
+                SetEntityHeading(Game.Player.Character.Handle, 254.93f);
+
+
+                await Delay(0);
+                CloseSpawnModals();
+            }
+        }
+
+        private async void SpawnAtSandyPd(IDictionary<string, object> data, CallbackDelegate result)
+        {
+            if (currentCharacter.Department == "SAHP" || currentCharacter.Department == "LSPD" || currentCharacter.Department == "BCSO" || currentCharacter.Department == "LSFD")
+            {
+                SendNUIMessage(Json.Stringify(new
+                {
+                    type = "CLOSE_UI"
+                }));
+
+                SetNUIFocus(false, false);
+                await Delay(100);
+
+                TeleportToSpawnLocation(1864.19f, 3699.68f, 33.61f);
+                SetEntityHeading(Game.Player.Character.Handle, 33.61f);
+
+                await Delay(0);
+                CloseSpawnModals();
+            }
+        }
+
+        private async void SpawnAtDavisPd(IDictionary<string, object> data, CallbackDelegate result)
+        {
+            if (currentCharacter.Department == "SAHP" || currentCharacter.Department == "LSPD" || currentCharacter.Department == "BCSO" || currentCharacter.Department == "LSFD")
+            {
+                SendNUIMessage(Json.Stringify(new
+                {
+                    type = "CLOSE_UI"
+                }));
+
+                SetNUIFocus(false, false);
+                await Delay(100);
+
+                TeleportToSpawnLocation(373.76f, -1610.07f, 29.29f);
+                SetEntityHeading(Game.Player.Character.Handle, 232.08f);
+
+                await Delay(0);
+                CloseSpawnModals();
+            }
+        }
+
+        private async void SpawnAtPaletoPd(IDictionary<string, object> data, CallbackDelegate result)
+        {
+            if (currentCharacter.Department == "SAHP" || currentCharacter.Department == "LSPD" || currentCharacter.Department == "BCSO" || currentCharacter.Department == "LSFD")
+            {
+                SendNUIMessage(Json.Stringify(new
+                {
+                    type = "CLOSE_UI"
+                }));
+
+                SetNUIFocus(false, false);
+                await Delay(100);
+
+                TeleportToSpawnLocation(-447.72f, 6000.73f, 31.69f);
+                SetEntityHeading(Game.Player.Character.Handle, 137.97f);
+
+                await Delay(0);
+                CloseSpawnModals();
+            }
+        }
+
+        private async void SpawnAtMissionRowPd(IDictionary<string, object> data, CallbackDelegate result)
+        {
+            if (currentCharacter.Department == "SAHP" || currentCharacter.Department == "LSPD" || currentCharacter.Department == "BCSO" || currentCharacter.Department == "LSFD")
+            {
+                SendNUIMessage(Json.Stringify(new
+                {
+                    type = "CLOSE_UI"
+                }));
+
+                SetNUIFocus(false, false);
+                await Delay(100);
+
+                TeleportToSpawnLocation(431.46f, -981.35f, 90.71f);
+                SetEntityHeading(Game.Player.Character.Handle, 30.71f);
+
+                await Delay(0);
+                CloseSpawnModals();
+            }
+        }
+
+        private async void SpawnAtRockfordPd(IDictionary<string, object> data, CallbackDelegate result)
+        {
+            if (currentCharacter.Department == "SAHP" || currentCharacter.Department == "LSPD" || currentCharacter.Department == "BCSO" || currentCharacter.Department == "LSFD")
+            {
+                SendNUIMessage(Json.Stringify(new
+                {
+                    type = "CLOSE_UI"
+                }));
+
+                SetNUIFocus(false, false);
+                await Delay(100);
+
+                TeleportToSpawnLocation(-560.78f, -133.86f, 38.09f);
+                SetEntityHeading(Game.Player.Character.Handle, 197.56f);
+
+                await Delay(0);
+                CloseSpawnModals();
+            }
+        }
+
+        private async void SpawnAtDelPerroPd(IDictionary<string, object> data, CallbackDelegate result)
+        {
+            if (currentCharacter.Department == "SAHP" || currentCharacter.Department == "LSPD" || currentCharacter.Department == "BCSO" || currentCharacter.Department == "LSFD")
+            {
+                SendNUIMessage(Json.Stringify(new
+                {
+                    type = "CLOSE_UI"
+                }));
+
+                SetNUIFocus(false, false);
+                await Delay(100);
+
+                TeleportToSpawnLocation(-1078.2f, -857.61f, 5.04f);
+                SetEntityHeading(Game.Player.Character.Handle, 210.23f);
+
+                await Delay(0);
+                CloseSpawnModals();
+            }
         }
         #endregion
 
@@ -316,16 +714,46 @@ namespace Red.Framework.Client
                 allowedDepartments.Add(department);
             }
         }
+
+        private async void TeleportToSpawnLocation(float x, float y, float z)
+        {
+            Vector3 spawnLocation = new(x, y, z);
+
+            Game.Player.Character.IsInvincible = true;
+            Game.Player.Character.IsCollisionEnabled = false;
+            Game.Player.Character.HasGravity = false;
+
+            SwitchOutPlayer(PlayerPedId(), 0, 1);
+
+            await Delay(3000);
+
+            Game.Player.Character.Position = spawnLocation;
+            Function.Call((Hash)0xD8295AF639FD9CB8, PlayerPedId());
+
+            await Delay(3000);
+
+            Game.Player.Character.IsInvincible = false;
+            Game.Player.Character.IsCollisionEnabled = true;
+            Game.Player.Character.HasGravity = true;
+        }
+
+        private void CloseSpawnModals()
+        {
+            SendNUIMessage(Json.Stringify(new
+            {
+                type = "HIDE_SPAWN_MODALS"
+            }));
+        }
         #endregion
 
         #region Event Handlers
         [EventHandler("Framework:Client:changeAOP")]
-        private void OnChangeAOP(string newAOP)
+        private void OnChangeAOP(string newAOP, string aopSetter)
         {
             currentAOP = newAOP;
-            TriggerEvent("_chat:chatMessage", "SYSTEM", new[] { 255, 255, 255 }, $"Current AOP is ^5^*{currentAOP}^r^7");
+            TriggerEvent("_chat:chatMessage", "IRP", new[] { 255, 255, 255 }, $"Current AOP is ^5^*{currentAOP}^r^7 (Set by: ^5^*{aopSetter}^r^7)");
 
-            SendNuiMessage(Json.Stringify(new
+            SendNUIMessage(Json.Stringify(new
             {
                 type = "UPDATE_AOP",
                 aop = $"Welcome to San Andreas! (AOP: {newAOP})"
@@ -333,15 +761,7 @@ namespace Red.Framework.Client
         }
 
         [EventHandler("Framework:Client:syncInfo")]
-        private void OnSyncInfo(string aop)
-        {
-            currentAOP = aop;
-            SendNuiMessage(Json.Stringify(new
-            {
-                type = "UPDATE_AOP",
-                aop = $"Welcome to San Andreas! (AOP: {aop})"
-            }));
-        }
+        private void OnSyncInfo(string aop) => currentAOP = aop;
 
         [EventHandler("Framework:Client:returnDiscordRoles")]
         private void OnReturnDiscordRoles(dynamic rolesJson)
@@ -401,11 +821,11 @@ namespace Red.Framework.Client
                 Info($"Department: {character.Department}");
             }
             */
-            Info($"[Framework] - Returned {characterList.Count} character(s)");
+            Info($"Returned {characterList.Count} character(s)");
 
-            SetNuiFocus(true, true);
+            SetNUIFocus(true, true);
 
-            SendNuiMessage(Json.Stringify(new
+            SendNUIMessage(Json.Stringify(new
             {
                 type = "DISPLAY_NUI",
                 characters = characterList,
@@ -420,11 +840,13 @@ namespace Red.Framework.Client
         {
             if (!ranSpawnChecker)
             {
-                DisplayNUI();
+                CloseSpawnModals();
 
                 Exports["spawnmanager"].spawnPlayer(true);
                 await Delay(3000);
                 Exports["spawnmanager"].setAutoSpawn(false);
+
+                DisplayNUI();
 
                 ranSpawnChecker = true;
             }
@@ -455,12 +877,8 @@ namespace Red.Framework.Client
 
             DisablePlayerVehicleRewards(Game.Player.Handle);
             SetRadarZoom(1100);
-        }
 
-        [Tick]
-        private async Task TeriaryTick()
-        {
-            if (!HUDIsVisible || IsHudHidden())
+            if (!HUDIsVisible || IsHUDHidden())
             {
                 return;
             }
