@@ -145,7 +145,6 @@ namespace Red.Essentials.Client
         {
             Control.Aim, Control.Attack, Control.Attack2, Control.Cover, Control.Jump, Control.MeleeAttack1, Control.MeleeAttack2, Control.MeleeAttackAlternate, Control.MeleeAttackHeavy, Control.MeleeAttackLight, Control.MeleeBlock, Control.Reload
         };
-
         #endregion
 
         #region Methods

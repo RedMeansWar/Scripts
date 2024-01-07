@@ -192,7 +192,7 @@ namespace Red.Cuff.Client
             }
             else
             {
-                await Delay(3000);
+                await Delay(2000);
 
                 if (!isZiptie)
                 {

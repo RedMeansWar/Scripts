@@ -11,6 +11,7 @@ using static CitizenFX.Core.Native.API;
 using static Red.Common.Client.Diagnostics.Log;
 using static Red.Common.Client.Hud.HUD;
 using static Red.Common.Client.Hud.NUI;
+using Mono.CSharp;
 
 namespace Red.Framework.Client
 {
@@ -51,22 +52,27 @@ namespace Red.Framework.Client
         #region Constructor
         public ClientMain()
         {
-            SetWeaponsNoAutoreload(true);
-            SetWeaponsNoAutoswap(true);
-            NetworkSetFriendlyFireOption(true);
-            SetPlayerHealthRechargeMultiplier(PlayerPed.Handle, 0f);
-            SetWeaponDamageModifier((uint)WeaponHash.Nightstick, 0.1f);
-            SetWeaponDamageModifier((uint)WeaponHash.Unarmed, 0.1f);
+            SetWeaponsNoAutoreload(true); // Disables automatic reload
+            SetWeaponsNoAutoswap(true); // Disables automatic weapon swap
+            NetworkSetFriendlyFireOption(true); // Set PvP enabled without having to get another script
+            SetPlayerHealthRechargeMultiplier(PlayerPed.Handle, 0f); // Remove a health multiplayer?
+            SetWeaponDamageModifier((uint)WeaponHash.Nightstick, 0.1f); // Increase 0.1 night nightstick damage
+            SetWeaponDamageModifier((uint)WeaponHash.Unarmed, 0.1f); // Increase 0.1 unarmed damage
             SetFlashLightKeepOnWhileMoving(true);
 
+            // Removes vehicles that don't need to be in game (performance reasons)
             SetRandomBoats(false);
             SetRandomTrains(false);
 
             StartAudioScene("CHARACTER_CHANGE_IN_SKY_SCENE");
-            SetAudioFlag("PoliceScannerDisabled", true);
+            SetAudioFlag("PoliceScannerDisabled", true); // Disabled the police scanner.
 
-            TriggerServerEvent("Framework:Server:syncInfo");
-            TriggerServerEvent("Framework:Server:getDiscordRoles");
+            // Read config file
+            ReadConfigFile(); 
+
+            // Return Sync Event
+            TriggerServerEvent("Framework:Server:syncInfo"); // Ensures that the AOP is synced for all players when they connect. Does this work here?
+            TriggerServerEvent("Framework:Server:getDiscordRoles"); // Retrieves Discord roles from a specified guild, used for department assignment
 
             // NUI Callbacks
             RegisterNUICallback("selectCharacter", SelectCharacter);
@@ -94,6 +100,7 @@ namespace Red.Framework.Client
             RegisterNUICallback("spawnAtRockfordPd", SpawnAtRockfordPd);
             RegisterNUICallback("spawnAtDelPerroPd", SpawnAtDelPerroPd);
 
+            // Gernerates a hash for the player
             uint PLAYER = Game.GenerateHashASCII("PLAYER");
 
             foreach (string scenarioType in scenarioTypes)
@@ -116,11 +123,13 @@ namespace Red.Framework.Client
                 SetVehicleModelIsSuppressed(Game.GenerateHashASCII(suppressedModel), true);
             }
 
+            // Disable all AI services (15 are counted)
             for (int i = 0; i < 15; i++)
             {
                 EnableDispatchService(i, false);
             }
 
+            // If has the UsingDiscordPresence in the config enabled (needs to go through a discord application)
             if (usingDiscordPresence)
             {
                 SetDiscordAppId(discordAppId);
@@ -145,11 +154,11 @@ namespace Red.Framework.Client
         {
             if (currentCharacter is null)
             {
-                TriggerEvent("chat:addMessage", new { color = new[] { 255, 0, 0 }, args = new[] { "SYSTEM", "You must choose a character in the framework before using this command!" } });
+                TriggerEvent("chat:addMessage", new { color = new[] { 255, 0, 0 }, args = new[] { $"{communityName}", "You must choose a character in the framework before using this command!" } });
             }
             else
             {
-                TriggerEvent("chat:addMessage", new { color = new[] { 255, 0, 0 }, args = new[] { "SYSTEM", $"{currentCharacter.FirstName} {currentCharacter.LastName}'s date of birth is {currentCharacter.DoB:MM/dd/yyyy}" } });
+                TriggerEvent("chat:addMessage", new { color = new[] { 255, 0, 0 }, args = new[] { $"{communityName}", $"{currentCharacter.FirstName} {currentCharacter.LastName}'s date of birth is {currentCharacter.DoB:MM/dd/yyyy}" } });
             }
         }
         #endregion
@@ -180,7 +189,7 @@ namespace Red.Framework.Client
             result(new { success = true, message = "success" });
         }
 
-        private void SelectCharacter(IDictionary<string, object> data, CallbackDelegate result)
+        private async void SelectCharacter(IDictionary<string, object> data, CallbackDelegate result)
         {
             string charId = data.GetVal("charId", "0");
             string firstName = data.GetVal<string>("firstName", null);
@@ -252,8 +261,11 @@ namespace Red.Framework.Client
                 }));
             }
 
+            // Generates a debug line that tells the selected character
             Info($"Selected Character [{currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})]");
-            TriggerEvent("chat:addMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
+
+            // Triggers a chat message saying that they selected a character
+            TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
         }
 
         private void CreateCharacter(IDictionary<string, object> data, CallbackDelegate result)
@@ -362,7 +374,9 @@ namespace Red.Framework.Client
                 SetEntityHeading(Game.Player.Character.Handle, 270.0f);
 
                 await Delay(0);
+
                 CloseSpawnModals();
+                TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
 
@@ -383,6 +397,7 @@ namespace Red.Framework.Client
 
                 await Delay(0);
                 CloseSpawnModals();
+                TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
 
@@ -403,6 +418,7 @@ namespace Red.Framework.Client
 
                 await Delay(0);
                 CloseSpawnModals();
+                TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
 
@@ -423,6 +439,7 @@ namespace Red.Framework.Client
 
                 await Delay(0);
                 CloseSpawnModals();
+                TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
 
@@ -443,6 +460,7 @@ namespace Red.Framework.Client
 
                 await Delay(0);
                 CloseSpawnModals();
+                TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
 
@@ -463,6 +481,7 @@ namespace Red.Framework.Client
 
                 await Delay(0);
                 CloseSpawnModals();
+                TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
 
@@ -483,6 +502,7 @@ namespace Red.Framework.Client
 
                 await Delay(0);
                 CloseSpawnModals();
+                TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
 
@@ -502,7 +522,10 @@ namespace Red.Framework.Client
                 SetEntityHeading(Game.Player.Character.Handle, 119.75f);
 
                 await Delay(0);
+                
                 CloseSpawnModals();
+                CloseSpawnModals();
+                TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
 
@@ -523,6 +546,7 @@ namespace Red.Framework.Client
 
                 await Delay(0);
                 CloseSpawnModals();
+                TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
 
@@ -543,6 +567,7 @@ namespace Red.Framework.Client
 
                 await Delay(0);
                 CloseSpawnModals();
+                TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
 
@@ -561,9 +586,9 @@ namespace Red.Framework.Client
                 TeleportToSpawnLocation(639.69f, 0.57f, 82.79f);
                 SetEntityHeading(Game.Player.Character.Handle, 254.93f);
 
-
                 await Delay(0);
                 CloseSpawnModals();
+                TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
 
@@ -584,6 +609,7 @@ namespace Red.Framework.Client
 
                 await Delay(0);
                 CloseSpawnModals();
+                TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
 
@@ -604,6 +630,7 @@ namespace Red.Framework.Client
 
                 await Delay(0);
                 CloseSpawnModals();
+                TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
 
@@ -624,6 +651,7 @@ namespace Red.Framework.Client
 
                 await Delay(0);
                 CloseSpawnModals();
+                TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
 
@@ -644,6 +672,7 @@ namespace Red.Framework.Client
 
                 await Delay(0);
                 CloseSpawnModals();
+                TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
 
@@ -664,6 +693,7 @@ namespace Red.Framework.Client
 
                 await Delay(0);
                 CloseSpawnModals();
+                TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
 
@@ -684,6 +714,7 @@ namespace Red.Framework.Client
 
                 await Delay(0);
                 CloseSpawnModals();
+                TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
         #endregion
@@ -728,20 +759,29 @@ namespace Red.Framework.Client
         {
             Vector3 spawnLocation = new(x, y, z);
 
+            // Ensures that the player doesn't die when teleported
             Game.Player.Character.IsInvincible = true;
+
+            // Removes collision and gravity logic from the player
             Game.Player.Character.IsCollisionEnabled = false;
             Game.Player.Character.HasGravity = false;
 
+            // Triggers that character swap animation for the player
             SwitchOutPlayer(PlayerPedId(), 0, 1);
 
-            await Delay(3000);
+            await Delay(3000); // Delay of 3 seconds
 
+            // Sets the player position to the spawn location selected
             Game.Player.Character.Position = spawnLocation;
-            Function.Call((Hash)0xD8295AF639FD9CB8, PlayerPedId());
 
-            await Delay(3000);
+            Function.Call((Hash)0xD8295AF639FD9CB8, PlayerPedId()); // Method is called (SwitchToMultiSecondpart) current way is the easiest way?
 
+            await Delay(3000); // Delay of 3 seconds
+
+            // Turns the character back to a vulnerable state
             Game.Player.Character.IsInvincible = false;
+
+            // Sets collision and gravity logic for the player
             Game.Player.Character.IsCollisionEnabled = true;
             Game.Player.Character.HasGravity = true;
         }
@@ -909,9 +949,12 @@ namespace Red.Framework.Client
         [Tick]
         private async Task SecondaryTick()
         {
+            // Sets vehicle densitity (how much AI and AI vehicles are in the area
             SetVehicleDensityMultiplierThisFrame(densityMultiplier);
             SetParkedVehicleDensityMultiplierThisFrame(densityMultiplier);
             SetRandomVehicleDensityMultiplierThisFrame(densityMultiplier);
+
+            // Sets AI ped and scenario ped densitity
             SetPedDensityMultiplierThisFrame(densityMultiplier);
             SetScenarioPedDensityMultiplierThisFrame(densityMultiplier, densityMultiplier);
 

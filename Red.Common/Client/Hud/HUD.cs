@@ -97,7 +97,10 @@ namespace Red.Common.Client.Hud
         /// <param name="a"></param>
         public static void DrawRectangle(float x, float y, float width, float height, int r = 255, int g = 255, int b = 255, int a = 255)
         {
+            // Fetch anchor for relative rectangle positioning
             Minimap anchor = Minimap.GetMinimapAnchor();
+            
+            // Draw rectangle with position based off player's anchor.
             DrawRect(anchor.LeftX + x + (width / 2), anchor.BottomY - y + (height / 2), width, height, r, g, b, a);
         }
         /// <summary>
@@ -114,6 +117,7 @@ namespace Red.Common.Client.Hud
         #region Draw Text
         /// <summary>
         /// Draws text on screen on the 2nd dimension that moves with aspect ratio / safezone.
+        /// https://forum.cfx.re/t/solved-text-at-the-top-left-of-the-screen/13080 by Nihonium (converted to C#)
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
@@ -126,28 +130,40 @@ namespace Red.Common.Client.Hud
         /// <param name="alignment"></param>
         public static void DrawText2d(float x, float y, float size, string text, int r = 255, int g = 255, int b = 255, int a = 255, Alignment alignment = Alignment.Left)
         {
+            // Fetch anchor for relative text positioning
             Minimap anchor = Minimap.GetMinimapAnchor();
+
+            // Calculate screen coordinates based on anchor, width, and height
             x = anchor.X + anchor.Width * x;
-            y = anchor.Y - y;
+            y = anchor.Y - y; //Invert y-axis for screen drawing
 
-            SetTextFont(4);
-            SetTextScale(size, size);
+            // Set text fonts, 4 is default. What do the other one looks like?
+            SetTextFont(4); // Font ID: 4 (adjustable?)
+            SetTextScale(size, size); // Uniform scaling for both horizontal and vertical dimensions
+
+            // Set text color and visual effects
             SetTextColour(r, g, b, a);
-            SetTextDropShadow();
-            SetTextOutline();
+            SetTextDropShadow(); // Add a drop shadow for readability
+            SetTextOutline(); // Outline the text for better visibility
 
+            // Handle text alignment
             if (alignment == Alignment.Right)
             {
+                // Right-Align text wrapping at specific HUD coords
                 SetTextWrap(0, x);
                 SetTextJustification(2);
             }
             else
             {
+                // Center or left align based on value
                 SetTextJustification(alignment == Alignment.Center ? 0 : 1);
             }
 
+            // Prepare text for rendering on screen.
             SetTextEntry("STRING");
             AddTextComponentString(text);
+
+            // Draw the text at calculated anchor coords.
             DrawText(x, y);
         }
 
@@ -167,25 +183,34 @@ namespace Red.Common.Client.Hud
         /// <param name="g"></param>
         /// <param name="b"></param>
         /// <param name="a"></param>
-        public static void DrawText3d(float x, float y, float z, string text, float size, int r, int g, int b, int a = 255)
+        public static void DrawText3d(float x, float y, float z, string text, float size, float radius, int r, int g, int b, int a = 255)
         {
+            // Grab player position for a distance check.
             Vector3 PlayerPos = Game.PlayerPed.Position;
 
-            float screenXPos = 0.0f;
-            float screenYPos = 0.0f;
+            float screenXPos = 0.0f; // default screen position
+            float screenYPos = 0.0f; // default screen position
 
-            if (GetDistanceBetweenCoords(x, y, z, PlayerPos.X, PlayerPos.Y, PlayerPos.Z, true) < 5.0f)
+            // Calculate distance between player position and in-game position.
+            if (GetDistanceBetweenCoords(x, y, z, PlayerPos.X, PlayerPos.Y, PlayerPos.Z, true) < radius)
             {
+                // Project 3D world coords to a 2D space
                 World3dToScreen2d(x, y, z, ref screenXPos, ref screenYPos);
-                SetTextScale(0.0f, size);
-                SetTextFont(0);
+
+                // Text rendering properties
+                SetTextScale(0.0f, size); // custom size scaling (adjustable)
+                SetTextFont(0); // Font ID: 0 (adjustable if needed what do other fonts look like?)
                 SetTextColour(r, g, b, a);
-                SetTextDropshadow(0, 0, 0, 0, 255);
+                SetTextDropshadow(0, 0, 0, 0, 255); // Black drop shadow (hard to tell when viewing it in-game)
                 SetTextDropShadow();
                 SetTextOutline();
+
+                // Prepare text for rendering
                 SetTextEntry("STRING");
                 SetTextCentre(true);
                 AddTextComponentString(text);
+
+                // Draw text on screen and add a black rectangle around it.
                 DrawText(screenXPos, screenYPos);
                 DrawRect(screenXPos, screenYPos + 0.125f, (float)text.Length / 300, 0.03f, 23, 23, 23, 70);
             }
@@ -258,27 +283,28 @@ namespace Red.Common.Client.Hud
         /// <returns></returns>
         public static async Task<string> GetUserInput(string windowTitle, string defaultText, int maxInputLength)
         {
-            // Create the window title string.
-            var spacer = "\t";
+            // Create the window title with clear formatting
+            var spacer = "\t"; // Tab for visual space
             AddTextEntry($"{GetCurrentResourceName().ToUpper()}_WINDOW_TITLE", $"{windowTitle ?? "Enter"}:{spacer}(MAX {maxInputLength} Characters)");
 
-            // Display the input box.
+            // Display onscreen keyboard with input constraints based off of what the user wants.
             DisplayOnscreenKeyboard(1, $"{GetCurrentResourceName().ToUpper()}_WINDOW_TITLE", "", defaultText ?? "", "", "", "", maxInputLength);
-            await Delay(0);
-            // Wait for a result.
+            await Delay(0); // slightly delay next task. Does this make a difference?
+
+            // Monitor keyboard status until the enter key is pressed
             while (true)
             {
                 var keyboardStatus = UpdateOnscreenKeyboard();
 
                 switch (keyboardStatus)
                 {
-                    case 3: // not displaying input field anymore somehow
-                    case 2: // cancelled
+                    case 3: // Input field no longer displayed (unknown cause)
+                    case 2: // User cancelled input
                         return null;
-                    case 1: // finished editing
-                        return GetOnscreenKeyboardResult();
+                    case 1: // User finished editing
+                        return GetOnscreenKeyboardResult(); // Retrieve text
                     default:
-                        await Delay(0);
+                        await Delay(0); // Delay briefly for responsiveness without busy-waiting
                         break;
                 }
             }

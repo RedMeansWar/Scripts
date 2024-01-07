@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Drawing;
-using System.Linq;
 using CitizenFX.Core;
-using CitizenFX.Core.Native;
 using static CitizenFX.Core.Native.API;
+using static Red.Common.Client.Client;
 
 namespace Red.Common.Client
 {
@@ -15,12 +13,15 @@ namespace Red.Common.Client
         /// </summary>
         /// <param name="ped"></param>
         /// <returns></returns>
-        public static bool CannotDoAction(this Ped ped) => DecorGetBool(ped.Handle, "IsDead")
-           || ped.IsCuffed || ped.IsDead || ped.IsBeingStunned
-           || ped.IsClimbing || ped.IsDiving || ped.IsFalling
-           || ped.IsGettingIntoAVehicle || ped.IsJumping
-           || ped.IsJumpingOutOfVehicle || ped.IsRagdoll
-           || ped.IsSwimmingUnderWater || ped.IsVaulting;
+        public static bool CannotDoAction(this Ped ped)
+        {
+            return DecorGetBool(ped.Handle, "isDead") || ped.IsCuffed
+            || ped.IsDead || ped.IsBeingStunned
+            || ped.IsClimbing || ped.IsDiving || ped.IsFalling
+            || ped.IsGettingIntoAVehicle || ped.IsJumping
+            || ped.IsJumpingOutOfVehicle || ped.IsRagdoll
+            || ped.IsSwimmingUnderWater || ped.IsVaulting;
+        }
         /// <summary>
         /// Gets the Closest Player to the client with a predefined radius (2 meters by default)
         /// </summary>
@@ -29,13 +30,35 @@ namespace Red.Common.Client
         /// <returns></returns>
         public static Player GetClosestPlayerToClient(this Player player, float radius = 2f)
         {
-            PlayerList Players = PlayerList.Players;
-            Player character = Game.Player;
-            Ped playerPed = Game.PlayerPed;
-            // Gets the closest player to the client and calculates the distance between them and the player's position.
-            Player closestPlayer = Players.Where(player => player != null && player != character && Entity.Exists(player.Character) && 
-            player.Character.Position.DistanceTo2d(playerPed.Position) < radius).OrderBy(player => player.Character.Position.DistanceTo(playerPed.Position)).FirstOrDefault();
+            // Grab player's position used as a reference
+            Vector3 playerPos = PlayerPed.Position;
 
+            // Retrieve the list of players that in server (can't use BaseScript when using static classes)
+            PlayerList Players = PlayerList.Players;
+
+            // Initialize a variable to track the closest player
+            Player closestPlayer = null;
+
+            // Iterate through all available players
+            foreach (Player p in Players)
+            {
+                // Skip invalid or self-references
+                if (p is null || p == Game.Player || !Entity.Exists(p.Character))
+                {
+                    continue;
+                }
+
+                // Calculate the distance between the player and the reference player
+                float distance = p.Character.Position.DistanceTo2d(playerPos);
+
+                // // Update the closest player if a closer one is found within the specified radius
+                if (distance < radius)
+                {
+                    closestPlayer = p;
+                }
+            }
+
+            // Return the closest player, or null if none were found within the radius
             return closestPlayer;
         }
         #endregion
@@ -49,10 +72,14 @@ namespace Red.Common.Client
         /// <returns></returns>
         public static Vehicle GetClosestVehicle(this Ped ped, float radius = 2f)
         {
-            Vector3 pos = ped.Position;
-            RaycastResult raycast = World.RaycastCapsule(pos, pos, radius, (IntersectOptions)10, ped);
-            // Returns the raycast hit on the vehicle.
-            return raycast.DitHitEntity && Entity.Exists(raycast.HitEntity) && raycast.HitEntity.Model.IsVehicle ? (Vehicle)raycast.HitEntity : null;
+            // Get the players's position for raycasting
+            Vector3 plyrPos = ped.Position;
+
+            // Perform a capsule-shaped raycast to detect nearby vehicles
+;           RaycastResult raycast = World.RaycastCapsule(plyrPos, plyrPos, radius, (IntersectOptions)10, Game.PlayerPed);
+
+            // Return the hit entity as a vehicle, or null if none found
+            return raycast.HitEntity as Vehicle;
         }
         /// <summary>
         /// Converts MPS to MPH

@@ -40,61 +40,61 @@ namespace Red.Common.Client
         #endregion
 
         #region Extensions
-        public static Ped ClientPed = Game.PlayerPed;
-        public static Ped ClientCharacter = Game.Player.Character;
-        public static Player ClientPlayer = Game.Player;
+        public static Ped PlayerPed = Game.PlayerPed;
+        public static Ped PlayerCharacter = Game.Player.Character;
+        public static Player Player = Game.Player;
         /// <summary>
         /// Shortened version of GetClosestPlayerToClient without ClientPlayer to access it.
         /// </summary>
         /// <param name="radius"></param>
         /// <returns></returns>
-        public static Player GetClosestPlayer(float radius = 2f) => ClientPlayer.GetClosestPlayerToClient(radius);
+        public static Player GetClosestPlayer(float radius = 2f) => Player.GetClosestPlayerToClient(radius);
         /// <summary>
         /// Shortened version of GetClosestPlayerToClient without ClientPlayer to access it.
         /// </summary>
         /// <param name="radius"></param>
         /// <returns></returns>
-        public static Player GetClosestPlayerToPed(float radius = 2f) => ClientPlayer.GetClosestPlayerToClient(radius);
+        public static Player GetClosestPlayerToPed(float radius = 2f) => Player.GetClosestPlayerToClient(radius);
         /// <summary>
         /// Shortened version of GetClosestVehicle without ClientPed to access it.
         /// </summary>
         /// <param name="radius"></param>
         /// <returns></returns>
-        public static Vehicle GetClosestVehicle(float radius = 2f) => ClientPed.GetClosestVehicle(radius);
+        public static Vehicle GetClosestVehicle(float radius = 2f) => PlayerPed.GetClosestVehicle(radius);
         /// <summary>
         /// Shortened version of GetClosestVehicle without ClientPed to access it.
         /// </summary>
         /// <param name="radius"></param>
         /// <returns></returns>
-        public static Vehicle GetClosestVehicleToPlayer(float radius = 2f) => ClientPed.GetClosestVehicle(radius);
+        public static Vehicle GetClosestVehicleToPlayer(float radius = 2f) => PlayerPed.GetClosestVehicle(radius);
         /// <summary>
         /// Shortened version of GetClosestVehicle without ClientPed to access it.
         /// </summary>
         /// <param name="radius"></param>
         /// <returns></returns>
-        public static Vehicle GetClosestVehicleToPed(float radius = 2f) => ClientPed.GetClosestVehicle(radius);
+        public static Vehicle GetClosestVehicleToPed(float radius = 2f) => PlayerPed.GetClosestVehicle(radius);
         /// <summary>
         /// Shortened version of ClientPed.LastVehicle
         /// </summary>
-        public static Vehicle ClientLastVehicle => ClientPed?.LastVehicle;
+        public static Vehicle ClientLastVehicle => PlayerPed?.LastVehicle;
         /// <summary>
         /// Shortened version of ClientPed.CurrentVehicle
         /// </summary>
-        public static Vehicle ClientCurrentVehicle = ClientPed?.CurrentVehicle;
+        public static Vehicle ClientCurrentVehicle = PlayerPed?.CurrentVehicle;
         /// <summary>
         /// Gets the Clients ped position.
         /// </summary>
-        public static Vector3 ClientPedPostition = ClientPed.Position;
+        public static Vector3 ClientPedPostition = PlayerPed.Position;
         /// <summary>
         /// Gets the Clients character position.
         /// </summary>
-        public static Vector3 ClientCharacterPosition = ClientCharacter.Position;
+        public static Vector3 ClientCharacterPosition = PlayerCharacter.Position;
         /// <summary>
         /// Plays an animation
         /// </summary>
         /// <param name="dictionary"></param>
         /// <param name="name"></param>
-        public static void PlayAnim(string dictionary, string name) => ClientPed.Task.PlayAnimation(dictionary, name);
+        public static void PlayAnim(string dictionary, string name) => PlayerPed.Task.PlayAnimation(dictionary, name);
         /// <summary>
         /// Plays an animation
         /// </summary>
@@ -103,7 +103,7 @@ namespace Red.Common.Client
         /// <param name="blindInSpeed"></param>
         /// <param name="duration"></param>
         /// <param name="flags"></param>
-        public static void PlayAnim(string dictionary, string name, float blindInSpeed, int duration, AnimationFlags flags) => ClientPed.Task.PlayAnimation(dictionary, name, blindInSpeed, duration, flags);
+        public static void PlayAnim(string dictionary, string name, float blindInSpeed, int duration, AnimationFlags flags) => PlayerPed.Task.PlayAnimation(dictionary, name, blindInSpeed, duration, flags);
         /// <summary>
         /// Plays an animation
         /// </summary>
@@ -114,7 +114,7 @@ namespace Red.Common.Client
         /// <param name="duration"></param>
         /// <param name="flags"></param>
         /// <param name="playbackRate"></param>
-        public static void PlayAnim(string dictionary, string name, float blindInSpeed, float blindOutSpeed, int duration, AnimationFlags flags, float playbackRate) => ClientPed.Task.PlayAnimation(dictionary, name, blindInSpeed, blindOutSpeed, duration, flags, playbackRate);
+        public static void PlayAnim(string dictionary, string name, float blindInSpeed, float blindOutSpeed, int duration, AnimationFlags flags, float playbackRate) => PlayerPed.Task.PlayAnimation(dictionary, name, blindInSpeed, blindOutSpeed, duration, flags, playbackRate);
         #endregion
 
         #region Model Checker
@@ -150,17 +150,17 @@ namespace Red.Common.Client
             PlayerList Players = PlayerList.Players;
             Player player = Players[playerId];
 
-            if (freezePlayer && player is not null && ClientCharacter.Exists())
+            if (freezePlayer && player is not null && PlayerCharacter.Exists())
             {
-                ClientCharacter.IsPositionFrozen = true;
-                FreezeEntityPosition(ClientCharacter.Handle, true);
-                ClearPedTasksImmediately(ClientCharacter.Handle);
-                ClearPedTasks(ClientCharacter.Handle);
+                PlayerCharacter.IsPositionFrozen = true;
+                FreezeEntityPosition(PlayerCharacter.Handle, true);
+                ClearPedTasksImmediately(PlayerCharacter.Handle);
+                ClearPedTasks(PlayerCharacter.Handle);
             }
 
-            if (withVehicle && player is not null && ClientCharacter.Exists() && player.Character.IsInVehicle())
+            if (withVehicle && player is not null && PlayerCharacter.Exists() && player.Character.IsInVehicle())
             {
-                SetPedCoordsKeepVehicle(ClientCharacter.Handle, pos.X, pos.Y, pos.Z);
+                SetPedCoordsKeepVehicle(PlayerCharacter.Handle, pos.X, pos.Y, pos.Z);
             }
         }
         /// <summary>
@@ -170,7 +170,7 @@ namespace Red.Common.Client
         /// <param name="plate"></param>
         public static void SetPlate(string plate)
         {
-            if (ClientPed is not null && ClientCharacter is not null && ClientCharacter.Exists())
+            if (PlayerPed is not null && PlayerCharacter is not null && PlayerCharacter.Exists())
             {
                 if (plate.Length > 8)
                 {
@@ -187,7 +187,7 @@ namespace Red.Common.Client
         /// </summary>
         public static void FixVehicle()
         {
-            if (ClientPlayer != null && ClientCharacter != null && ClientCharacter.CurrentVehicle != null && ClientCharacter.Exists())
+            if (Player != null && PlayerCharacter != null && PlayerCharacter.CurrentVehicle != null && PlayerCharacter.Exists())
             {
                 Vehicle vehicle = ClientCurrentVehicle;
                 vehicle.Repair();
@@ -351,14 +351,14 @@ namespace Red.Common.Client
         /// <summary>
         /// Clears all of the peds current tasks that they are performing such as an animation within the next frame
         /// </summary>
-        public static void ClearAllTasks() => ClientPed.Task.ClearAll();
+        public static void ClearAllTasks() => PlayerPed.Task.ClearAll();
         /// <summary>
         /// Clears all of the peds current tasks that they are performing such as an animation within the time of the method is called.
         /// </summary>
-        public static void ClearAllTasksImmediately() => ClientPed.Task.ClearAllImmediately();
+        public static void ClearAllTasksImmediately() => PlayerPed.Task.ClearAllImmediately();
         /// <summary>
         /// Clears the secondary task of the ped that they are performing such as an animation within the next frame
         /// </summary>
-        public static void ClearSecondaryTask() => ClientPed.Task.ClearSecondary();
+        public static void ClearSecondaryTask() => PlayerPed.Task.ClearSecondary();
     }
 }

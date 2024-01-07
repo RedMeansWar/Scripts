@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
 using CitizenFX.Core;
-using Red.Common.Server;
 using static CitizenFX.Core.Native.API;
 
 namespace Red.Framework.Server

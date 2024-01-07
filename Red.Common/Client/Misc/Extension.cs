@@ -16,11 +16,13 @@ namespace Red.Common.Client.Misc
         /// <returns></returns>
         public static T GetVal<T>(this IDictionary<string, object> dict, string key, T defaultVal)
         {
-            if (dict.TryGetValue(key, out object value) && value is T t)
+            // Attempt to retrieve the value using a TryGetValue for efficiency
+            if (dict.TryGetValue(key, out object value) && value is T t) // Check if the retrieved value is of the expected type
             {
+                // Return the value if it matches the expected type
                 return t;
             }
-
+            // If the key wasn't found or the value wasn't of the expected type, return the default value
             return defaultVal;
         }
     }

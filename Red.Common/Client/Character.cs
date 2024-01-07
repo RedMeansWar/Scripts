@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Red.Common.Client
 {
-    public class Character
+    public class Character // Mainly used for framework dependent scripts.
     {
         public long CharacterId { get; set; }
         public string FirstName { get; set; }
