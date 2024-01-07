@@ -777,10 +777,10 @@ namespace Red.Framework.Client
 
         #region Event Handlers
         [EventHandler("Framework:Client:changeAOP")]
-        private void OnChangeAOP(string newAOP, string aopSetter)
+        private void OnChangeAOP(string newAOP)
         {
             currentAOP = newAOP;
-            TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"Current AOP is ^5^*{currentAOP}^r^7 (Set by: ^5^*{aopSetter}^r^7)");
+            TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"Current AOP is now ^5^*{currentAOP}^r^7");
 
             SendNUIMessage(Json.Stringify(new
             {
@@ -879,14 +879,16 @@ namespace Red.Framework.Client
             if (!ranSpawnChecker)
             {
                 CloseSpawnModals();
+                TriggerServerEvent("Framework:Server:getCharacters");
 
                 Exports["spawnmanager"].spawnPlayer(true);
                 await Delay(3000);
                 Exports["spawnmanager"].setAutoSpawn(false);
 
-                DisplayNUI();
-
                 ranSpawnChecker = true;
+
+                await Delay(100);
+                TriggerServerEvent("Framework:Server:syncAOP", currentAOP);
             }
         }
         #endregion

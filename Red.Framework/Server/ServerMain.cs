@@ -29,11 +29,12 @@ namespace Red.Framework.Server
             }
             else if (currentAOP is null || aopSetter is null)
             {
-                TriggerClientEvent("_chat:chatMessage", "SYSTEM", new[] { 255, 255, 255 }, $"Current AOP is ^5^*{currentAOP}^r^7)");
+                TriggerClientEvent("_chat:chatMessage", "SYSTEM", new[] { 255, 255, 255 }, $"Current AOP is now ^5^*{currentAOP}^r^7 (Set by: ^5^*{aopSetter}^r^7)");
+                return;
             }
             else
             {
-                TriggerClientEvent("_chat:chatMessage", "SYSTEM", new[] { 255, 255, 255 }, $"Current AOP is ^5^*{currentAOP}^r^7 (Set by: ^5^*{aopSetter}^r^7)");
+                TriggerClientEvent("chat:addMessage", "SYSTEM", new[] { 255, 255, 255 }, $"Current AOP is ^5^*{currentAOP}^r^7");
             }
         }
         #endregion
@@ -47,7 +48,7 @@ namespace Red.Framework.Server
         private void OnDropUser([FromSource] Player player) => DropUserFromServer(player, "Dropped via framework.");
 
         [EventHandler("Framework:Server:syncInfo")]
-        private void OnSyncInfo(string aop) => TriggerClientEvent("Framework:Server:syncInfo", aop);
+        private void OnSyncInfo(string aop) => TriggerClientEvent("Framework:Client:syncInfo", aop);
 
         [EventHandler("Framework:Server:configError")]
         private void OnConficError(string message) => Debug.WriteLine(message);
@@ -55,7 +56,7 @@ namespace Red.Framework.Server
 
         #region Ticks
         [Tick] 
-        private async Task UpdateAop() => OnSyncInfo(currentAOP);
+        private async Task SyncAOP() => OnSyncInfo(currentAOP);
         #endregion
     }
 }
