@@ -243,6 +243,61 @@
       </div>
     </div>
 
+    <div class="modal fade modal-lg" id="civSpawnModal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="civSpawnModal" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="spawnLocationtitle">Spawn Locations</h5>
+              <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" onclick="HideCivSpawnModal()">
+              </button>
+            </div>
+            <div class="modal-body">
+                    <div class="d-grid gap-2 col-13 mx-6">
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#prisonSpawnBtn" onclick="SpawnAtPrison()">365 Bolingbrooke Approach</button>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#grapeseedHouseSpawnBtn" onclick="SpawnAtGrapeseed()">114 Grapeseed Main Street</button>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#routeHotelNewSpawnBtn" onclick="SpawnAtMotelNew()">260 Route 68 (Motel)</button>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#routeHotelSpawnBtn" onclick="SpawnAtMotel()">241 Route 68 (Motel)</button>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#routeHotelAbandonedSpawnBtn" onclick="SpawnAtAbandonedMotel()">274 Panorama Drive (Motel)</button>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#casinoSpawnBtn" onclick="SpawnAtCasino()">587 Mirror Park Boulevard (Casino)</button>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#groveStreetSpawnBtn" onclick="SpawnAtGroveStreet()">845 Grove Street (House)</button>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#morningHotelSpawnBtn" onclick="SpawnAtMorningwoodHotel()">658 Morningwood Boulevard (Hotel)</button>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#mirrorParkSpawnBtn" onclick="SpawnAtNikolaPlace()">571 Nikola Place (Mirror Park)</button>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#SpawnBtn" onclick="SpawnAtStarLane()">367 Star Lane (House)</button>
+                    </div>
+                </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" data-dismiss="modal" onclick="HideCivSpawnModal()">Cancel</button>
+            </div>
+        </div>
+        </div>
+    </div>
+    
+    <div class="modal fade modal-lg" id="policeSpawnModal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="policeSpawnModal" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="spawnLocationPolicetitle">Spawn Locations</h5>
+              <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" onclick="HideLeoSpawnModal()">
+              </button>
+            </div>
+            <div class="modal-body">
+                    <div class="d-grid gap-2 col-13 mx-6">
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#vinewoodPdSpawnBtn" onclick="SpawnAtVinewoodPd()">Vinewood Police Station</button>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#sandyPdSpawnBtn" onclick="SpawnAtSandyPd()">Sandy Shores Police Station</button>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#davisPdSpawnBtn" onclick="SpawnAtDavisPd()">Davis Police Station</button>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#paletoPdSpawnBtn" onclick="SpawnAtPaletoPd()">Paleto Bay Police Station</button>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#missionRowPdSpawnBtn" onclick="SpawnAtMissonRowPd()">Mission Row Police Station</button>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#rockfordHillsPdSpawnBtn" onclick="SpawnAtRockfordPd()">Rockford Hills Police Station</button>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#delPerroPdSpawnBtn" onclick="SpawnAtDelPerroPd()">Del Perro Police Station</button>
+                    </div>
+                </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" data-dismiss="modal" onclick="HideLeoSpawnModal()">Cancel</button>
+            </div>
+        </div>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js" integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.7/js/tether.min.js" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/js/bootstrap.min.js" integrity="sha512-1/RvZTcCDEUjY/CypiMz+iqqtaoQfAITmNSJY17Myp4Ms5mdxPS5UV7iOfdZoxcGhzFbOm6sntTKJppjvuhg4g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>

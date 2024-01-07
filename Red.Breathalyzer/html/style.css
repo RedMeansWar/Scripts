@@ -1,0 +1,61 @@
+body {
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	height: 100%;
+	width: 100%;
+	background: transparent;
+}
+
+#breathalyzer {
+    height: 1080px;
+	width: 1920px;
+	position: absolute;
+	top: -80px;
+	margin: auto;
+	background: url(images/breathalyzer.png) no-repeat
+}
+
+p {
+	position: absolute;
+	font-family: 'digital-7', sans-serif;
+	font-weight: 500;
+	font-size: 60px;
+	left: 981.4px;
+	top: -82px;
+	margin-top: 25.05%;
+	margin-left: 37.35%;
+	color: #060608;
+}
+
+#start {
+	position: absolute;
+	margin-top: 25.3%;
+    margin-left: 88.8%;
+	height: 35px;
+	width: 83px;
+	font-family: 'Montserrat', sans-serif;
+	font-size: 15px;
+}
+
+#reset {
+	position: absolute;
+	margin-top: 27.5%;
+    margin-left: 88.8%;
+	height: 35px;
+	width: 83px;
+	font-family: 'Montserrat', sans-serif;
+	font-size: 15px;
+	font-weight: 200px;
+}
+
+#power {
+	position: absolute;
+	margin-top: 32.9%;
+    margin-left: 88.8%;
+	height: 35px;
+	width: 83px;
+	font-family: 'Montserrat', sans-serif;
+	font-size: 15px;
+	font-weight: 200;
+}

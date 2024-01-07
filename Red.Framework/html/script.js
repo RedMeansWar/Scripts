@@ -373,6 +373,83 @@ function QuitGame() {
 function Disconnect() {
   $.post("https://core_framework/disconnect");
 }
+
+function SpawnAtPrison() {
+  $.post("https://core_framework/spawnAtPrison");
+}
+
+function SpawnAtGrapeseed() {
+  $.post("https://core_framework/spawnAtGrapeseed");
+}
+
+function SpawnAtMotelNew() {
+  $.post("https://core_framework/spawnAtMotelNew");
+}
+
+function SpawnAtMotel() {
+  $.post("https://core_framework/spawnAtMotel");
+}
+
+function SpawnAtAbandonedMotel() {
+  $.post("https://core_framework/spawnAtAbandonedMotel");
+}
+
+function SpawnAtCasino() {
+  $.post("https://core_framework/spawnAtCasino");
+}
+
+function SpawnAtGroveStreet() {
+  $.post("https://core_framework/spawnAtGroveStreet");
+}
+
+function SpawnAtMorningwoodHotel() {
+  $.post("https://core_framework/spawnAtMorningwoodHotel");
+}
+
+function SpawnAtNikolaPlace() {
+  $.post("https://core_framework/spawnAtNikolaPlace");
+}
+
+function SpawnAtStarLane() {
+  $.post("https://core_framework/spawnAtStarLane");
+}
+
+function SpawnAtVinewoodPd() {
+  $.post("https://core_framework/spawnAtVinewoodPd");
+}
+
+function SpawnAtSandyPd() {
+  $.post("https://core_framework/spawnAtSandyPd");
+}
+
+function SpawnAtDavisPd() {
+  $.post("https://core_framework/spawnAtDavisPd");
+}
+
+function SpawnAtPaletoPd() {
+  $.post("https://core_framework/spawnAtPaletoPd");
+}
+
+function SpawnAtMissonRowPd() {
+  $.post("https://core_framework/spawnAtMissionRowPd");
+}
+
+function SpawnAtRockfordPd() {
+  $.post("https://core_framework/spawnAtRockfordPd");
+}
+
+function SpawnAtDelPerroPd() {
+  $.post("https://core_framework/spawnAtDelPerroPd");
+}
+
+function HideCivSpawnModal() {
+  $('#civSpawnModal').modal('hide');
+}
+
+function HideLeoSpawnModal() {
+  $('#policeSpawnModal').modal('hide');
+}
+
 // NUI Handlers
 $(function() {
     window.addEventListener('message', function(event) {
@@ -401,6 +478,17 @@ $(function() {
         $('#errorModal').modal('show');
       } else if (event.data.type === 'UPDATE_AOP') {
         $('#titleHeader').text(event.data.aop);
+      } else if (event.data.type === 'DISPLAY_SPAWN') {
+        if (event.data.department === 'Civ') {
+          $('#civSpawnModal').modal('show');
+        } else if (event.data.department === 'SAHP' || 
+        event.data.department === 'LSPD' || event.data.department === 'BCSO' ||
+        event.data.department === 'SAHP' || event.data.department === 'LSFD') { // LSFD is temporart until I add more spawns.
+          $('#policeSpawnModal').modal('show');
+        }
+      } else if (event.data.type === 'HIDE_SPAWN_MODALS') {
+        $('#civSpawnModal').modal('hide');
+        $('#policeSpawnModal').modal('hide');
       }
     });
 
