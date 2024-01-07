@@ -98,7 +98,7 @@ namespace Red.Cuff.Client
                 SetPedDropsWeapon(PlayerPed.Handle);
                 SetPedCanPlayGestureAnims(PlayerPed.Handle, false);
 
-                Tick += DoStuffWhileCuffed;
+                Tick += CuffTick;
             }
             else
             {
@@ -115,7 +115,7 @@ namespace Red.Cuff.Client
 
                 SetPedCanPlayGestureAnims(PlayerPed.Handle, true);
 
-                Tick -= DoStuffWhileCuffed;
+                Tick -= CuffTick;
             }
         }
         #endregion
@@ -188,7 +188,7 @@ namespace Red.Cuff.Client
                 SetPedDropsWeapon(PlayerPed.Handle);
                 SetPedCanPlayGestureAnims(PlayerPed.Handle, false);
 
-                Tick += DoStuffWhileCuffed;
+                Tick += CuffTick;
             }
             else
             {
@@ -207,11 +207,11 @@ namespace Red.Cuff.Client
 
                 SetPedCanPlayGestureAnims(PlayerPed.Handle, true);
 
-                Tick -= DoStuffWhileCuffed;
+                Tick -= CuffTick;
             }
         }
 
-        private async Task DoStuffWhileCuffed()
+        private async Task CuffTick()
         {
             Game.DisableControlThisFrame(0, Control.Attack);
             Game.DisableControlThisFrame(0, Control.Attack2);
