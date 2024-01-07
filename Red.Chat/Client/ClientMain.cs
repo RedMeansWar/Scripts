@@ -44,7 +44,7 @@ namespace Red.Chat.Client
                 return;
             }
 
-            SetResourceKvp($"is_chat_twotter_{currentCharacter.CharacterId}", username);
+            SetResourceKvp($"red_chat_twotter_{currentCharacter.CharacterId}", username);
             twotterUsername = username;
 
             TriggerEvent("_chat:chatMessage", "SYSTEM", new[] { 0, 73, 83 }, $"Twotter username set to ^*{username}^r");

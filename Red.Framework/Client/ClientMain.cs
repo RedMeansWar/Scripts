@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Red.Common.Client.Misc;
+using SharpConfig;
 using CitizenFX.Core;
 using CitizenFX.Core.Native;
 using static CitizenFX.Core.Native.API;
@@ -16,9 +17,10 @@ namespace Red.Framework.Client
     internal class ClientMain : BaseScript
     {
         #region Variables
-        protected bool ranSpawnChecker, teleported;
+        protected bool ranSpawnChecker, teleported, usingDiscordPresence;
         protected float densityMultiplier = 1f;
         protected string currentAOP = "Statewide";
+        protected string communityName, discordAppId, discordRichPresenceAssetLogo, discordRichPresenceAssetText;
         protected Ped PlayerPed = Game.PlayerPed;
         protected ISet<string> allowedDepartments = new HashSet<string>();
         protected int plyrCount = 1;
@@ -44,7 +46,7 @@ namespace Red.Framework.Client
         {
             "police", "police2", "police3", "police4", "policeb", "policeold1", "policeold2", "policet", "polmav", "pranger", "sheriff", "sheriff2", "stockade3", "buffalo3", "fbi", "fbi2", "firetruk", "lguard", "ambulance", "riot", "shamal", "luxor", "luxor2", "jet", "lazer", "titan", "barracks", "barracks2", "crusader", "rhino", "airtug", "ripley", "cargobob", "cargobob2", "cargobob3", "cargobob4", "cargobob5", "buzzard", "besra", "volatus"
         };
-#endregion
+        #endregion
 
         #region Constructor
         public ClientMain()
@@ -117,6 +119,13 @@ namespace Red.Framework.Client
             for (int i = 0; i < 15; i++)
             {
                 EnableDispatchService(i, false);
+            }
+
+            if (usingDiscordPresence)
+            {
+                SetDiscordAppId(discordAppId);
+                SetDiscordRichPresenceAsset(discordRichPresenceAssetLogo);
+                SetDiscordRichPresenceAssetText(discordRichPresenceAssetText);
             }
         }
         #endregion
@@ -244,7 +253,7 @@ namespace Red.Framework.Client
             }
 
             Info($"Selected Character [{currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})]");
-            TriggerEvent("_chat:chatMessage", "IRP", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
+            TriggerEvent("chat:addMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
         }
 
         private void CreateCharacter(IDictionary<string, object> data, CallbackDelegate result)
@@ -744,6 +753,26 @@ namespace Red.Framework.Client
                 type = "HIDE_SPAWN_MODALS"
             }));
         }
+
+        private void ReadConfigFile()
+        {
+            var data = LoadResourceFile(GetCurrentResourceName(), "config.ini");
+
+            if (Configuration.LoadFromString(data).Contains("Framework", "EnableDiscordRickPresence") == true)
+            {
+                Configuration loaded = Configuration.LoadFromString(data);
+                
+                communityName = loaded["Framework"]["CommunityName"].StringValue;
+                usingDiscordPresence = loaded["Framework"]["EnableDiscordRickPresence"].BoolValue;
+                discordAppId = loaded["Framework"]["DiscordAppId"].StringValue;
+                discordRichPresenceAssetLogo = loaded["Framework"]["DiscordRichPresenceAsset"].StringValue;
+                discordRichPresenceAssetText = loaded["Framework"]["DiscordRichPresenceText"].StringValue;
+            }
+            else
+            {
+                TriggerServerEvent("Framework:Server:configError", "Config file wasn't setup correctly!");
+            }
+        }
         #endregion
 
         #region Event Handlers
@@ -751,7 +780,7 @@ namespace Red.Framework.Client
         private void OnChangeAOP(string newAOP, string aopSetter)
         {
             currentAOP = newAOP;
-            TriggerEvent("_chat:chatMessage", "IRP", new[] { 255, 255, 255 }, $"Current AOP is ^5^*{currentAOP}^r^7 (Set by: ^5^*{aopSetter}^r^7)");
+            TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"Current AOP is ^5^*{currentAOP}^r^7 (Set by: ^5^*{aopSetter}^r^7)");
 
             SendNUIMessage(Json.Stringify(new
             {
@@ -761,7 +790,16 @@ namespace Red.Framework.Client
         }
 
         [EventHandler("Framework:Client:syncInfo")]
-        private void OnSyncInfo(string aop) => currentAOP = aop;
+        private void OnSyncInfo(string aop)
+        {
+            currentAOP = aop;
+
+            SendNUIMessage(Json.Stringify(new
+            {
+                type = "UPDATE_AOP",
+                aop = $"Welcome to San Andreas! (AOP: {aop})"
+            }));
+        }
 
         [EventHandler("Framework:Client:returnDiscordRoles")]
         private void OnReturnDiscordRoles(dynamic rolesJson)
@@ -858,7 +896,7 @@ namespace Red.Framework.Client
         private async Task MainTick()
         {
             await Delay(55000);
-            TriggerServerEvent("Framework:Server:syncInfo");
+            TriggerServerEvent("Framework:Server:syncInfo", currentAOP);
 
             foreach (Vehicle vehicle in World.GetAllVehicles().Where(v => suppressedModels.Contains(v.DisplayName.ToLower()) && !v.PreviouslyOwnedByPlayer))
             {
