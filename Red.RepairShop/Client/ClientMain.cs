@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CitizenFX.Core;
+using CitizenFX.Core.UI;
 using static CitizenFX.Core.Native.API;
 using static Red.Common.Client.Hud.HUD;
 using static Red.Common.Client.ClientExtensions;
 using static Red.Common.Client.Client;
-using Red.Common.Client.Misc;
 
 namespace Red.RepairShop.Client
 {
@@ -25,7 +25,7 @@ namespace Red.RepairShop.Client
             new(-340.32f, -137.62f, 39.01f),
             new(-1155.15f, -2003.02f, 13.18f),
             new(1174.87f, 2640.67f, 37.75f),
-            new(-209.77f, -1324.05f, 30.89f) // bennys
+            new(-209.77f, -1324.05f, 30.89f)
         };
         #endregion
 
@@ -33,48 +33,56 @@ namespace Red.RepairShop.Client
         [Command("repair")]
         private async void RepairCommand()
         {
-            Vehicle closestVehicle = GetClosestVehicle(1.5f);
-            Player currentPlayer = Game.Player;
-            Entity entity = currentPlayer.GetTargetedEntity();
+            int chance = random.Next(0, 101);
 
-            if (repairBlip.CalculateDistanceTo(PlayerPed.Position) < 10f)
+            if (PlayerCurrentVehicle != null && PlayerCurrentVehicle.EngineHealth == 300f)
             {
-                 
+                Vector3 distance = PlayerCurrentVehicle.Position - PlayerPed.Position;
+                distance.Normalize();
+
+                float dotVector = Vector3.Dot(distance, PlayerCurrentVehicle.ForwardVector);
+
+                if (dotVector > 0.78f)
+                {
+
+                    await Delay(2500);
+                    DisplayNotification("Attempting to repair your vehicle.");
+
+                    if (chance <= 30)
+                    {
+                        DisplayNotification("~r~You managed to slightly break your vehicle's engine, you should get to a shop!");
+                        SetVehicleEngineHealth(PlayerCurrentVehicle.Handle, 410f);
+                    }
+                    else
+                    {
+                        DisplayNotification("~g~You managed to slightly repair your vehicle, you should get to a shop!");
+                        SetVehicleEngineHealth(PlayerCurrentVehicle.Handle, 550f);
+                    }
+                }
             }
 
-            if (closestVehicle.CalculateDifferenceBetweenHeadings(entity) < 2f && PlayerCurrentVehicle.Doors[VehicleDoorIndex.Hood].IsOpen)
+            if (repairBlip.CalculateDistanceTo(PlayerPed.Position) > 5f)
             {
-                int chance = random.Next(0, 101);
+                DisplayNotification("~g~The mechanic is looking at your vehicle...");
+                await Delay(3000);
 
-                PlayerPed.Task.PlayAnimation("amb@prop_human_bum_bin@enter", "enter", 8.0f, 1500, AnimationFlags.UpperBodyOnly);
-                await Delay(1500);
-                PlayerPed.Task.ClearAnimation("amb@prop_human_bum_bin@enter", "enter");
-
-                if (chance <= 30)
-                {
-                    DisplayNotification("~r~You managed to slightly break your vehicle's engine, you should get to a shop!");
-                    SetVehicleEngineHealth(PlayerCurrentVehicle.Handle, 550f);
-                }
-                else
-                {
-                    DisplayNotification("~g~You managed to slightly repair your vehicle, you should get to a shop!");
-                    SetVehicleEngineHealth(PlayerCurrentVehicle.Handle, 800f);
-                }
+                Screen.ShowSubtitle("~g~Your vehicle has been repaired");
+                PlayerCurrentVehicle.Repair();
             }
         }
         #endregion
 
         #region Ticks
         [Tick]
-        private async Task LoadRepairBlips()
+        private async Task RepairBlipsTick()
         {
+            float zoomLevel = GetFollowPedCamZoomLevel();
+
             foreach (Vector3 location in repairShopsPosition)
             {
-                if (repairBlip is null)
-                {
-                    repairBlip = World.CreateBlip(location);
-
-                }
+                repairBlip = World.CreateBlip(location);
+                repairBlip.Sprite = BlipSprite.Repair;
+                repairBlip.Scale = 0.7f + (zoomLevel * 0.01f);
             }
         }
         #endregion
