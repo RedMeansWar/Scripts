@@ -8,6 +8,7 @@
     </ItemGroup>
     <ItemGroup>
       <None Remove="ClientMain.cs~RF1e1ac970.TMP" />
+      <None Remove="Hud\NUI.cs~RF1983ea88.TMP" />
     </ItemGroup>
     <ItemGroup>
       <Reference Include="Newtonsoft.Json">

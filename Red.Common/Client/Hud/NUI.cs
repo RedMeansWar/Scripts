@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
 
@@ -72,20 +71,20 @@ namespace Red.Common.Client.Hud
         /// <param name="soundVolume"></param>
         public static void SoundToCoords(float x, float y, float z, float radius, string soundFile, float soundVolume) => TriggerEvent("Client:SoundToCoords", x, y, z, radius, soundFile, soundVolume);
         /// <summary>
-        /// Triggers an event to perform a sound to radius on the server side.
+        /// Triggers an event to perform a sound to radius on the server side. Assuming the PlayCustomSounds resource by LondonStudios is installed.
         /// </summary>
         /// <param name="networkId"></param>
         /// <param name="soundFile"></param>
         /// <param name="soundVolume"></param>
         public static void ServerSoundToClient(int networkId, string soundFile, float soundVolume) => TriggerServerEvent("Server:SoundToClient", networkId, soundFile, soundVolume);
         /// <summary>
-        /// Triggers an event to perform a sound to all on the server side.
+        /// Triggers an event to perform a sound to all on the server side. Assuming the PlayCustomSounds resource by LondonStudios is installed.
         /// </summary>
         /// <param name="soundFile"></param>
         /// <param name="soundVolume"></param>
         public static void ServerSoundToAll(string soundFile, float soundVolume) => TriggerServerEvent("Server:SoundToAll", soundFile, soundVolume);
         /// <summary>
-        /// Triggers an event to perform a sound to radius on the server side.
+        /// Triggers an event to perform a sound to radius on the server side. Assuming the PlayCustomSounds resource by LondonStudios is installed.
         /// </summary>
         /// <param name="networkId"></param>
         /// <param name="radius"></param>
@@ -93,7 +92,7 @@ namespace Red.Common.Client.Hud
         /// <param name="soundVolume"></param>
         public static void ServerSoundToRadius(int networkId, float radius, string soundFile, float soundVolume) => TriggerServerEvent("Server:SoundToRadius", networkId, radius, soundFile, soundVolume);
         /// <summary>
-        /// Triggers an event to perform a sound to coords on the server side.
+        /// Triggers an event to perform a sound to coords on the server side. Assuming the PlayCustomSounds resource by LondonStudios is installed.
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>

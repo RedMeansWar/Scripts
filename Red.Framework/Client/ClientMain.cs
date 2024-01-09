@@ -99,6 +99,7 @@ namespace Red.Framework.Client
             RegisterNUICallback("spawnAtMissionRowPd", SpawnAtMissionRowPd);
             RegisterNUICallback("spawnAtRockfordPd", SpawnAtRockfordPd);
             RegisterNUICallback("spawnAtDelPerroPd", SpawnAtDelPerroPd);
+            RegisterNUICallback("doNotTeleport", DoNotTeleport);
 
             // Gernerates a hash for the player
             uint PLAYER = Game.GenerateHashASCII("PLAYER");
@@ -712,6 +713,17 @@ namespace Red.Framework.Client
                 await Delay(100);
                 TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
+        }
+
+        private void DoNotTeleport(IDictionary<string, object> data, CallbackDelegate result)
+        {
+            SendNUIMessage(Json.Stringify(new
+            {
+                type = "DONT_TELEPORT"
+            }));
+
+            SetNUIFocus(false, false);
+            result(new { success = true, message = "success" });
         }
         #endregion
 

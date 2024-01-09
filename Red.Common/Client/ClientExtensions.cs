@@ -15,7 +15,8 @@ namespace Red.Common.Client
         /// <returns></returns>
         public static bool CannotDoAction(this Ped ped)
         {
-            return DecorGetBool(ped.Handle, "isDead") || ped.IsCuffed
+            // returning DecorGetBool(ped.Handle, "isDead") is the only way this will work. Alternative?
+            return ped.IsCuffed
             || ped.IsDead || ped.IsBeingStunned
             || ped.IsClimbing || ped.IsDiving || ped.IsFalling
             || ped.IsGettingIntoAVehicle || ped.IsJumping
@@ -51,7 +52,7 @@ namespace Red.Common.Client
                 // Calculate the distance between the player and the reference player
                 float distance = p.Character.Position.DistanceTo2d(playerPos);
 
-                // // Update the closest player if a closer one is found within the specified radius
+                // Update the closest player if a closer one is found within the specified radius
                 if (distance < radius)
                 {
                     closestPlayer = p;
@@ -66,6 +67,7 @@ namespace Red.Common.Client
         #region Vehicle Extensions
         /// <summary>
         /// Gets the closest vehicle to a player with a radius (2 meters by default)
+        /// Given to me by Traditionalism (https://github.com/traditionalism)
         /// </summary>
         /// <param name="ped"></param>
         /// <param name="radius"></param>
@@ -78,7 +80,7 @@ namespace Red.Common.Client
             // Perform a capsule-shaped raycast to detect nearby vehicles
 ;           RaycastResult raycast = World.RaycastCapsule(plyrPos, plyrPos, radius, (IntersectOptions)10, Game.PlayerPed);
 
-            // Return the hit entity as a vehicle, or null if none found
+            // Return the hit entity as a vehicle, or null if none found | could this be shortened?
             return raycast.DitHitEntity && Entity.Exists(raycast.HitEntity) && raycast.HitEntity.Model.IsVehicle ? (Vehicle)raycast.HitEntity: null;
         }
         /// <summary>
@@ -126,7 +128,7 @@ namespace Red.Common.Client
             }
             else
             {
-                return (float)Math.Sqrt(Math.Pow(v2.X - v1.X, 2) + Math.Pow(v2.Y - v1.Y, 2));
+                return (float)Math.Sqrt(Math.Pow(v2.X - v1.X, 2) + Math.Pow(v2.Y - v1.Y, 2)); // best to use the distance formula for this.
             }
         }
         /// <summary>
@@ -153,6 +155,53 @@ namespace Red.Common.Client
             directionToTargetEntity.Normalize();
             return GameMath.DirectionToHeading(directionToTargetEntity);
         }
+
+        public static float CalculateDifferenceBetweenHeadings(this Entity entity1, Entity entity2)
+        {
+            if (entity1 is null || !entity1.Exists() || entity2 is null || entity2.Exists())
+            {
+                return 0f;
+            }
+
+            Vector3 h1 = entity1.ForwardVector;
+            Vector3 h2 = entity2.ForwardVector;
+
+            float headingDegreesE1 = MathUtil.Wrap(MathUtil.RadiansToDegrees((float)Math.Atan2(h1.Y, h1.X)), 0f, 360f);
+            float headingDegreesE2 = MathUtil.Wrap(MathUtil.RadiansToDegrees((float)Math.Atan2(h2.Y, h2.X)), 0f, 360f);
+
+            float difference = headingDegreesE1 - headingDegreesE2;
+            difference = MathUtil.Wrap(difference, -180, 180);
+
+            return difference;
+        }
+        #endregion
+
+        #region Misc Extensions
+        /// <summary>
+        /// Calculates the distance to a blip position.
+        /// </summary>
+        /// <param name="blip"></param>
+        /// <param name="targetPos"></param>
+        /// <returns></returns>
+        public static float CalculateDistanceTo(this Blip blip, Vector3 targetPos)
+        {
+            if (DoesBlipExist(blip.Handle))
+            {
+                // Grab blip position
+                Vector3 blipPos = blip.Position;
+
+                // Get the distance between the blip and the target position
+                float distance = Vdist(blipPos.X, blipPos.Y, blipPos.Z, targetPos.X, targetPos.Y, targetPos.Z);
+
+                return distance; // return the distance
+            }
+            else
+            {
+                return -1; // If the blip doesn't exist return as negitive.
+            }
+        }
+
+        public static float CalculateDistanceTo(this Blip blip, float x, float y, float z) => CalculateDistanceTo(blip, new(x, y, z));
         #endregion
     }
 }

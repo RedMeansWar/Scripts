@@ -42,53 +42,53 @@ namespace Red.Common.Client
         #region Extensions
         public static Ped PlayerPed = Game.PlayerPed;
         public static Ped PlayerCharacter = Game.Player.Character;
-        public static Player Player = Game.Player;
+        private static Player Player;
         /// <summary>
-        /// Shortened version of GetClosestPlayerToClient without ClientPlayer to access it.
+        /// Shortened version of GetClosestPlayerToPlayer without PlayerPlayer to access it.
         /// </summary>
         /// <param name="radius"></param>
         /// <returns></returns>
         public static Player GetClosestPlayer(float radius = 2f) => Player.GetClosestPlayerToClient(radius);
         /// <summary>
-        /// Shortened version of GetClosestPlayerToClient without ClientPlayer to access it.
+        /// Shortened version of GetClosestPlayerToPlayer without PlayerPlayer to access it.
         /// </summary>
         /// <param name="radius"></param>
         /// <returns></returns>
         public static Player GetClosestPlayerToPed(float radius = 2f) => Player.GetClosestPlayerToClient(radius);
         /// <summary>
-        /// Shortened version of GetClosestVehicle without ClientPed to access it.
+        /// Shortened version of GetClosestVehicle without PlayerPed to access it.
         /// </summary>
         /// <param name="radius"></param>
         /// <returns></returns>
         public static Vehicle GetClosestVehicle(float radius = 2f) => PlayerPed.GetClosestVehicle(radius);
         /// <summary>
-        /// Shortened version of GetClosestVehicle without ClientPed to access it.
+        /// Shortened version of GetClosestVehicle without PlayerPed to access it.
         /// </summary>
         /// <param name="radius"></param>
         /// <returns></returns>
         public static Vehicle GetClosestVehicleToPlayer(float radius = 2f) => PlayerPed.GetClosestVehicle(radius);
         /// <summary>
-        /// Shortened version of GetClosestVehicle without ClientPed to access it.
+        /// Shortened version of GetClosestVehicle without PlayerPed to access it.
         /// </summary>
         /// <param name="radius"></param>
         /// <returns></returns>
         public static Vehicle GetClosestVehicleToPed(float radius = 2f) => PlayerPed.GetClosestVehicle(radius);
         /// <summary>
-        /// Shortened version of ClientPed.LastVehicle
+        /// Shortened version of PlayerPed.LastVehicle
         /// </summary>
-        public static Vehicle ClientLastVehicle => PlayerPed?.LastVehicle;
+        public static Vehicle PlayerLastVehicle => PlayerPed?.LastVehicle;
         /// <summary>
-        /// Shortened version of ClientPed.CurrentVehicle
+        /// Shortened version of PlayerPed.CurrentVehicle
         /// </summary>
-        public static Vehicle ClientCurrentVehicle = PlayerPed?.CurrentVehicle;
+        public static Vehicle PlayerCurrentVehicle = PlayerPed?.CurrentVehicle;
         /// <summary>
-        /// Gets the Clients ped position.
+        /// Gets the Players ped position.
         /// </summary>
-        public static Vector3 ClientPedPostition = PlayerPed.Position;
+        public static Vector3 PlayerPedPostition = PlayerPed.Position;
         /// <summary>
-        /// Gets the Clients character position.
+        /// Gets the Players character position.
         /// </summary>
-        public static Vector3 ClientCharacterPosition = PlayerCharacter.Position;
+        public static Vector3 PlayerCharacterPosition = PlayerCharacter.Position;
         /// <summary>
         /// Plays an animation
         /// </summary>
@@ -178,7 +178,7 @@ namespace Red.Common.Client
                 }
                 else
                 {
-                    SetVehicleNumberPlateText(ClientCurrentVehicle.Handle, plate);
+                    SetVehicleNumberPlateText(PlayerCurrentVehicle.Handle, plate);
                 }
             }
         }
@@ -189,7 +189,7 @@ namespace Red.Common.Client
         {
             if (Player != null && PlayerCharacter != null && PlayerCharacter.CurrentVehicle != null && PlayerCharacter.Exists())
             {
-                Vehicle vehicle = ClientCurrentVehicle;
+                Vehicle vehicle = PlayerCurrentVehicle;
                 vehicle.Repair();
             }
         }
@@ -303,51 +303,7 @@ namespace Red.Common.Client
                 Game.DisableControlThisFrame(2, control);
             }
         }
-        /// <summary>
-        /// Gets the distance from a blip to the desired vector
-        /// </summary>
-        /// <param name="blip"></param>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <param name="z"></param>
-        /// <returns>a float value resulting in meters</returns>
-        public static float DistanceFromBlip(int blip, float x, float y, float z)
-        {
-            if (DoesBlipExist(blip))
-            {
-                Vector3 blipPos = GetBlipCoords(blip);
-                float distance = Vdist(blipPos.X, blipPos.Y, blipPos.Z, x, y, z);
-
-                return distance;
-            }
-            else
-            {
-                return -1f;
-            }
-        }
-        /// <summary>
-        /// Gets the distance from a blip to the desired vector
-        /// </summary>
-        /// <param name="blip"></param>
-        /// <param name="position"></param>
-        /// <returns>a float value resulting in meters</returns>
-        public static float DistanceFromBlip(int blip, Vector3 position) => DistanceFromBlip(blip, position.X, position.Y, position.Z);
-        /// <summary>
-        /// Gets the distance from a blip to the desired vector
-        /// </summary>
-        /// <param name="blip"></param>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <param name="z"></param>
-        /// <returns>a float value resulting in meters</returns>
-        public static float DistanceFromBlip(Blip blip, float x, float y, float z) => DistanceFromBlip(blip.Handle, x, y, z);
-        /// <summary>
-        /// Gets the distance from a blip to the desired vector
-        /// </summary>
-        /// <param name="blip"></param>
-        /// <param name="position"></param>
-        /// <returns>a float value resulting in meters</returns>
-        public static float DistanceFromBlip(Blip blip, Vector3 position) => DistanceFromBlip(blip.Handle, position.X, position.Y, position.Z);
+        
         /// <summary>
         /// Clears all of the peds current tasks that they are performing such as an animation within the next frame
         /// </summary>
