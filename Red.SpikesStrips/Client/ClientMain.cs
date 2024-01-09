@@ -10,7 +10,6 @@ namespace Red.SpikesStrips.Client
 {
     public class ClientMain : BaseScript
     {
-        // PlayAnimation("amb@medic@standing@kneel@idle_a", "idle_a", 2.5f, 2.5f, deploying ? 1500 : 1500, AnimationFlags.None, 0.0f);
         #region Variables
         protected string spikeModel = "p_ld_stinger_s";
         protected Ped PlayerPed = Game.PlayerPed;
@@ -48,17 +47,17 @@ namespace Red.SpikesStrips.Client
         {
             if (args.Length != 1 || !int.TryParse(args[0], out int numberToDeploy) || numberToDeploy < 2 || numberToDeploy > 4)
             {
-                Screen.ShowNotification("~r~You can't do this right now");
+                TriggerEvent("chat:addMessage", "[SpikeStrips]", new[] { 255, 0, 0 }, "You can't deploy spikestrips right now!");
                 return;
             }
 
             if (PlayerPed.IsAlive && !PlayerPed.IsInVehicle() && !PlayerPed.IsGettingIntoAVehicle && !PlayerPed.IsClimbing && !PlayerPed.IsVaulting && PlayerPed.IsOnFoot && !PlayerPed.IsRagdoll && !PlayerPed.IsSwimming)
             {
-                Screen.ShowNotification("~r~You can't do this right now");
+                TriggerEvent("chat:addMessage", "[SpikeStrips]", new[] { 255, 0, 0 }, "Invalid spikestrip amount argument! Usage: /setspikes [2-4]");
                 return;
             }
 
-            Screen.ShowNotification("");
+            Screen.ShowNotification("~g~Deploying spikes...");
             PlaySettingAnimation(true);
 
             await Delay(1500);
@@ -87,15 +86,10 @@ namespace Red.SpikesStrips.Client
 
         private bool VehicleTouchingSpike(Vector3 coords, int strip)
         {
-            return false;
-        }
-        #endregion
+            Vector3 spikesOffset1 = GetOffsetFromEntityInWorldCoords(strip, 0.0f, length / 2, height * -1);
+            Vector3 spikesOffset2 = GetOffsetFromEntityInWorldCoords(strip, 0.0f, length / 2 * -1, height);
 
-        #region Event Handlers
-        [EventHandler("Spikes:Client:spawnSpikes")]
-        private void OnSpawnSpikes(int number)
-        {
-
+            return IsPointInAngledArea(coords.X, coords.Y, coords.Z, spikesOffset1.X, spikesOffset1.Y, spikesOffset1.Z, spikesOffset2.X, spikesOffset2.Y, spikesOffset2.Z, width * 2, false, false);
         }
         #endregion
 

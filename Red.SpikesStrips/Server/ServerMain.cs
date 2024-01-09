@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
 
@@ -30,7 +31,7 @@ namespace Red.SpikesStrips.Server
             else
             {
                 Debug.WriteLine($"{player.Name} attempted to execute the 'removeallspikes' command but failed due to inefficient permissions.");
-                TriggerClientEvent("chat:addMessage", "[SpikeStrips]", new[] { 255, 0, 0 }, "You can't use this command!");
+                TriggerClientEvent("chat:addMessage", "[SpikeStrips]", new[] { 255, 0, 0 }, "You don't have permission to use this command!");
             }
         }
         #endregion
@@ -59,6 +60,19 @@ namespace Red.SpikesStrips.Server
             }
 
             DeleteAllSpawnedSpikes();
+        }
+
+        [EventHandler("playerDropped")]
+        private async void OnPlayerDropped([FromSource] Player player, string reason)
+        {
+            Debug.WriteLine($"{player.Name} dropped for {reason}. Spikes will be deleted in 5 minutes");
+
+            if (player is null)
+            {
+                await Delay(300000);
+                Debug.WriteLine($"{player.Name} has been offline for 5 minutes, deleting...");
+                TriggerEvent("Spikes:Server:deleteSpikes", player);
+            }
         }
 
         [EventHandler("Spikes:Server:spawnSpikes")]
@@ -96,6 +110,19 @@ namespace Red.SpikesStrips.Server
             {
                 spawnedSpikeList.Remove(handle);
                 spikeOwners.Remove(handle);
+            }
+        }
+        #endregion
+
+        #region Ticks
+        [Tick]
+        private async Task CleanUpSpikesTick()
+        {
+            await Delay(2700000);
+
+            if (Players.Count() == 0 && spawnedSpikeList.Count > 0)
+            {
+                DeleteAllSpawnedSpikes();
             }
         }
         #endregion
