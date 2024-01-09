@@ -79,7 +79,7 @@ namespace Red.Common.Client
 ;           RaycastResult raycast = World.RaycastCapsule(plyrPos, plyrPos, radius, (IntersectOptions)10, Game.PlayerPed);
 
             // Return the hit entity as a vehicle, or null if none found
-            return raycast.HitEntity as Vehicle;
+            return raycast.DitHitEntity && Entity.Exists(raycast.HitEntity) && raycast.HitEntity.Model.IsVehicle ? (Vehicle)raycast.HitEntity: null;
         }
         /// <summary>
         /// Converts MPS to MPH

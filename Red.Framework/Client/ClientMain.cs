@@ -263,9 +263,6 @@ namespace Red.Framework.Client
 
             // Generates a debug line that tells the selected character
             Info($"Selected Character [{currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})]");
-
-            // Triggers a chat message saying that they selected a character
-            TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
         }
 
         private void CreateCharacter(IDictionary<string, object> data, CallbackDelegate result)
@@ -372,10 +369,9 @@ namespace Red.Framework.Client
 
                 TeleportToSpawnLocation(1848.59f, 2585.88f, 45.67f);
                 SetEntityHeading(Game.Player.Character.Handle, 270.0f);
-
-                await Delay(0);
-
                 CloseSpawnModals();
+
+                await Delay(100);
                 TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
@@ -394,9 +390,9 @@ namespace Red.Framework.Client
 
                 TeleportToSpawnLocation(1666.2f, 4740.12f, 41.99f);
                 SetEntityHeading(Game.Player.Character.Handle, 282.89f);
-
-                await Delay(0);
                 CloseSpawnModals();
+
+                await Delay(100);
                 TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
@@ -415,9 +411,9 @@ namespace Red.Framework.Client
 
                 TeleportToSpawnLocation(1114.75f, 2641.67f, 38.14f);
                 SetEntityHeading(Game.Player.Character.Handle, 354.14f);
-
-                await Delay(0);
                 CloseSpawnModals();
+
+                await Delay(100);
                 TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
@@ -436,9 +432,9 @@ namespace Red.Framework.Client
 
                 TeleportToSpawnLocation(366.72f, 2625.21f, 44.67f);
                 SetEntityHeading(Game.Player.Character.Handle, 26.68f);
-
-                await Delay(0);
                 CloseSpawnModals();
+
+                await Delay(100);
                 TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
@@ -457,9 +453,9 @@ namespace Red.Framework.Client
 
                 TeleportToSpawnLocation(1569.59f, 3607.65f, 35.37f);
                 SetEntityHeading(Game.Player.Character.Handle, 26.12f);
-
-                await Delay(0);
                 CloseSpawnModals();
+
+                await Delay(100);
                 TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
@@ -478,9 +474,9 @@ namespace Red.Framework.Client
 
                 TeleportToSpawnLocation(885.27f, -2.63f, 78.76f);
                 SetEntityHeading(Game.Player.Character.Handle, 414.21f);
-
-                await Delay(0);
                 CloseSpawnModals();
+
+                await Delay(100);
                 TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
@@ -500,7 +496,7 @@ namespace Red.Framework.Client
                 TeleportToSpawnLocation(90.7f, -1965.5f, 20.75f);
                 SetEntityHeading(Game.Player.Character.Handle, 316.16f);
 
-                await Delay(0);
+                await Delay(100);
                 CloseSpawnModals();
                 TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
@@ -521,10 +517,10 @@ namespace Red.Framework.Client
                 TeleportToSpawnLocation(-1221.59f, -184.09f, 39.18f);
                 SetEntityHeading(Game.Player.Character.Handle, 119.75f);
 
-                await Delay(0);
-                
                 CloseSpawnModals();
-                CloseSpawnModals();
+
+                await Delay(100);
+
                 TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
@@ -543,9 +539,9 @@ namespace Red.Framework.Client
 
                 TeleportToSpawnLocation(1404.22f, 2169.01f, 97.88f);
                 SetEntityHeading(Game.Player.Character.Handle, 262.06f);
-
-                await Delay(0);
                 CloseSpawnModals();
+
+                await Delay(100);
                 TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
@@ -564,9 +560,9 @@ namespace Red.Framework.Client
 
                 TeleportToSpawnLocation(1395.14f, -574.76f, 74.34f);
                 SetEntityHeading(Game.Player.Character.Handle, 107.64f);
-
-                await Delay(0);
                 CloseSpawnModals();
+                
+                await Delay(100);
                 TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
@@ -585,9 +581,9 @@ namespace Red.Framework.Client
 
                 TeleportToSpawnLocation(639.69f, 0.57f, 82.79f);
                 SetEntityHeading(Game.Player.Character.Handle, 254.93f);
-
-                await Delay(0);
                 CloseSpawnModals();
+
+                await Delay(100);
                 TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
@@ -606,9 +602,9 @@ namespace Red.Framework.Client
 
                 TeleportToSpawnLocation(1864.19f, 3699.68f, 33.61f);
                 SetEntityHeading(Game.Player.Character.Handle, 33.61f);
-
-                await Delay(0);
                 CloseSpawnModals();
+
+                await Delay(100);
                 TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
@@ -648,9 +644,9 @@ namespace Red.Framework.Client
 
                 TeleportToSpawnLocation(-447.72f, 6000.73f, 31.69f);
                 SetEntityHeading(Game.Player.Character.Handle, 137.97f);
-
-                await Delay(0);
                 CloseSpawnModals();
+
+                await Delay(100);
                 TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
@@ -669,9 +665,9 @@ namespace Red.Framework.Client
 
                 TeleportToSpawnLocation(431.46f, -981.35f, 90.71f);
                 SetEntityHeading(Game.Player.Character.Handle, 30.71f);
-
-                await Delay(0);
                 CloseSpawnModals();
+
+                await Delay(100);
                 TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
@@ -690,9 +686,9 @@ namespace Red.Framework.Client
 
                 TeleportToSpawnLocation(-560.78f, -133.86f, 38.09f);
                 SetEntityHeading(Game.Player.Character.Handle, 197.56f);
-
-                await Delay(0);
                 CloseSpawnModals();
+
+                await Delay(100);
                 TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
@@ -711,9 +707,9 @@ namespace Red.Framework.Client
 
                 TeleportToSpawnLocation(-1078.2f, -857.61f, 5.04f);
                 SetEntityHeading(Game.Player.Character.Handle, 210.23f);
-
-                await Delay(0);
                 CloseSpawnModals();
+
+                await Delay(100);
                 TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
@@ -949,7 +945,7 @@ namespace Red.Framework.Client
         [Tick]
         private async Task SecondaryTick()
         {
-            // Sets vehicle densitity (how much AI and AI vehicles are in the area
+            // Sets vehicle densitity (how much AI and AI vehicles are in the area)
             SetVehicleDensityMultiplierThisFrame(densityMultiplier);
             SetParkedVehicleDensityMultiplierThisFrame(densityMultiplier);
             SetRandomVehicleDensityMultiplierThisFrame(densityMultiplier);

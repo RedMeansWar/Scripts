@@ -20,7 +20,7 @@ namespace Red.Framework.Server
         [Command("aop")]
         private void AopCommand([FromSource] Player player, string[] args)
         {
-            if (args.Length != 0)
+            if (args.Length != 0 && IsPlayerAceAllowed(player.Handle, "framework.updateAOP"))
             {
                 currentAOP = string.Join(" ", args);
                 aopSetter = player.Name;
