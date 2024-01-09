@@ -18,6 +18,15 @@ namespace Red.Essentials.Client
         #region Variables
         protected float densityMultiplier = 1f;
         protected uint player = Game.GenerateHashASCII("PLAYER");
+        protected bool handsUp, handsOnHead, handsUpKnees, usingCamera, selfieCamera;
+        protected bool noShuffle = true;
+        protected float steeringAngle;
+        protected Ped PlayerPed = Game.PlayerPed;
+
+        protected readonly IReadOnlyList<Control> controlsToDisable = new List<Control>
+        {
+            Control.Aim, Control.Attack, Control.Attack2, Control.Cover, Control.Jump, Control.MeleeAttack1, Control.MeleeAttack2, Control.MeleeAttackAlternate, Control.MeleeAttackHeavy, Control.MeleeAttackLight, Control.MeleeBlock, Control.Reload
+        };
 
         protected readonly IReadOnlyList<string> scenarioTypes = new List<string>
         {
@@ -135,16 +144,6 @@ namespace Red.Essentials.Client
                 EnableDispatchService(i, false);
             }
         }
-
-        protected bool handsUp, handsOnHead, handsUpKnees, usingCamera, selfieCamera;
-        protected bool noShuffle = true;
-        protected float steeringAngle;
-        protected Ped PlayerPed = Game.PlayerPed;
-
-        protected readonly IReadOnlyList<Control> controlsToDisable = new List<Control>
-        {
-            Control.Aim, Control.Attack, Control.Attack2, Control.Cover, Control.Jump, Control.MeleeAttack1, Control.MeleeAttack2, Control.MeleeAttackAlternate, Control.MeleeAttackHeavy, Control.MeleeAttackLight, Control.MeleeBlock, Control.Reload
-        };
         #endregion
 
         #region Methods

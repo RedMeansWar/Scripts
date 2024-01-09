@@ -162,7 +162,7 @@ namespace Red.SpikesStrips.Client
                 {
                     if (VehicleTouchingSpike(GetWorldPositionOfEntityBone(vehicle.Handle, GetEntityBoneIndexByName(vehicle.Handle, wheel.Key)), closestSpikeStrip))
                     {
-
+                        SetVehicleTyreBurst(vehicle.Handle, wheel.Value, false, 1.0f);
                     }
                 }
             }
