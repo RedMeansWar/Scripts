@@ -7,7 +7,7 @@ using Red.Common.Client;
 using static CitizenFX.Core.Native.API;
 using static Red.Common.Client.Hud.HUD;
 
-namespace Irp.Essentials.Client
+namespace Red.Essentials.Client
 {
     internal class ClientMain : BaseScript
     {
