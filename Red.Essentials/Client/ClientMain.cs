@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Red.Common.Client;
 using CitizenFX.Core;
 using CitizenFX.Core.Native;
 using CitizenFX.Core.UI;
-using Red.Common.Client;
 using static CitizenFX.Core.Native.API;
 using static Red.Common.Client.Hud.HUD;
+using static Red.Common.Client.Client;
 
 namespace Red.Essentials.Client
 {
@@ -193,8 +194,8 @@ namespace Red.Essentials.Client
 
             if (handsUp || handsOnHead)
             {
-                Game.PlayerPed.Task.ClearAnimation("random@arrests@busted", "idle_c");
-                Game.PlayerPed.Task.ClearAnimation("random@mugging3", "handsup_standing_base");
+                ClearAnimationTask("random@arrests@busted", "idle_c");
+                ClearAnimationTask("random@mugging3", "handsup_standing_base");
                 handsOnHead = false;
                 handsUpKnees = false;
                 Tick -= DisableControls;
@@ -207,7 +208,7 @@ namespace Red.Essentials.Client
             }
             else
             {
-                Game.PlayerPed.Task.ClearAnimation("random@mugging3", "handsup_standing_base");
+                ClearAnimationTask("random@mugging3", "handsup_standing_base");
                 Tick -= DisableControls;
             }
         }
@@ -219,8 +220,8 @@ namespace Red.Essentials.Client
 
             if (handsUpKnees || handsUp)
             {
-                Game.PlayerPed.Task.ClearAnimation("random@mugging3", "handsup_standing_base");
-                Game.PlayerPed.Task.ClearAnimation("random@getawaydriver", "idle_a");
+                ClearAnimationTask("random@mugging3", "handsup_standing_base");
+                ClearAnimationTask("random@getawaydriver", "idle_a");
                 handsUp = false;
                 handsUpKnees = false;
                 Tick -= DisableControls;
@@ -233,7 +234,7 @@ namespace Red.Essentials.Client
             }
             else
             {
-                Game.PlayerPed.Task.ClearAnimation("random@arrests@busted", "idle_c");
+                ClearAnimationTask("random@arrests@busted", "idle_c");
                 Tick -= DisableControls;
             }
         }
@@ -245,8 +246,8 @@ namespace Red.Essentials.Client
 
             if (handsUp || handsOnHead)
             {
-                Game.PlayerPed.Task.ClearAnimation("random@arrests@busted", "idle_c");
-                Game.PlayerPed.Task.ClearAnimation("random@mugging3", "handsup_standing_base");
+                ClearAnimationTask("random@arrests@busted", "idle_c");
+                ClearAnimationTask("random@mugging3", "handsup_standing_base");
                 handsOnHead = false;
                 handsUp = false;
                 Tick -= DisableControls;
@@ -260,8 +261,8 @@ namespace Red.Essentials.Client
             }
             else
             {
-                Game.PlayerPed.Task.ClearAnimation("random@mugging3", "handsup_standing_base");
-                Game.PlayerPed.Task.ClearAnimation("random@getawaydriver", "idle_a");
+                ClearAnimationTask("random@mugging3", "handsup_standing_base");
+                ClearAnimationTask("random@getawaydriver", "idle_a");
                 Tick -= DisableControls;
             }
         }
