@@ -60,35 +60,19 @@ namespace Red.Common.Client
         /// </summary>
         /// <param name="radius"></param>
         /// <returns></returns>
-        public static Vehicle GetClosestVehicle(float radius = 2f) => PlayerPed.GetClosestVehicle(radius);
+        public static Vehicle GetClosestVehicle(float radius = 2f) => PlayerPed.GetClosestVehicleToClient(radius);
         /// <summary>
         /// Shortened version of GetClosestVehicle without PlayerPed to access it.
         /// </summary>
         /// <param name="radius"></param>
         /// <returns></returns>
-        public static Vehicle GetClosestVehicleToPlayer(float radius = 2f) => PlayerPed.GetClosestVehicle(radius);
+        public static Vehicle GetClosestVehicleToPlayer(float radius = 2f) => PlayerPed.GetClosestVehicleToClient(radius);
         /// <summary>
         /// Shortened version of GetClosestVehicle without PlayerPed to access it.
         /// </summary>
         /// <param name="radius"></param>
         /// <returns></returns>
-        public static Vehicle GetClosestVehicleToPed(float radius = 2f) => PlayerPed.GetClosestVehicle(radius);
-        /// <summary>
-        /// Shortened version of PlayerPed.LastVehicle
-        /// </summary>
-        public static Vehicle PlayerLastVehicle => PlayerPed?.LastVehicle;
-        /// <summary>
-        /// Shortened version of PlayerPed.CurrentVehicle
-        /// </summary>
-        public static Vehicle PlayerCurrentVehicle = PlayerPed?.CurrentVehicle;
-        /// <summary>
-        /// Gets the Players ped position.
-        /// </summary>
-        public static Vector3 PlayerPedPostition = PlayerPed.Position;
-        /// <summary>
-        /// Gets the Players character position.
-        /// </summary>
-        public static Vector3 PlayerCharacterPosition = PlayerCharacter.Position;
+        public static Vehicle GetClosestVehicleToPed(float radius = 2f) => PlayerPed.GetClosestVehicleToClient(radius);
         /// <summary>
         /// Plays an animation
         /// </summary>
@@ -161,36 +145,6 @@ namespace Red.Common.Client
             if (withVehicle && player is not null && PlayerCharacter.Exists() && player.Character.IsInVehicle())
             {
                 SetPedCoordsKeepVehicle(PlayerCharacter.Handle, pos.X, pos.Y, pos.Z);
-            }
-        }
-        /// <summary>
-        /// Sets the current players vehicle license plate to the desired name.
-        /// Forked from Albo1125
-        /// </summary>
-        /// <param name="plate"></param>
-        public static void SetPlate(string plate)
-        {
-            if (PlayerPed is not null && PlayerCharacter is not null && PlayerCharacter.Exists())
-            {
-                if (plate.Length > 8)
-                {
-                    Debug.WriteLine("Plate was set but the text is too long. Must have a total of 8 characters. (Numbers and Letters)");
-                }
-                else
-                {
-                    SetVehicleNumberPlateText(PlayerCurrentVehicle.Handle, plate);
-                }
-            }
-        }
-        /// <summary>
-        /// Fixes the current vehicle that the player is in
-        /// </summary>
-        public static void FixVehicle()
-        {
-            if (Player != null && PlayerCharacter != null && PlayerCharacter.CurrentVehicle != null && PlayerCharacter.Exists())
-            {
-                Vehicle vehicle = PlayerCurrentVehicle;
-                vehicle.Repair();
             }
         }
         /// <summary>
@@ -303,7 +257,6 @@ namespace Red.Common.Client
                 Game.DisableControlThisFrame(2, control);
             }
         }
-        
         /// <summary>
         /// Clears all of the peds current tasks that they are performing such as an animation within the next frame
         /// </summary>
@@ -316,5 +269,11 @@ namespace Red.Common.Client
         /// Clears the secondary task of the ped that they are performing such as an animation within the next frame
         /// </summary>
         public static void ClearSecondaryTask() => PlayerPed.Task.ClearSecondary();
+        /// <summary>
+        /// Clears a current animation from the player
+        /// </summary>
+        /// <param name="animDict"></param>
+        /// <param name="animName"></param>
+        public static void ClearAnimationTask(string animDict, string animName) => PlayerPed.Task.ClearAnimation(animDict, animName);
     }
 }

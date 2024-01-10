@@ -101,16 +101,16 @@ namespace Red.VehicleControl.Client
                 DrawText2d(0.875f, -0.01f, 0.4f, "feet", 255, 255, 255, 255);
             }
 
-            DrawText2d(0.5f, .045f, 0.55f, vehicle.Mods.LicensePlate, 255, 255, 255, 255, Alignment.Center);
+            DrawText2d(0.5f, 0.045f, 0.55f, vehicle.Mods.LicensePlate, 255, 255, 255, 255, Alignment.Center);
             DrawText2d(1f, 0.065f, 0.45f, vehicle.IsEngineRunning ? "~g~ENG" : "~r~ENG", 255, 255, 255, 200, Alignment.Right);
             DrawText2d(0.15f, 0.04f, 0.45f, vehicle.IsInBurnout ? "~r~DSC" : "DSC", 255, 255, 255, 200);
 
             float bodyHealth = vehicle.BodyHealth;
             float engineHealth = vehicle.EngineHealth;
 
-            DrawText2d(1f, .04f, .45f, bodyHealth < 310 ? "~r~AC" : bodyHealth < 900 ? "~y~AC" : "AC", 255, 255, 255, 200, Alignment.Right);
-            DrawText2d(.75f, .04f, .45f, engineHealth < 110 ? "~r~Fluid" : engineHealth < 315 ? "~r~Fluid" : engineHealth < 900 ? "~y~Fluid" : "Fluid", 255, 255, 255, 200);
-            DrawText2d(.01f, .04f, .45f, engineHealth < 110 ? "~r~Oil" : engineHealth < 315 ? "~y~Oil" : "Oil", 255, 255, 255, 200);
+            DrawText2d(1f, 0.04f, 0.45f, bodyHealth < 310 ? "~r~AC" : bodyHealth < 900 ? "~y~AC" : "AC", 255, 255, 255, 200, Alignment.Right);
+            DrawText2d(.75f, 0.04f, 0.45f, engineHealth < 110 ? "~r~Fluid" : engineHealth < 315 ? "~r~Fluid" : engineHealth < 900 ? "~y~Fluid" : "Fluid", 255, 255, 255, 200);
+            DrawText2d(.01f, 0.04f, 0.45f, engineHealth < 110 ? "~r~Oil" : engineHealth < 315 ? "~y~Oil" : "Oil", 255, 255, 255, 200);
         }
 
         [Tick]

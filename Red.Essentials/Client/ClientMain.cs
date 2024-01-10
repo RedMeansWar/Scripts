@@ -1,19 +1,15 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Linq;
-using Red.Common.Client;
 using CitizenFX.Core;
 using CitizenFX.Core.Native;
 using CitizenFX.Core.UI;
+using Red.Common.Client;
 using static CitizenFX.Core.Native.API;
-using static Red.Common.Client.Client;
 using static Red.Common.Client.Hud.HUD;
-using static Red.Common.Client.Diagnostics.Log;
 
-namespace Red.Essentials.Client
+namespace Irp.Essentials.Client
 {
-    public class ClientMain : BaseScript
+    internal class ClientMain : BaseScript
     {
         #region Variables
         protected float densityMultiplier = 1f;
@@ -22,11 +18,6 @@ namespace Red.Essentials.Client
         protected bool noShuffle = true;
         protected float steeringAngle;
         protected Ped PlayerPed = Game.PlayerPed;
-
-        protected readonly IReadOnlyList<Control> controlsToDisable = new List<Control>
-        {
-            Control.Aim, Control.Attack, Control.Attack2, Control.Cover, Control.Jump, Control.MeleeAttack1, Control.MeleeAttack2, Control.MeleeAttackAlternate, Control.MeleeAttackHeavy, Control.MeleeAttackLight, Control.MeleeBlock, Control.Reload
-        };
 
         protected readonly IReadOnlyList<string> scenarioTypes = new List<string>
         {
@@ -92,19 +83,9 @@ namespace Red.Essentials.Client
             "besra",
         };
 
-        protected readonly IReadOnlyList<WeaponHash> allowedWeapons = new List<WeaponHash>
+        protected readonly IReadOnlyList<Control> controlsToDisable = new List<Control>
         {
-            WeaponHash.Knife, WeaponHash.Bottle, WeaponHash.Dagger, WeaponHash.Hatchet, WeaponHash.SwitchBlade, WeaponHash.Machete, WeaponHash.BattleAxe
-        };
-
-        protected readonly IReadOnlyList<string> tires = new List<string>
-        {
-            "wheel_lf", "wheel_rf", "wheel_lm1", "wheel_rm1", "wheel_lm2", "wheel_rm2", "wheel_lm3", "wheel_rm3", "wheel_lr", "wheel_rr"
-        };
-
-        protected readonly IReadOnlyList<int> tiresIndex = new List<int>
-        {
-            0, 1, 2, 3, 45, 47, 46, 48, 4, 5
+            Control.Aim, Control.Attack, Control.Attack2, Control.Cover, Control.Jump, Control.MeleeAttack1, Control.MeleeAttack2, Control.MeleeAttackAlternate, Control.MeleeAttackHeavy, Control.MeleeAttackLight, Control.MeleeBlock, Control.Reload
         };
         #endregion
 
@@ -193,26 +174,6 @@ namespace Red.Essentials.Client
             {
                 Game.DisableControlThisFrame(0, control);
             }
-        }
-
-        private Tire GetClosestTire(Vehicle vehicle)
-        {
-            float closestDistance = float.MaxValue;
-            Tire closestTire = null;
-
-            for (int i = 0; i < tires.Count; i++)
-            {
-                Vector3 tirePos = vehicle.Bones[tires[i]].Position;
-                float distance = PlayerPed.Position.DistanceTo(tirePos);
-
-                if (distance < 1.5f && distance < closestDistance)
-                {
-                    closestDistance = distance;
-                    closestTire = new Tire { Distance = distance, BonePosition = tirePos, TireIndex = tiresIndex[i] };
-                }
-            }
-
-            return closestTire;
         }
         #endregion
 
@@ -352,7 +313,7 @@ namespace Red.Essentials.Client
         {
             if (Game.PlayerPed.CurrentVehicle is null)
             {
-                Vehicle closestVehicle = GetClosestVehicleToPlayer(3f);
+                Vehicle closestVehicle = Game.PlayerPed.GetClosestVehicleToClient(3f);
 
                 if (closestVehicle is null)
                 {
@@ -437,7 +398,7 @@ namespace Red.Essentials.Client
         [Command("trunk")]
         private void OnTrunkCommand()
         {
-            Vehicle vehicle = Game.PlayerPed.CurrentVehicle ?? GetClosestVehicleToPlayer(1f);
+            Vehicle vehicle = Game.PlayerPed.CurrentVehicle ?? Game.PlayerPed.GetClosestVehicleToClient(1f);
 
             if (vehicle is null)
             {
@@ -493,7 +454,7 @@ namespace Red.Essentials.Client
         [Command("hood")]
         private void OnHoodCommand()
         {
-            Vehicle vehicle = Game.PlayerPed.CurrentVehicle ?? GetClosestVehicleToPlayer(1f);
+            Vehicle vehicle = Game.PlayerPed.CurrentVehicle ?? Game.PlayerPed.GetClosestVehicleToClient(1f);
 
             if (vehicle is null)
             {
@@ -550,7 +511,7 @@ namespace Red.Essentials.Client
         [Command("door")]
         private void OnDoorCommand(string[] args)
         {
-            Vehicle vehicle = Game.PlayerPed.CurrentVehicle ?? GetClosestVehicleToPlayer(1f);
+            Vehicle vehicle = Game.PlayerPed.CurrentVehicle ?? Game.PlayerPed.GetClosestVehicleToClient(1f);
 
             if (vehicle is null)
             {
@@ -615,6 +576,36 @@ namespace Red.Essentials.Client
             }
         }
 
+        [Command("anchor")]
+        private void AnchorCommand()
+        {
+            if (!Game.PlayerPed.IsInBoat)
+            {
+                ErrorNotification("You must be conning a boat.");
+                return;
+            }
+
+            Vehicle boat = Game.PlayerPed.CurrentVehicle;
+
+            if (boat.Speed >= 5f)
+            {
+                ErrorNotification("You're going to fast to anchor the boat.");
+                return;
+            }
+
+            if (IsBoatAnchoredAndFrozen(boat.Handle))
+            {
+                SetBoatAnchor(boat.Handle, false);
+                SuccessNotification("Un-anchored boat.");
+            }
+            else
+            {
+                SetBoatFrozenWhenAnchored(boat.Handle, true);
+                SetBoatAnchor(boat.Handle, true);
+                SuccessNotification("Anchored boat.");
+            }
+        }
+
         [Command("eng")]
         private void OnEngCommand() => ToggleEngine();
 
@@ -632,6 +623,7 @@ namespace Red.Essentials.Client
         #endregion
 
         #region Event Handlers
+
         [EventHandler("Essentials:Client:shuffleSeats")]
         private void ShuffleSeats()
         {
@@ -659,7 +651,7 @@ namespace Red.Essentials.Client
 
             if (vehicle is null)
             {
-                Info($"Got Network ID '{netId}' from doorAction event and wasn't able to convert to vehicle, bailing.");
+                Debug.WriteLine($"Got Network ID '{netId}' from doorAction event and wasn't able to convert to vehicle, bailing.");
                 return;
             }
 
@@ -681,21 +673,6 @@ namespace Red.Essentials.Client
                 SetPedDropsInventoryWeapon(PlayerPed.Handle, (uint)GetSelectedPedWeapon(PlayerPed.Handle), 1, 1, 1, -1);
                 PlayerPed.Weapons.Give(WeaponHash.Unarmed, -1, true, true);
             }
-        }
-
-        [EventHandler("SlashTires:Client:slashTires")]
-        private void OnSlashTires(int networkId, int tireIndex)
-        {
-            Vehicle vehicle = (Vehicle)Entity.FromNetworkId(networkId);
-
-            if (vehicle is null)
-            {
-                Info($"Got network Id: '{networkId}' from slashTires event but wasn't able to convert to vehicle, bailing.");
-            }
-
-            SetVehicleTyreBurst(vehicle.Handle, tireIndex, true, 1000f);
-            SetVehicleTyreFixed(vehicle.Handle, tireIndex); ;
-            SetVehicleTyreBurst(vehicle.Handle, tireIndex, false, 100f);
         }
         #endregion
 
@@ -807,73 +784,6 @@ namespace Red.Essentials.Client
             ClearAreaOfCops(playerPos.X, playerPos.Y, playerPos.Z, 800.0f, 0);
 
             await Delay(100);
-        }
-
-        [Tick]
-        private async Task QuaternaryTick()
-        {
-            Vehicle closestVehicle = GetClosestVehicle(1.5f);
-
-            if (closestVehicle is null || closestVehicle.Driver == PlayerPed)
-            {
-                await Delay(1500);
-                return;
-            }
-
-            Tire closestTire = GetClosestTire(closestVehicle);
-
-            if (closestTire is null || IsVehicleTyreBurst(closestVehicle.Handle, closestTire.TireIndex, false) || !closestVehicle.CanTiresBurst || !allowedWeapons.Contains(Game.PlayerPed.Weapons.Current.Hash))
-            {
-                await Delay(1500);
-                return;
-            }
-
-            Screen.DisplayHelpTextThisFrame("Press ~INPUT_CONTEXT~ to slash the tire.");
-
-            if (Game.IsControlJustReleased(0, Control.Context))
-            {
-                RequestAnimDict("melee@knife@streamed_core_fps");
-                while (!HasAnimDictLoaded("melee@knife@streamed_core_fps")) await Delay(0);
-
-                PlayerPed.Task.ClearAllImmediately();
-
-                float tireHeading = GetHeadingFromVector_2d(closestTire.BonePosition.X - PlayerPed.Position.X, closestTire.BonePosition.Y - PlayerPed.Position.Y);
-                PlayerPed.Task.AchieveHeading(tireHeading, 0);
-                while (GetScriptTaskStatus(PlayerPed.Handle, 0x7276D3DF) != 7) await Delay(0);
-
-                PlayerPed.Task.PlayAnimation("melee@knife@streamed_core_fps", "ground_attack_on_spot", 8f, -1f, 1000, (AnimationFlags)15, 1f);
-                await Delay(510);
-                RemoveAnimDict("melee@knife@streamed_core_fps");
-
-                if (GetClosestTire(closestVehicle) is null)
-                {
-                    Screen.ShowNotification("You missed that stab!", true);
-                    return;
-                }
-
-                if (NetworkGetEntityOwner(closestVehicle.Handle) == Game.Player.Handle)
-                {
-                    OnSlashTires(closestVehicle.NetworkId, closestTire.TireIndex);
-                }
-                else
-                {
-                    TriggerServerEvent("pnw:framework:server:slashTires", closestVehicle.NetworkId, closestTire.TireIndex);
-                }
-
-                if (closestVehicle.Driver.Handle > 0 && !closestVehicle.Driver.IsPlayer)
-                {
-                    closestVehicle.Driver.Task.ReactAndFlee(Game.PlayerPed);
-                }
-
-                await Delay(200);
-            }
-        }
-
-        internal class Tire
-        {
-            internal float Distance { get; set; }
-            internal Vector3 BonePosition { get; set; }
-            internal int TireIndex { get; set; }
         }
     }
 }

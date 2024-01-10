@@ -6,14 +6,13 @@ using static CitizenFX.Core.Native.API;
 using static Red.Common.Client.Client;
 using static Red.Common.Client.Hud.HUD;
 
-namespace Red.Cuff.Client
+namespace Irp.Cuff.Client
 {
     public class ClientMain : BaseScript
     {
         #region Variables
         protected bool isCuffed, isFrontCuffed;
         protected Prop cuffsProp;
-        protected Ped PlayerPed = Game.PlayerPed;
         #endregion
 
         #region Commands
@@ -192,7 +191,7 @@ namespace Red.Cuff.Client
             }
             else
             {
-                await Delay(2000);
+                await Delay(3000);
 
                 if (!isZiptie)
                 {

@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using Red.Common.Client.Misc;
 using SharpConfig;
 using CitizenFX.Core;
 using CitizenFX.Core.Native;
 using static CitizenFX.Core.Native.API;
-using static Red.Common.Client.Diagnostics.Log;
 using static Red.Common.Client.Hud.HUD;
 using static Red.Common.Client.Hud.NUI;
+using static Red.Common.Client.ClientExtensions;
 
 namespace Red.Framework.Client
 {
@@ -184,7 +183,7 @@ namespace Red.Framework.Client
             }));
 
             SetNUIFocus(false, false);
-            Info("Revoking Nui Callback");
+            Debug.WriteLine("Revoking Nui Callback");
 
             result(new { success = true, message = "success" });
         }
@@ -262,7 +261,7 @@ namespace Red.Framework.Client
             }
 
             // Generates a debug line that tells the selected character
-            Info($"Selected Character [{currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})]");
+            Debug.WriteLine($"Selected Character [{currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})]");
         }
 
         private void CreateCharacter(IDictionary<string, object> data, CallbackDelegate result)
@@ -714,7 +713,7 @@ namespace Red.Framework.Client
             }
         }
 
-        private void DoNotTeleport(IDictionary<string, object> data, CallbackDelegate result)
+        private async void DoNotTeleport(IDictionary<string, object> data, CallbackDelegate result)
         {
             SendNUIMessage(Json.Stringify(new
             {
@@ -723,6 +722,9 @@ namespace Red.Framework.Client
 
             SetNUIFocus(false, false);
             result(new { success = true, message = "success" });
+
+            await Delay(100);
+            TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
         }
         #endregion
 
@@ -906,7 +908,7 @@ namespace Red.Framework.Client
                 Info($"Department: {character.Department}");
             }
             */
-            Info($"Returned {characterList.Count} character(s)");
+            Debug.WriteLine($"Returned {characterList.Count} character(s)");
 
             SetNUIFocus(true, true);
 

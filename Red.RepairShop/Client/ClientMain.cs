@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Red.Common.Client;
 using CitizenFX.Core;
 using CitizenFX.Core.UI;
 using static CitizenFX.Core.Native.API;
 using static Red.Common.Client.Hud.HUD;
-using static Red.Common.Client.ClientExtensions;
 using static Red.Common.Client.Client;
 
 namespace Red.RepairShop.Client
@@ -33,34 +33,39 @@ namespace Red.RepairShop.Client
         [Command("repair")]
         private async void RepairCommand()
         {
-            int chance = random.Next(0, 101);
+            Vehicle currentVehicle = PlayerPed.CurrentVehicle;
 
-            if (PlayerCurrentVehicle != null && PlayerCurrentVehicle.EngineHealth == 300f)
+            if (currentVehicle is null)
             {
-                await Delay(2500);
-                DisplayNotification("Attempting to repair your vehicle.");
+                return;
+            }
 
-                if (chance <= 30)
+            if (repairBlip.CalculateDistanceTo(PlayerPed.Position) < 15f)
+            {
+                DisplayNotification("The mechanic is looking at your vehicle...");
+                await Delay(3000);
+
+                currentVehicle.Repair();
+
+                Screen.ShowSubtitle("The mechanic has ~g~repaired~ ~w~your vehicle!");
+            }
+
+            if (PlayerPed.IsOnFoot && currentVehicle.BodyHealth < 310f || PlayerPed.IsInVehicle() && currentVehicle.BodyHealth < 310f)
+            {
+                DisplayNotification("~g~Attempting to fix...");
+
+                if (random.Next(0, 101) < 30)
                 {
-                    DisplayNotification("~r~You managed to slightly break your vehicle's engine, you should get to a shop!");
-                    SetVehicleEngineHealth(PlayerCurrentVehicle.Handle, 410f);
+                    await Delay(3000);
+                    ErrorNotification("You managed to somehow damage your vehicle even more, get it to a mechanic!", false);
+
+                    currentVehicle.EngineHealth = 250f;
                 }
                 else
                 {
-                    DisplayNotification("~g~You managed to slightly repair your vehicle, you should get to a shop!");
-                    SetVehicleEngineHealth(PlayerCurrentVehicle.Handle, 550f);
-                }
-            }
-
-            foreach (Vector3 location in repairShopsPosition)
-            {
-                if (Vector3.DistanceSquared(PlayerPed.Position, location) < 15.0f)
-                {
-                    DisplayNotification("~g~The mechanic is looking at your vehicle...");
                     await Delay(3000);
-
-                    Screen.ShowSubtitle("~g~Your vehicle has been repaired");
-                    PlayerCurrentVehicle.Repair();
+                    SuccessNotification("You managed to somehow fix your a vehicle a little, get it to a mechanic!");
+                    currentVehicle.EngineHealth = 320f;
                 }
             }
         }
