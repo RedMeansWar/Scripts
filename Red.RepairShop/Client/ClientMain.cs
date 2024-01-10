@@ -37,37 +37,31 @@ namespace Red.RepairShop.Client
 
             if (PlayerCurrentVehicle != null && PlayerCurrentVehicle.EngineHealth == 300f)
             {
-                Vector3 distance = PlayerCurrentVehicle.Position - PlayerPed.Position;
-                distance.Normalize();
+                await Delay(2500);
+                DisplayNotification("Attempting to repair your vehicle.");
 
-                float dotVector = Vector3.Dot(distance, PlayerCurrentVehicle.ForwardVector);
-
-                if (dotVector > 0.78f)
+                if (chance <= 30)
                 {
-
-                    await Delay(2500);
-                    DisplayNotification("Attempting to repair your vehicle.");
-
-                    if (chance <= 30)
-                    {
-                        DisplayNotification("~r~You managed to slightly break your vehicle's engine, you should get to a shop!");
-                        SetVehicleEngineHealth(PlayerCurrentVehicle.Handle, 410f);
-                    }
-                    else
-                    {
-                        DisplayNotification("~g~You managed to slightly repair your vehicle, you should get to a shop!");
-                        SetVehicleEngineHealth(PlayerCurrentVehicle.Handle, 550f);
-                    }
+                    DisplayNotification("~r~You managed to slightly break your vehicle's engine, you should get to a shop!");
+                    SetVehicleEngineHealth(PlayerCurrentVehicle.Handle, 410f);
+                }
+                else
+                {
+                    DisplayNotification("~g~You managed to slightly repair your vehicle, you should get to a shop!");
+                    SetVehicleEngineHealth(PlayerCurrentVehicle.Handle, 550f);
                 }
             }
 
-            if (repairBlip.CalculateDistanceTo(PlayerPed.Position) > 5f)
+            foreach (Vector3 location in repairShopsPosition)
             {
-                DisplayNotification("~g~The mechanic is looking at your vehicle...");
-                await Delay(3000);
+                if (Vector3.DistanceSquared(PlayerPed.Position, location) < 15.0f)
+                {
+                    DisplayNotification("~g~The mechanic is looking at your vehicle...");
+                    await Delay(3000);
 
-                Screen.ShowSubtitle("~g~Your vehicle has been repaired");
-                PlayerCurrentVehicle.Repair();
+                    Screen.ShowSubtitle("~g~Your vehicle has been repaired");
+                    PlayerCurrentVehicle.Repair();
+                }
             }
         }
         #endregion
@@ -76,13 +70,11 @@ namespace Red.RepairShop.Client
         [Tick]
         private async Task RepairBlipsTick()
         {
-            float zoomLevel = GetFollowPedCamZoomLevel();
-
             foreach (Vector3 location in repairShopsPosition)
             {
                 repairBlip = World.CreateBlip(location);
-                repairBlip.Sprite = BlipSprite.Repair;
-                repairBlip.Scale = 0.7f + (zoomLevel * 0.01f);
+                repairBlip.Sprite = (BlipSprite)446;
+                repairBlip.Scale = 1f;
             }
         }
         #endregion
