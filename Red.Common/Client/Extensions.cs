@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using CitizenFX.Core;
+using static CitizenFX.Core.Native.API;
 
 namespace Red.Common.Client
 {
@@ -51,7 +52,12 @@ namespace Red.Common.Client
             Vector3 position = ped.Position;
             RaycastResult raycast = World.RaycastCapsule(position, position, radius, (IntersectOptions)10, ped);
 
-            return raycast.DitHitEntity && Entity.Exists(raycast.HitEntity) && raycast.HitEntity.Model.IsVehicle ? (Vehicle)raycast.HitEntity : null;
+            if (!raycast.DitHitEntity && !Entity.Exists(raycast.HitEntity) && !raycast.HitEntity.Model.IsVehicle)
+            {
+                return null;
+            }
+
+            return raycast.HitEntity as Vehicle; // will this work?
         }
         /// <summary>
         /// Converts MPS to MPH
@@ -124,6 +130,27 @@ namespace Red.Common.Client
             {
                 return (float)Math.Sqrt(Math.Pow(v2.X - v1.X, 2) + Math.Pow(v2.Y - v1.Y, 2));
             }
+        }
+        /// <summary>
+        /// Gets the distance to a prop model.
+        /// </summary>
+        /// <param name="prop"></param>
+        /// <param name="modelName"></param>
+        /// <returns></returns>
+        public static float GetDistanceToProp(this Prop prop, string modelName)
+        {
+            Ped PlayerPed = Game.PlayerPed;
+
+            if (prop is null)
+            {
+                BaseScript.Delay(250);
+                return 0f;
+            }
+
+            prop = World.GetAllProps().Where(prop => prop.Model == modelName).OrderBy(prop => Vector3.DistanceSquared(prop.Position, PlayerPed.Position)).FirstOrDefault();
+            float distance = Vector3.DistanceSquared(PlayerPed.Position, prop.Position);
+
+            return distance;
         }
         #endregion
 

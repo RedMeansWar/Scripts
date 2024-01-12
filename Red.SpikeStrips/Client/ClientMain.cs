@@ -45,10 +45,10 @@ namespace Red.SpikeStrips.Client
             Screen.ShowNotification("~g~Deploying spikes...");
             await PlayerPed.Task.PlayAnimation("amb@medic@standing@kneel@idle_a", "idle_a", 3.5f, 3.5f, 1500, AnimationFlags.None, 0f);
 
-            await Delay(1500);
+            await Delay(250);
             TriggerServerEvent("Spikes:Server:spawnSpikes", spikeAmount);
 
-            await Delay(250);
+            await Delay(1500);
             RemoveAnimDict("amb@medic@standing@kneel@idle_a");
             Screen.ShowNotification("~g~Deployed spikes!");
         }
@@ -61,11 +61,17 @@ namespace Red.SpikeStrips.Client
         [EventHandler("Spikes:Client:spawnSpikes")]
         private async void OnSpawnSpikes(int spikeAmount)
         {
-            spikeProp = await World.CreateProp(modelName, new(PlayerPed.Position.X, PlayerPed.Position.Y + PlayerPed.ForwardVector.Y * spikeAmount, PlayerPed.Position.Z), true, true);
-            
-            spikeProp.IsPositionFrozen = true;
-            spikeProp.IsPersistent = true;
-            spikeProp.IsInvincible = true;
+            for (int i = 0; i < spikeAmount; i++)
+            {
+                Vector3 spawnPosition = new Vector3(PlayerPed.Position.X, PlayerPed.Position.Y, PlayerPed.Position.Z) + PlayerPed.ForwardVector * (5f + spikeAmount); 
+
+                spikeProp = await World.CreateProp(modelName, spawnPosition, true, true);
+                spikeProp.Heading = PlayerPed.Heading;
+
+                spikeProp.IsPositionFrozen = true;
+                spikeProp.IsPersistent = true;
+                spikeProp.IsInvincible = true;
+            }
         }
         #endregion
 

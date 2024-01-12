@@ -6,7 +6,9 @@ namespace Red.Common.Client
 {
     public class Client : ClientScript
     {
-        #region Private Lists
+        #region Private Variables
+        private static Player Player;
+
         protected static readonly IReadOnlyList<Control> cameraControls = new List<Control>()
         {
             Control.LookBehind, Control.LookDown, Control.LookDownOnly, Control.LookLeft, Control.LookLeftOnly, Control.LookLeftRight, Control.LookRight,
@@ -42,7 +44,6 @@ namespace Red.Common.Client
         #region Extensions
         public static Ped PlayerPed = Game.PlayerPed;
         public static Ped PlayerCharacter = Game.Player.Character;
-        private static Player Player;
         /// <summary>
         /// Shortened version of GetClosestPlayerToPlayer without PlayerPlayer to access it.
         /// </summary>

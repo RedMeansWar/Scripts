@@ -351,7 +351,7 @@ namespace Red.Essentials.Client
                         await Delay(0);
                     }
 
-                    SuccessNotification("~g~Vehicle deleted.");
+                    Screen.ShowNotification("~g~Vehicle deleted.");
                 }
             }
             else if (Game.PlayerPed.SeatIndex != VehicleSeat.Driver)
