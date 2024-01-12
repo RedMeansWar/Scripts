@@ -33,41 +33,7 @@ namespace Red.RepairShop.Client
         [Command("repair")]
         private async void RepairCommand()
         {
-            Vehicle currentVehicle = PlayerPed.CurrentVehicle;
-
-            if (currentVehicle is null)
-            {
-                return;
-            }
-
-            if (repairBlip.CalculateDistanceTo(PlayerPed.Position) < 15f)
-            {
-                DisplayNotification("The mechanic is looking at your vehicle...");
-                await Delay(3000);
-
-                currentVehicle.Repair();
-
-                Screen.ShowSubtitle("The mechanic has ~g~repaired~ ~w~your vehicle!");
-            }
-
-            if (PlayerPed.IsOnFoot && currentVehicle.BodyHealth < 310f || PlayerPed.IsInVehicle() && currentVehicle.BodyHealth < 310f)
-            {
-                DisplayNotification("~g~Attempting to fix...");
-
-                if (random.Next(0, 101) < 30)
-                {
-                    await Delay(3000);
-                    ErrorNotification("You managed to somehow damage your vehicle even more, get it to a mechanic!", false);
-
-                    currentVehicle.EngineHealth = 250f;
-                }
-                else
-                {
-                    await Delay(3000);
-                    SuccessNotification("You managed to somehow fix your a vehicle a little, get it to a mechanic!");
-                    currentVehicle.EngineHealth = 320f;
-                }
-            }
+            // todo
         }
         #endregion
 

@@ -7,15 +7,6 @@ namespace Red.Essentials.Server
 {
     public class ServerMain : BaseScript
     {
-        #region Variables
-        protected readonly uint spikeModel = (uint)GetHashKey("p_ld_stinger_s");
-        protected readonly List<int> spawnedSpikes = new();
-        protected readonly Dictionary<int, int> spikeOwners = new();
-        protected static readonly string ResourceName = GetCurrentResourceName();
-        protected Vector3 spawnCoords;
-        protected int numberOfSpikesToDelete;
-        #endregion
-
         #region GSR
         [EventHandler("Essentials:Server:submitGsrTest")]
         private void OnSubmitGsrTest([FromSource] Player player, int testPlayer)

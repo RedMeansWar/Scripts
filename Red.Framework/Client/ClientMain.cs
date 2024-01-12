@@ -9,7 +9,7 @@ using CitizenFX.Core.Native;
 using static CitizenFX.Core.Native.API;
 using static Red.Common.Client.Hud.HUD;
 using static Red.Common.Client.Hud.NUI;
-using static Red.Common.Client.ClientExtensions;
+using static Red.Common.Client.Extensions;
 
 namespace Red.Framework.Client
 {

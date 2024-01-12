@@ -6,7 +6,6 @@ using CitizenFX.Core.UI;
 using static CitizenFX.Core.Native.API;
 using static Red.Common.Client.Client;
 using static Red.Common.Client.Hud.HUD;
-using static Red.Common.Client.Diagnostics.Log;
 
 namespace Red.Grab.Client
 {
@@ -69,7 +68,7 @@ namespace Red.Grab.Client
 
             if (vehicle is null)
             {
-                Info($"Got Network ID '{netId}' from seatAction event and wasn't able to convert to vehicle, bailing.");
+                Debug.WriteLine($"Got Network ID '{netId}' from seatAction event and wasn't able to convert to vehicle, bailing.");
                 return;
             }
 
