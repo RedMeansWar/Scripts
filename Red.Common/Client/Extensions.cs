@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.PortableExecutable;
 using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
 
@@ -29,11 +30,25 @@ namespace Red.Common.Client
         /// <returns></returns>
         public static Player GetClosestPlayerToClient(this Player player, float radius = 2f)
         {
-            PlayerList Players = PlayerList.Players;
-            Player characterPlayer = Game.Player;
-            Ped characterPed = Game.PlayerPed;
+            Vector3 playerPos = Game.PlayerPed.Position;
+            Player closestPlayer = null;
+            float closestDist = float.MaxValue;
 
-            Player closestPlayer = Players.Where(x => x != null && x != characterPlayer && Entity.Exists(x.Character) && x.Character.Position.DistanceTo2d(characterPed.Position) < radius).OrderBy(x => x.Character.Position.DistanceTo(characterPed.Position)).FirstOrDefault();
+            foreach (Player plyr in PlayerList.Players)
+            {
+                if (plyr is null || plyr == Game.Player || !Entity.Exists(plyr.Character))
+                {
+                    continue;
+                }
+
+                float distance = Vector3.DistanceSquared(plyr.Character.Position, playerPos);
+
+                if (distance < closestDist && distance < radius)
+                {
+                    closestPlayer = plyr;
+                    closestDist = distance;
+                }
+            }
 
             return closestPlayer;
         }
@@ -49,15 +64,17 @@ namespace Red.Common.Client
         /// <returns></returns>
         public static Vehicle GetClosestVehicleToClient(this Ped ped, float radius = 2f)
         {
-            Vector3 position = ped.Position;
-            RaycastResult raycast = World.RaycastCapsule(position, position, radius, (IntersectOptions)10, ped);
+            Vector3 plyrPos = ped.Position;
+            RaycastResult raycast = World.RaycastCapsule(plyrPos, plyrPos, radius, (IntersectOptions)10, Game.PlayerPed);
 
-            if (!raycast.DitHitEntity && !Entity.Exists(raycast.HitEntity) && !raycast.HitEntity.Model.IsVehicle)
+            if (!Entity.Exists(raycast.HitEntity) || !raycast.HitEntity.Model.IsVehicle || !raycast.DitHitEntity)
             {
                 return null;
             }
-
-            return raycast.HitEntity as Vehicle; // will this work?
+            else
+            {
+                return (Vehicle)raycast.HitEntity;
+            }
         }
         /// <summary>
         /// Converts MPS to MPH
@@ -144,10 +161,13 @@ namespace Red.Common.Client
             if (prop is null)
             {
                 BaseScript.Delay(250);
-                return 0f;
+                return 0f; // Return 0f if null
             }
 
+            // The prop to get the distance to. Is this one prop or all props in the world?
             prop = World.GetAllProps().Where(prop => prop.Model == modelName).OrderBy(prop => Vector3.DistanceSquared(prop.Position, PlayerPed.Position)).FirstOrDefault();
+
+            // gets the distance from the prop to the player
             float distance = Vector3.DistanceSquared(PlayerPed.Position, prop.Position);
 
             return distance;
