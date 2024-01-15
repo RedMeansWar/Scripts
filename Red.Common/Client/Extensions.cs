@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.PortableExecutable;
 using CitizenFX.Core;
+using Mono.CSharp;
 using static CitizenFX.Core.Native.API;
 
 namespace Red.Common.Client
@@ -97,6 +98,13 @@ namespace Red.Common.Client
         #endregion
 
         #region Distance Calculations
+        /// <summary>
+        /// Calculates the distance between headings
+        /// needs more testing
+        /// </summary>
+        /// <param name="entity1"></param>
+        /// <param name="entity2"></param>
+        /// <returns></returns>
         public static float CalculateDifferenceBetweenHeadings(this Entity entity1, Entity entity2)
         {
             if (entity1 is null || !entity1.Exists() || entity2 is null || entity2.Exists())
@@ -114,39 +122,6 @@ namespace Red.Common.Client
             difference = MathUtil.Wrap(difference, -180, 180);
 
             return difference;
-        }
-        /// <summary>
-        /// Shortened down version of "CalculateDistanceTo" to only calculate the 3D area.
-        /// </summary>
-        /// <param name="v1"></param>
-        /// <param name="v2"></param>
-        /// <returns></returns>
-        public static float DistanceTo(this Vector3 v1, Vector3 v2) => CalculateDistanceTo(v1, v2, true);
-        /// <summary>
-        /// Shortened down version of "CalculateDistanceTo" to only target the 2D area.
-        /// </summary>
-        /// <param name="v1"></param>
-        /// <param name="v2"></param>
-        /// <returns></returns>
-        public static float DistanceTo2d(this Vector3 v1, Vector3 v2) => CalculateDistanceTo(v1, v2, false);
-        /// <summary>
-        /// Calculates the distance between 2 vectors and calculates whether it's using 3D
-        /// based off the "useZ" boolean.
-        /// </summary>
-        /// <param name="v1"></param>
-        /// <param name="v2"></param>
-        /// <param name="useZ"></param>
-        /// <returns></returns>
-        public static float CalculateDistanceTo(this Vector3 v1, Vector3 v2, bool useZ)
-        {
-            if (useZ)
-            {
-                return (float)Math.Sqrt(v1.DistanceToSquared(v2));
-            }
-            else
-            {
-                return (float)Math.Sqrt(Math.Pow(v2.X - v1.X, 2) + Math.Pow(v2.Y - v1.Y, 2));
-            }
         }
         /// <summary>
         /// Gets the distance to a prop model.

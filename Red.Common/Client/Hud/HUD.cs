@@ -29,7 +29,7 @@ namespace Red.Common.Client.Hud
         /// <param name="message"></param>
         /// <param name="blink"></param>
         /// <returns></returns>
-        public static string SuccessNotification(string message, bool blink = true)
+        public static string SuccessNotification(string message, bool blink = false)
         {
             Screen.ShowNotification($"~g~~h~Success~h~~s~: {message}", blink);
             return message;
@@ -40,7 +40,7 @@ namespace Red.Common.Client.Hud
         /// <param name="message"></param>
         /// <param name="blink"></param>
         /// <returns></returns>
-        public static string ErrorNotification(string message, bool blink = true)
+        public static string ErrorNotification(string message, bool blink = false)
         {
             Screen.ShowNotification($"~r~~h~Error~h~~s~: {message}", blink);
             return message;
@@ -51,7 +51,7 @@ namespace Red.Common.Client.Hud
         /// <param name="message"></param>
         /// <param name="blink"></param>
         /// <returns></returns>
-        public static string AlertNotification(string message, bool blink = true)
+        public static string AlertNotification(string message, bool blink = false)
         {
             Screen.ShowNotification($"~y~~h~Alert~h~~s~: {message}", blink);
             return message;

@@ -15,5 +15,12 @@ namespace Red.SpikeStrips.Server
             player.TriggerEvent("Spikes:Client:spawnSpikes", spikeAmount);
             Debug.WriteLine($"Player: {player.Name} spawned spikes with an amount of {spikeAmount}");
         }
+
+        [EventHandler("Spikes:Server:deleteAllSpikes")]
+        private void OnDeleteSpikes([FromSource] Player player)
+        {
+            TriggerClientEvent("Spikes:Client:deleteSpikes");
+            Debug.WriteLine($"Player: {player.Name} deleted spikes at position: {player.Character.Position}");
+        }
     }
 }

@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using CitizenFX.Core;
 using CitizenFX.Core.UI;
+using Red.Common.Client;
 using static CitizenFX.Core.Native.API;
+using static Red.Common.Client.Hud.HUD;
 
 namespace Red.SpikeStrips.Client
 {
@@ -15,15 +18,18 @@ namespace Red.SpikeStrips.Client
         protected Prop spikeProp;
         protected Ped PlayerPed = Game.PlayerPed;
 
-        protected readonly Dictionary<string, int> vehicleWheels = new()
+        protected readonly List<int> tireIndex = new()
         {
-            { "wheel_lf", 0 },
-            { "wheel_rf", 1 },
-            { "wheel_lm", 2 },
-            { "wheel_rm", 3 },
-            { "wheel_lr", 4 },
-            { "wheel_rr", 5 }
+            0,
+            1,
+            2,
+            4,
+            5,
+            45,
+            46
         };
+
+        protected List<int> spikeCount = new();
         #endregion
 
         #region Commands
@@ -36,21 +42,21 @@ namespace Red.SpikeStrips.Client
                 return;
             }
 
-            if (PlayerPed.IsCuffed || PlayerPed.IsDead || PlayerPed.IsBeingStunned || PlayerPed.IsClimbing || PlayerPed.IsDiving || PlayerPed.IsFalling || PlayerPed.IsGettingIntoAVehicle || PlayerPed.IsJumping || PlayerPed.IsJumpingOutOfVehicle || PlayerPed.IsRagdoll || PlayerPed.IsSwimmingUnderWater || PlayerPed.IsVaulting)
+            if (PlayerPed.CannotDoAction() && !PlayerPed.IsOnFoot)
             {
                 TriggerEvent("_chat:chatMessage", "[SpikeStrips]", new[] { 255, 0, 0 }, "You can't do this right now!");
                 return;
             }
 
             Screen.ShowNotification("~g~Deploying spikes...");
-            await PlayerPed.Task.PlayAnimation("amb@medic@standing@kneel@idle_a", "idle_a", 3.5f, 3.5f, 1500, AnimationFlags.None, 0f);
+            await PlayerPed.Task.PlayAnimation("amb@medic@standing@kneel@idle_a", "idle_a", 3.5f, 3.5f, 1500 * spikeAmount, AnimationFlags.None, 0f);
 
             await Delay(250);
             TriggerServerEvent("Spikes:Server:spawnSpikes", spikeAmount);
 
-            await Delay(1500);
-            RemoveAnimDict("amb@medic@standing@kneel@idle_a");
+            await Delay(4500);
             Screen.ShowNotification("~g~Deployed spikes!");
+            RemoveAnimDict("amb@medic@standing@kneel@idle_a");
         }
 
         [Command("removeallspikes")]
@@ -61,63 +67,46 @@ namespace Red.SpikeStrips.Client
         [EventHandler("Spikes:Client:spawnSpikes")]
         private async void OnSpawnSpikes(int spikeAmount)
         {
-            for (int i = 0; i < spikeAmount; i++)
+            spikeProp = await World.CreateProp(modelName, new(PlayerPed.Position.X, PlayerPed.Position.Y, PlayerPed.Position.Z), Vector3.Zero, true, true);
+
+            spikeProp.Heading = PlayerPed.Heading;
+            spikeProp.IsPersistent = true;
+            spikeProp.IsInvincible = true;
+            spikeProp.IsPositionFrozen = true;
+        }
+
+        [EventHandler("Spikes:Client:deleteSpikes")]
+        private async void OnDeleteSpikes()
+        {
+            if (Game.IsControlJustPressed(0, Control.Context) && Vector3.DistanceSquared(PlayerPed.Position, spikeProp.Position) < 5f)
             {
-                Vector3 spawnPosition = new Vector3(PlayerPed.Position.X, PlayerPed.Position.Y, PlayerPed.Position.Z) + PlayerPed.ForwardVector * (5f + spikeAmount); 
-
-                spikeProp = await World.CreateProp(modelName, spawnPosition, true, true);
-                spikeProp.Heading = PlayerPed.Heading;
-
-                spikeProp.IsPositionFrozen = true;
-                spikeProp.IsPersistent = true;
-                spikeProp.IsInvincible = true;
+                spikeProp.Delete();
             }
         }
         #endregion
 
         #region Ticks
         [Tick]
-        private async Task SecondaryTick()
+        private async Task SpikeVehicleTick()
         {
-            spikeProp = World.GetAllProps().Where(prop => prop.Model == "p_ld_stinger_s").OrderBy(prop => Vector3.DistanceSquared(prop.Position, PlayerPed.Position)).FirstOrDefault();
+            Vehicle currentVehicle = Game.PlayerPed.CurrentVehicle;
 
-            if (spikeProp is null || NetworkGetEntityOwner(spikeProp.Handle) != Game.Player.Handle)
+            if (spikeProp.GetDistanceToProp(modelName) < 3f && currentVehicle != null)
             {
-                await Delay(3000);
-                return;
-            }
-
-            float distance = Vector3.DistanceSquared(PlayerPed.Position, spikeProp.Position);
-
-            if (distance > 30.0f)
-            {
-                await Delay(2000);
-                return;
-            }
-
-            if (distance > 5f)
-            {
-                await Delay(1000);
-                return;
-            }
-
-            if (!PlayerPed.IsGettingIntoAVehicle && !PlayerPed.IsClimbing && !PlayerPed.IsVaulting && PlayerPed.IsOnFoot && !PlayerPed.IsRagdoll && !PlayerPed.IsSwimming && distance <= 4.5f)
-            {
-                Screen.DisplayHelpTextThisFrame("Press ~INPUT_CHARACTER_WHEEL~ + ~INPUT_CONTEXT~ to remove the spikestrips");
-
-                if (IsControlPressed(0, 19) && IsControlPressed(0, 51))
+                foreach (var tire in tireIndex)
                 {
-                    float heading = GetHeadingFromVector_2d(spikeProp.Position.X - PlayerPed.Position.X, spikeProp.Position.X - PlayerPed.Position.Y);
-                    SetEntityHeading(PlayerPed.Handle, heading);
-
-                    await PlayerPed.Task.PlayAnimation("amb@medic@standing@kneel@idle_a", "idle_a", 2.5f, 2.5f, 3500, AnimationFlags.None, 0.0f);
-                    await Delay(1500);
-
-                    RemoveAnimDict("amb@medic@standing@kneel@idle_a");
-                    TriggerServerEvent("Spikes:Server:deleteSpikes");
+                    SetVehicleTyreBurst(currentVehicle.Handle, tire, false, 1000f);
                 }
             }
+            else
+            {
+                await Delay(250);
+                return;
+            }
         }
+
+        [Tick]
+        private async Task DeleteSpikesTick() => OnDeleteSpikes();
         #endregion
     }
 }
