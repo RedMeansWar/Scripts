@@ -77,8 +77,13 @@ namespace Red.Common.Client.Hud
         /// <param name="message"></param>
         public static void DrawImageNotification(string picture, int icon, string title, string subtitle, string message)
         {
+            // Set the notification text entry mode to string.
             SetNotificationTextEntry("STRING");
+
+            // Add the message text to the notification.
             AddTextComponentString(message);
+
+            // Construct the notification with image and text elements.
             SetNotificationMessage(picture, picture, true, icon, title, subtitle);
         }
         #endregion
@@ -232,7 +237,10 @@ namespace Red.Common.Client.Hud
         /// <param name="textureDict"></param>
         public static async void RequestTextureDictionary(string textureDict)
         {
+            // Request the streaming of the specified texture dictionary.
             RequestStreamedTextureDict(textureDict, true);
+
+            // Wait for the texture dictionary to load asynchronously.
             while (!HasStreamedTextureDictLoaded(textureDict))
             {
                 await Delay(0);
@@ -315,17 +323,21 @@ namespace Red.Common.Client.Hud
         /// <returns>The safezone of the player assuming the resolution is 1920x1080 and the aspect ratio is 16:9</returns>
         public static dynamic GetSafeZone()
         {
+            // Calculate the safezone size based on an internal safezone value.
             float size = 10 - ((float)Math.Round(GetSafeZone(), 2) * 100) - 90;
 
+            // Initialize the safezone with base coordinates based on aspect ratio.
             dynamic safeZone = new
             {
                 X = (int)Math.Round(size * (GetAspectRatio(false) * 5.4)),
                 Y = (int)Math.Round(size * 5.4)
             };
 
+            // Retrieve the actual screen resolution
             int screenWidth = 0, screenHeight = 0;
             GetScreenResolution(ref screenWidth, ref screenHeight);
 
+            // Adjust the X coordinate for wider resolutions.
             if (screenWidth > 1920)
             {
                 safeZone.X += (screenWidth - 1920) / 2;
@@ -341,8 +353,8 @@ namespace Red.Common.Client.Hud
         {
             dynamic resolution = new
             {
-                width = 1080.0 * GetAspectRatio(false),
-                height = 1080.0
+                width = 1920.0 * GetAspectRatio(false), // calculate the width assuming that it's 1920x1080
+                height = 1080.0 * GetAspectRatio(false)// calculate the height assuming that it's 1920x1080
             };
 
             return resolution;

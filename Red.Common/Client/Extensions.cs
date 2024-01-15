@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.PortableExecutable;
 using CitizenFX.Core;
-using Mono.CSharp;
 using static CitizenFX.Core.Native.API;
 
 namespace Red.Common.Client
@@ -31,19 +29,26 @@ namespace Red.Common.Client
         /// <returns></returns>
         public static Player GetClosestPlayerToClient(this Player player, float radius = 2f)
         {
+            // Get the player's position for distance calculations.
             Vector3 playerPos = Game.PlayerPed.Position;
-            Player closestPlayer = null;
-            float closestDist = float.MaxValue;
 
+            // Initialize variables to track the closest player and distance.
+            Player closestPlayer = null;
+            float closestDist = float.MaxValue; // start with the maxium possible distance
+
+            // Iterate through all players
             foreach (Player plyr in PlayerList.Players)
             {
+                // Skip over players that are null or any self-references, and players without characters.
                 if (plyr is null || plyr == Game.Player || !Entity.Exists(plyr.Character))
                 {
-                    continue;
+                    continue; // continue if the all the condition aren't met
                 }
 
+                // Calculate the squared distance between the player and the secondary player.
                 float distance = Vector3.DistanceSquared(plyr.Character.Position, playerPos);
 
+                // Update the closest player and distance if a closer one is found within the specified radius.
                 if (distance < closestDist && distance < radius)
                 {
                     closestPlayer = plyr;
@@ -51,6 +56,7 @@ namespace Red.Common.Client
                 }
             }
 
+            // Return the closest player, or null if none were found within the radius.
             return closestPlayer;
         }
         #endregion
@@ -65,15 +71,20 @@ namespace Red.Common.Client
         /// <returns></returns>
         public static Vehicle GetClosestVehicleToClient(this Ped ped, float radius = 2f)
         {
+            // Gets the players position
             Vector3 plyrPos = ped.Position;
+
+            // Perform a capsule-shaped raycast to detect and hit a vehicle that is a radius.
             RaycastResult raycast = World.RaycastCapsule(plyrPos, plyrPos, radius, (IntersectOptions)10, Game.PlayerPed);
 
             if (!Entity.Exists(raycast.HitEntity) || !raycast.HitEntity.Model.IsVehicle || !raycast.DitHitEntity)
             {
+                // return null if there is no vehicle or raycast didn't hit the vehicle.
                 return null;
             }
             else
             {
+                // return the raycast that hit the vehicle.
                 return (Vehicle)raycast.HitEntity;
             }
         }
@@ -99,31 +110,6 @@ namespace Red.Common.Client
 
         #region Distance Calculations
         /// <summary>
-        /// Calculates the distance between headings
-        /// needs more testing
-        /// </summary>
-        /// <param name="entity1"></param>
-        /// <param name="entity2"></param>
-        /// <returns></returns>
-        public static float CalculateDifferenceBetweenHeadings(this Entity entity1, Entity entity2)
-        {
-            if (entity1 is null || !entity1.Exists() || entity2 is null || entity2.Exists())
-            {
-                return 0f;
-            }
-
-            Vector3 h1 = entity1.ForwardVector;
-            Vector3 h2 = entity2.ForwardVector;
-
-            float headingDegreesE1 = MathUtil.Wrap(MathUtil.RadiansToDegrees((float)Math.Atan2(h1.Y, h1.X)), 0f, 360f);
-            float headingDegreesE2 = MathUtil.Wrap(MathUtil.RadiansToDegrees((float)Math.Atan2(h2.Y, h2.X)), 0f, 360f);
-
-            float difference = headingDegreesE1 - headingDegreesE2;
-            difference = MathUtil.Wrap(difference, -180, 180);
-
-            return difference;
-        }
-        /// <summary>
         /// Gets the distance to a prop model.
         /// </summary>
         /// <param name="prop"></param>
@@ -147,9 +133,6 @@ namespace Red.Common.Client
 
             return distance;
         }
-        #endregion
-
-        #region Misc Extensions
         /// <summary>
         /// Calculates the distance to a blip position.
         /// </summary>
@@ -164,14 +147,38 @@ namespace Red.Common.Client
             return distance;
         }
         /// <summary>
-        /// Calculates the distance to a blip position.
+        /// Modified Version of TaskPlayAnimation
         /// </summary>
-        /// <param name="blip"></param>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <param name="z"></param>
-        /// <returns></returns>
-        public static float CalculateDistanceTo(this Blip blip, float x, float y, float z) => CalculateDistanceTo(blip, new(x, y, z));
+        /// <param name="ped"></param>
+        /// <param name="dictionary"></param>
+        /// <param name="name"></param>
+        /// <param name="blendInSpeed"></param>
+        /// <param name="blendOutSpeed"></param>
+        /// <param name="duration"></param>
+        /// <param name="flags"></param>
+        /// <param name="playbackRate"></param>
+        /// <param name="lockX"></param>
+        /// <param name="lockY"></param>
+        /// <param name="lockZ"></param>
+        public static void PlayAnim(this Ped ped, string dictionary, string name, float blendInSpeed, float blendOutSpeed, int duration, AnimationFlags flags, float playbackRate, bool lockX, bool lockY, bool lockZ) => TaskPlayAnim(ped.Handle, dictionary, name, blendInSpeed, blendOutSpeed, duration, (int)flags, playbackRate, lockX, lockY, lockZ);
+        /// <summary>
+        /// Modified Version of TaskPlayAnimation
+        /// </summary>
+        /// <param name="ped"></param>
+        /// <param name="dictionary"></param>
+        /// <param name="name"></param>
+        /// <param name="blendInSpeed"></param>
+        /// <param name="blendOutSpeed"></param>
+        /// <param name="duration"></param>
+        /// <param name="flags"></param>
+        /// <param name="playbackRate"></param>
+        /// <param name="lockX"></param>
+        /// <param name="lockY"></param>
+        /// <param name="lockZ"></param>
+        public static void PlayAnim(this Ped ped, string dictionary, string name, float blendInSpeed, float blendOutSpeed, int duration, int flags, float playbackRate, bool lockX, bool lockY, bool lockZ) => TaskPlayAnim(ped.Handle, dictionary, name, blendInSpeed, blendOutSpeed, duration, flags, playbackRate, lockX, lockY, lockZ);
+        #endregion
+
+        #region Misc Extensions
         /// <summary>
         /// Mainly used for NUI
         /// </summary>

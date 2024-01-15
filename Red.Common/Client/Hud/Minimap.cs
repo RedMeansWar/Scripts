@@ -66,7 +66,7 @@ namespace Red.Common.Client.Hud
                 minimap.LeftX += minimap.Width * 0.845f;
                 minimap.Width *= 0.76f;
             }
-            else if ((double)aspectRatio > 1.7999999523162842)
+            else if ((double)aspectRatio > 1.7999999523162842) // 16:9 aspect ratio. Could this be shortend to 1.8?
             {
                 minimap.LeftX += minimap.Width * 0.2225f;
                 minimap.Width *= 0.995f;

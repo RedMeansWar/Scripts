@@ -8,7 +8,7 @@ namespace Red.Common.Client
     {
         #region Private Variables
         private static Player Player;
-
+        
         protected static readonly IReadOnlyList<Control> cameraControls = new List<Control>()
         {
             Control.LookBehind, Control.LookDown, Control.LookDownOnly, Control.LookLeft, Control.LookLeftOnly, Control.LookLeftRight, Control.LookRight,
@@ -100,6 +100,15 @@ namespace Red.Common.Client
         /// <param name="flags"></param>
         /// <param name="playbackRate"></param>
         public static void PlayAnim(string dictionary, string name, float blindInSpeed, float blindOutSpeed, int duration, AnimationFlags flags, float playbackRate) => PlayerPed.Task.PlayAnimation(dictionary, name, blindInSpeed, blindOutSpeed, duration, flags, playbackRate);
+        /// <summary>
+        /// Calculates the distance to a blip
+        /// </summary>
+        /// <param name="blip"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="z"></param>
+        /// <returns></returns>
+        public static float CalculateDistanceTo(Blip blip, float x, float y, float z) => blip.CalculateDistanceTo(new(x, y, z));
         #endregion
 
         #region Model Checker
