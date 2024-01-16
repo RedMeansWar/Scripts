@@ -91,6 +91,7 @@ namespace Red.ShowId.Client
         [EventHandler("ShowId:Client:returnId")]
         private void OnReturnId()
         {
+            // todo finish return event
         }
         #endregion
     }
