@@ -12,7 +12,7 @@ namespace Red.Breathalyzer.Client
     public class ClientMain : BaseScript
     {
         #region Variables
-        protected string bac;
+        protected string bac = "0.00";
         #endregion
 
         #region Constructor
@@ -39,8 +39,14 @@ namespace Red.Breathalyzer.Client
         {
             if (args.Length > 5)
             {
-                ErrorNotification("Your BAC level can't be more than 5 characters.", false);
+                ErrorNotification("Your BAC level can't be more or than 5 characters.");
                 return;
+            }
+
+            if (args.Length != 0)
+            {
+                bac = args[0];
+                DisplayNotification($"~g~Your BAC level is now set to {bac}", true);
             }
 
             if (args.Length == 0)
@@ -63,6 +69,9 @@ namespace Red.Breathalyzer.Client
                 DisplayNotification($"~g~Your BAC level is now set to {bac}", true);
             }
         }
+
+        [Command("mybac")]
+        private void MyBacCommand() => AddChatMessage("[Breathalyzer]", $"Your BAC level is set to: {bac}", 255, 0, 0);
         #endregion
 
         #region Event Handlers
@@ -81,12 +90,12 @@ namespace Red.Breathalyzer.Client
             }));
 
             await Delay(500);
-            PlaySoundFrontend(-1, "CONFIRM_BEEP", "HUD_MINI_GAME_SOUNDSET", true);
+            PlaySoundFrontend(-1, "5_SEC_WARNING", "HUD_MINI_GAME_SOUNDSET", true);
         }
         #endregion
 
         #region NUI Callbacks
-        private void StartBacTest(IDictionary<string, object> data, CallbackDelegate result)
+        private async void StartBacTest(IDictionary<string, object> data, CallbackDelegate result)
         {
             Player targetPlayer = GetClosestPlayer(2f);
 
@@ -96,6 +105,9 @@ namespace Red.Breathalyzer.Client
                 return;
             }
 
+            PlayerPed.PlayAnim("weapons@first_person@aim_rng@generic@projectile@shared@core", "idlerng_med", 1.0f, -1, 5000, 50, 0, false, false, false);
+            await Delay(5000);
+            
             TriggerServerEvent("Breathalyzer:Server:submitBacTest", targetPlayer.ServerId);
         }
 

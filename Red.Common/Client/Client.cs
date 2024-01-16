@@ -285,5 +285,26 @@ namespace Red.Common.Client
         /// <param name="animDict"></param>
         /// <param name="animName"></param>
         public static void ClearAnimationTask(string animDict, string animName) => PlayerPed.Task.ClearAnimation(animDict, animName);
+
+        #region Chat Methods
+        /// <summary>
+        /// Shortened down version of the chat:addMessage event.
+        /// </summary>
+        /// <param name="author"></param>
+        /// <param name="message"></param>
+        /// <param name="r"></param>
+        /// <param name="g"></param>
+        /// <param name="b"></param>
+        public static void AddChatMessage(string author, string message, int r = 255, int g = 255, int b = 255) => TriggerEvent("chat:addMessage", new { color = new[] { r, g, b }, args = new[] { author, message } });
+        /// <summary>
+        /// Shortened down version of the _chat:chatMessage event.
+        /// </summary>
+        /// <param name="author"></param>
+        /// <param name="message"></param>
+        /// <param name="r"></param>
+        /// <param name="g"></param>
+        /// <param name="b"></param>
+        public static void ChatMessage(string author, string message, int r = 255, int g = 255, int b = 255) => TriggerEvent("_chat:chatMessage", author, new[] { r, g, b }, message);
+        #endregion
     }
 }
