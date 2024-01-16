@@ -1,9 +1,6 @@
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using CitizenFX.Core;
-using Newtonsoft.Json;
 using Red.Common.Client;
-using static CitizenFX.Core.Native.API;
 using static Red.Common.Client.Client;
 using static Red.Common.Client.Hud.HUD;
 using static Red.Common.Client.Hud.NUI;
@@ -91,7 +88,6 @@ namespace Red.ShowId.Client
         [EventHandler("ShowId:Client:returnId")]
         private void OnReturnId()
         {
-            // todo finish return event
         }
         #endregion
     }
