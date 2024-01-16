@@ -11,7 +11,6 @@ namespace Red.Common.Client
         #region Ped Actions
         /// <summary>
         /// Determines if the Client cannot do a certain action.
-        /// DecorGetBool(ped.Handle, "IsDead") seems to work fine, is there an alternative?
         /// </summary>
         /// <param name="ped"></param>
         /// <returns></returns>
@@ -22,7 +21,6 @@ namespace Red.Common.Client
            || ped.IsSwimmingUnderWater || ped.IsVaulting;
         /// <summary>
         /// Gets the Closest Player to the client with a predefined radius (2 meters by default)
-        /// Given to me by Traditionalism (https://github.com/traditionalism)
         /// </summary>
         /// <param name="player"></param>
         /// <param name="radius"></param>
@@ -64,7 +62,6 @@ namespace Red.Common.Client
         #region Vehicle Extensions
         /// <summary>
         /// Gets the closest vehicle to a player with a radius (2 meters by default)
-        /// Given to me by Traditionalism (https://github.com/traditionalism)
         /// </summary>
         /// <param name="ped"></param>
         /// <param name="radius"></param>
