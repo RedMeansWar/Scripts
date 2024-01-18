@@ -29,7 +29,7 @@ end
 RegisterNetEvent('Framework:Server:getCharacters', function()
     local source = source
     local characters = {}
-    local result = MySQL.query.await("SELECT * FROM fivem.characters WHERE license = ?", {getPlayerIdentifierFromType('license', source)})
+    local result = MySQL.query.await("SELECT * FROM characters WHERE license = ?", {getPlayerIdentifierFromType('license', source)})
 
     for i = 1, #result do
         local temp = result[i]
@@ -78,7 +78,7 @@ RegisterNetEvent('Framework:Server:createCharacter', function(data)
     local result = MySQL.insert.await("INSERT INTO characters (license, first_name, last_name, dob, gender, cash, bank, department) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", {getPlayerIdentifierFromType('license', source), createdCharacter.FirstName, createdCharacter.LastName, createdCharacter.DoB, createdCharacter.Gender, createdCharacter.Cash, createdCharacter.Bank, createdCharacter.Department})
 
     local characters = {}
-    local result2 = MySQL.query.await("SELECT * FROM fivem.characters WHERE license = ?", {getPlayerIdentifierFromType('license', source)})
+    local result2 = MySQL.query.await("SELECT * FROM characters WHERE license = ?", {getPlayerIdentifierFromType('license', source)})
 
     for i = 1, #result2 do
         local temp = result2[i]
@@ -105,7 +105,7 @@ RegisterNetEvent('Framework:Server:deleteCharacter', function(characterId)
     local result = MySQL.query.await('DELETE FROM characters WHERE character_id = ? LIMIT 1', {characterId})
 
     local characters = {}
-    local result2 = MySQL.query.await("SELECT * FROM fivem.characters WHERE license = ?", {getPlayerIdentifierFromType('license', source)})
+    local result2 = MySQL.query.await("SELECT * FROM characters WHERE license = ?", {getPlayerIdentifierFromType('license', source)})
 
     for i = 1, #result2 do
         local temp = result2[i]
@@ -155,7 +155,7 @@ RegisterNetEvent('Framework:Server:editCharacter', function(data)
     local result = MySQL.query.await("UPDATE characters SET first_name = ?, last_name = ?, dob = ?, gender = ?, department = ? WHERE character_id = ? LIMIT 1", {createdCharacter.FirstName, createdCharacter.LastName, createdCharacter.DoB, createdCharacter.Gender, createdCharacter.Department, characterId})
 
     local characters = {}
-    local result2 = MySQL.query.await("SELECT * FROM fivem.characters WHERE license = ?", {getPlayerIdentifierFromType('license', source)})
+    local result2 = MySQL.query.await("SELECT * FROM characters WHERE license = ?", {getPlayerIdentifierFromType('license', source)})
 
     for i = 1, #result2 do
         local temp = result2[i]
@@ -180,7 +180,7 @@ local function discordRequest(method, endpoint, jsondata)
     local data
     local headers = {
         ['Content-Type'] = 'application/json',
-        ['Authorization'] = 'Bot MTE0MjQ4MzgyMzk1NTgxMjQ3Mw.Gq4AEa.Nuined35yMOjY4QAA8lJRJ4r5Mmv5_YZd4BAsI'
+        ['Authorization'] = 'Bot BOT_TOKEN_HERE'
     }
 
     PerformHttpRequest(('https://discord.com/api/%s'):format(endpoint), function(errorCode, resultData, resultHeaders)
@@ -200,7 +200,7 @@ RegisterNetEvent('Framework:Server:getDiscordRoles', function()
         return
     end
 
-    local endpoint = string.format('guilds/%s/members/%s', '1017182896211120168', discordId)
+    local endpoint = string.format('guilds/%s/members/%s', 'GUILD_ID_HERE', discordId)
     local member = discordRequest('GET', endpoint, {})
     Wait(100)
 
@@ -234,7 +234,7 @@ RegisterNetEvent('Framework:Server:getDiscordRoles', function()
 end)
 
 Citizen.CreateThreadNow(function()
-    local guild = discordRequest('GET', 'guilds/1017182896211120168', {})
+    local guild = discordRequest('GET', 'guilds/GUILD_ID_HERE', {})
 
     if guild.code == 200 then
         local data = json.decode(guild.data)

@@ -1,10 +1,11 @@
+using System;
 using System.Collections.Generic;
 using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
 
 namespace Red.Common.Client
 {
-    public class Client : ClientScript
+    public class Client : BaseScript
     {
         #region Private Variables
         private static Player Player;

@@ -135,6 +135,12 @@ namespace Red.Framework.Client
                 SetDiscordRichPresenceAsset(discordRichPresenceAssetLogo);
                 SetDiscordRichPresenceAssetText(discordRichPresenceAssetText);
             }
+
+            SendNUIMessage(Json.Stringify(new
+            {
+                type = "COMMUNITY_NAME",
+                commName = communityName
+            }));
         }
         #endregion
 
@@ -752,7 +758,7 @@ namespace Red.Framework.Client
             {
                 return;
             }
-
+            
             TriggerServerEvent("Framework:Server:getCharacters");
         }
 
@@ -847,6 +853,18 @@ namespace Red.Framework.Client
             {
                 type = "UPDATE_AOP",
                 aop = $"Welcome to San Andreas! (AOP: {aop})"
+            }));
+        }
+
+        [EventHandler("Framework:Client:updateCommunityName")]
+        private void OnUpdateCommunityName(string newCommunityName)
+        {
+            communityName = newCommunityName;
+
+            SendNUIMessage(Json.Stringify(new
+            {
+                type = "COMMUNITY_NAME",
+                commName = newCommunityName
             }));
         }
 
@@ -974,6 +992,8 @@ namespace Red.Framework.Client
             {
                 return;
             }
+
+            TriggerServerEvent("Framework:Server:updateCommunityName", communityName);
         }
         #endregion
     }

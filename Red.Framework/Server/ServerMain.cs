@@ -51,6 +51,9 @@ namespace Red.Framework.Server
 
         [EventHandler("Framework:Server:configError")]
         private void OnConficError(string message) => Debug.WriteLine(message);
+
+        [EventHandler("Framework:Server:updateCommunityName")]
+        private void OnUpdateCommunityName(string communityName) => TriggerClientEvent("Framework:Client:updateCommunityName", communityName);
         #endregion
 
         #region Ticks
