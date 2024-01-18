@@ -69,7 +69,7 @@ namespace Red.Framework.Client
             ReadConfigFile(); 
 
             // Return Sync Event
-            TriggerServerEvent("Framework:Server:syncInfo"); // Ensures that the AOP is synced for all players when they connect. Does this work here?
+            TriggerServerEvent("Framework:Server:syncAop"); // Ensures that the AOP is synced for all players when they connect. Does this work here?
             TriggerServerEvent("Framework:Server:getDiscordRoles"); // Retrieves Discord roles from a specified guild, used for department assignment
 
             // NUI Callbacks
@@ -844,8 +844,8 @@ namespace Red.Framework.Client
             }));
         }
 
-        [EventHandler("Framework:Client:syncInfo")]
-        private void OnSyncInfo(string aop)
+        [EventHandler("Framework:Client:syncAop")]
+        private void OnSyncAop(string aop)
         {
             currentAOP = aop;
 
@@ -955,7 +955,7 @@ namespace Red.Framework.Client
                 ranSpawnChecker = true;
 
                 await Delay(100);
-                TriggerServerEvent("Framework:Server:syncAOP", currentAOP);
+                TriggerServerEvent("Framework:Server:syncAop", currentAOP);
             }
         }
         #endregion
@@ -971,6 +971,9 @@ namespace Red.Framework.Client
             {
                 vehicle.Delete();
             }
+
+            TriggerServerEvent("Framework:Server:syncAop", currentAOP);
+            TriggerServerEvent("Framework:Server:updateCommunityName", communityName);
         }
 
         [Tick]
@@ -992,8 +995,6 @@ namespace Red.Framework.Client
             {
                 return;
             }
-
-            TriggerServerEvent("Framework:Server:updateCommunityName", communityName);
         }
         #endregion
     }

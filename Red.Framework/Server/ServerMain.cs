@@ -46,8 +46,8 @@ namespace Red.Framework.Server
         [EventHandler("Framework:DropUser")]
         private void OnDropUser([FromSource] Player player) => DropUserFromServer(player, "Dropped via framework.");
 
-        [EventHandler("Framework:Server:syncInfo")]
-        private void OnSyncInfo(string aop) => TriggerClientEvent("Framework:Client:syncInfo", aop);
+        [EventHandler("Framework:Server:syncAop")]
+        private void OnSyncInfo(string aop) => TriggerClientEvent("Framework:Client:syncAop", aop);
 
         [EventHandler("Framework:Server:configError")]
         private void OnConficError(string message) => Debug.WriteLine(message);
