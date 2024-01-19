@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
@@ -107,30 +108,6 @@ namespace Red.Common.Client
 
         #region Distance Calculations
         /// <summary>
-        /// Gets the distance to a prop model.
-        /// </summary>
-        /// <param name="prop"></param>
-        /// <param name="modelName"></param>
-        /// <returns></returns>
-        public static float GetDistanceToProp(this Prop prop, string modelName)
-        {
-            Ped PlayerPed = Game.PlayerPed;
-
-            if (prop is null)
-            {
-                BaseScript.Delay(250);
-                return 0f; // Return 0f if null
-            }
-
-            // The prop to get the distance to. Is this one prop or all props in the world?
-            prop = World.GetAllProps().Where(prop => prop.Model == modelName).OrderBy(prop => Vector3.DistanceSquared(prop.Position, PlayerPed.Position)).FirstOrDefault();
-
-            // gets the distance from the prop to the player
-            float distance = Vector3.DistanceSquared(PlayerPed.Position, prop.Position);
-
-            return distance;
-        }
-        /// <summary>
         /// Calculates the distance to a blip position.
         /// </summary>
         /// <param name="blip"></param>
@@ -194,6 +171,27 @@ namespace Red.Common.Client
             }
             // If the key wasn't found or the value wasn't of the expected type, return the default value
             return defaultVal;
+        }
+        /// <summary>
+        /// Gets the closest prop to the player using a raycast.
+        /// </summary>
+        /// <param name="ped"></param>
+        /// <param name="radius"></param>
+        /// <returns></returns>
+        public static Prop GetClosestPropToClient(this Ped ped, float radius = 5f)
+        {
+            Vector3 plyrPos = ped.Position;
+
+            RaycastResult raycast = World.RaycastCapsule(plyrPos, plyrPos, radius, IntersectOptions.Objects, Game.PlayerPed);
+
+            if (!Entity.Exists(raycast.HitEntity) || !raycast.HitEntity.Model.IsProp || !raycast.DitHitEntity)
+            {
+                return null;
+            }
+            else
+            {
+                return (Prop)raycast.HitEntity;
+            }
         }
         #endregion
     }

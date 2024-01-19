@@ -11,6 +11,7 @@ namespace Red.ShowId.Client
     {
         #region Variables
         protected Character currentCharacter;
+        protected CharacterFeatures currentCharacterFeatures;
         #endregion
 
         #region Constructor
@@ -90,5 +91,13 @@ namespace Red.ShowId.Client
         {
         }
         #endregion
+    }
+
+    public class CharacterFeatures
+    {
+        public string Weight { get; set; }
+        public string Height { get; set; }
+        public string Hair { get; set; }
+        public string EyeColor { get; set; }
     }
 }

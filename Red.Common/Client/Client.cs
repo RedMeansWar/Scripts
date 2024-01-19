@@ -76,6 +76,24 @@ namespace Red.Common.Client
         /// <returns></returns>
         public static Vehicle GetClosestVehicleToPed(float radius = 2f) => PlayerPed.GetClosestVehicleToClient(radius);
         /// <summary>
+        /// Shortened version of GetClosestPropToClient without PlayerPed to access it.
+        /// </summary>
+        /// <param name="radius"></param>
+        /// <returns></returns>
+        public static Prop GetClosestProp(float radius = 5f) => PlayerPed.GetClosestPropToClient(radius);
+        /// <summary>
+        /// Shortened version of GetClosestPropToClient without PlayerPed to access it.
+        /// </summary>
+        /// <param name="radius"></param>
+        /// <returns></returns>
+        public static Prop GetClosestPropToPlayer(float radius = 5f) => PlayerPed.GetClosestPropToClient(radius);
+        /// <summary>
+        /// Shortened version of GetClosestPropToClient without PlayerPed to access it.
+        /// </summary>
+        /// <param name="radius"></param>
+        /// <returns></returns>
+        public static Prop GetClosestPropToPed(float radius = 5f) => PlayerPed.GetClosestPropToClient(radius);
+        /// <summary>
         /// Plays an animation
         /// </summary>
         /// <param name="dictionary"></param>

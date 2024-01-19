@@ -141,6 +141,10 @@ namespace Red.Framework.Client
                 type = "COMMUNITY_NAME",
                 commName = communityName
             }));
+
+            TriggerEvent("chat:addTemplate", "TemplateGreen", "<div style='background-color: rgba(0, 153, 0, 0.4); padding-top: 10px; padding-bottom: 10px; border-radius: 10px; text-align: center;'>{1}</div");
+            TriggerEvent("chat:addTemplate", "TemplateGrey", "<div style='background-color: rgba(34, 34, 34, 0.4); padding-top: 10px; padding-bottom: 10px; border-radius: 10px; text-align: center;'>{1}</div");
+            TriggerEvent("chat:addTemplate", "TemplateRed", "<div style='background-color: rgba(255, 0, 0, 0.4); padding-top: 10px; padding-bottom: 10px; border-radius: 10px; text-align: center;'>{1}</div");
         }
         #endregion
 
@@ -985,7 +989,7 @@ namespace Red.Framework.Client
             SetRandomVehicleDensityMultiplierThisFrame(densityMultiplier);
 
             // Sets AI ped and scenario ped densitity
-            SetPedDensityMultiplierThisFrame(densityMultiplier);
+            SetPedDensityMultiplierThisFrame(densityMultiplier); 
             SetScenarioPedDensityMultiplierThisFrame(densityMultiplier, densityMultiplier);
 
             DisablePlayerVehicleRewards(Game.Player.Handle);
