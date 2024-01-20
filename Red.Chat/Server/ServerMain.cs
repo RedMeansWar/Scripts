@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
 

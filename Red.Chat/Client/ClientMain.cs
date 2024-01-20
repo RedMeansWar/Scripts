@@ -1,7 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Red.Common.Client;
 using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
 
@@ -10,7 +11,7 @@ namespace Red.Chat.Client
     public class ClientMain : BaseScript
     {
         #region Variables
-        protected bool hasChatInit, chatActive, toggleTwotter, toggleDarkWeb;
+        protected bool hasChatInit, chatActive;
         protected string twotterUsername, darkWebUsername;
         protected Character currentCharacter;
         protected List<ChatSuggestion> suggestionsList;
