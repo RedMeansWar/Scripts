@@ -16,6 +16,7 @@
   <body style="display: none">
     <div class="content-container">
     <img src="imgs/logo.png" class="logo" loading="lazy">
+    <h2 class="titleHeader" id="communityHeader" style="font-weight: 400;">Community Name</h2>
     <h2 class="titleHeader" id="titleHeader">Welcome to San Andreas! (AOP: Statewide)</h2>
     <div class="mainBody" id="mainBody" style="display: none">
       <ul id="charList" class="characterList">
@@ -219,7 +220,7 @@
           <div class="modal-footer" id="editModalFooter">
             <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Delete Character</button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary" onclick="validateCreateValuesAndEditCharacter()">Save Character</button>
+            <button type="button" class="btn btn-primary" onclick="ValidateCreateValuesAndEditCharacter()">Save Character</button>
           </div>
         </div>
       </div>
@@ -266,7 +267,7 @@
                     </div>
                 </div>
             <div class="modal-footer">
-                <button class="btn btn-danger" data-dismiss="modal" onclick="HideCivSpawnModal()">Cancel</button>
+              <button class="btn btn-danger" data-dismiss="modal" onclick="DoNotTeleport()">Don't Teleport</button>
             </div>
         </div>
         </div>
@@ -292,7 +293,7 @@
                     </div>
                 </div>
             <div class="modal-footer">
-                <button class="btn btn-danger" data-dismiss="modal" onclick="HideLeoSpawnModal()">Cancel</button>
+              <button class="btn btn-danger" data-dismiss="modal" onclick="DoNotTeleport()">Don't Teleport</button>
             </div>
         </div>
         </div>

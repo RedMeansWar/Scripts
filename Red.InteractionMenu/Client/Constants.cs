@@ -1,4 +1,5 @@
 ﻿using System;
+using CitizenFX.Core;
 using SharpConfig;
 using static CitizenFX.Core.Native.API;
 

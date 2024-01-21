@@ -450,6 +450,10 @@ function HideLeoSpawnModal() {
   $('#policeSpawnModal').modal('hide');
 }
 
+function DoNotTeleport() {
+  $.post('https://core_framework/doNotTeleport');
+}
+
 // NUI Handlers
 $(function() {
     window.addEventListener('message', function(event) {
@@ -489,6 +493,12 @@ $(function() {
       } else if (event.data.type === 'HIDE_SPAWN_MODALS') {
         $('#civSpawnModal').modal('hide');
         $('#policeSpawnModal').modal('hide');
+      } else if (event.data.type === 'DONT_TELEPORT') {
+        HideCivSpawnModal();
+        HideLeoSpawnModal();
+        $('body').css('display', 'none');
+      } else if (event.data.type === 'COMMUNITY_NAME') {
+        $('#communityHeader').text(event.data.commName);
       }
     });
 

@@ -11,7 +11,7 @@ namespace Red.InteractionMenu.Client.Menus
     {
         public static Menu GetMenu()
         {
-            Menu menu = new($"{Constants.communityName} Menu", "~b~Civilian Menu");
+            Menu menu = new($"{Constants.communityName} Menu", "~b~Fire Menu");
 
 
 

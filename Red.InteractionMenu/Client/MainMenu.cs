@@ -1,9 +1,5 @@
-using System;
-using System.Threading.Tasks;
-using SharpConfig;
 using MenuAPI;
 using CitizenFX.Core;
-using static CitizenFX.Core.Native.API;
 using Red.InteractionMenu.Client.Menus;
 
 namespace Red.InteractionMenu.Client
@@ -22,19 +18,19 @@ namespace Red.InteractionMenu.Client
             menu.AddMenuItem(policeBtn);
 
             MenuItem fireBtn = new("Fire Menu", "Go to the fire menu") { Label = Constants.forwardArrow };
-            MenuController.BindMenuItem(menu, PoliceMenu.GetMenu(), fireBtn);
+            MenuController.BindMenuItem(menu, FireMenu.GetMenu(), fireBtn);
             menu.AddMenuItem(policeBtn);
 
             MenuItem civBtn = new("Civilian Menu", "Go to the police menu") { Label = Constants.forwardArrow };
-            MenuController.BindMenuItem(menu, PoliceMenu.GetMenu(), civBtn);
+            MenuController.BindMenuItem(menu, CivilianMenu.GetMenu(), civBtn);
             menu.AddMenuItem(policeBtn);
 
             MenuItem vehBtn = new("Vehicle Menu", "Go to the fire menu") { Label = Constants.forwardArrow };
-            MenuController.BindMenuItem(menu, PoliceMenu.GetMenu(), vehBtn);
+            MenuController.BindMenuItem(menu, VehicleMenu.GetMenu(), vehBtn);
             menu.AddMenuItem(policeBtn);
 
             MenuItem setBtn = new("Settings Menu", "Go to the fire menu") { Label = Constants.forwardArrow };
-            MenuController.BindMenuItem(menu, PoliceMenu.GetMenu(), setBtn);
+            MenuController.BindMenuItem(menu, SettingsMenu.GetMenu(), setBtn);
             menu.AddMenuItem(policeBtn);
 
             menu.AddMenuItem(new("~r~Close", "Close all menus"));
