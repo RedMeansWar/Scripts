@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using CitizenFX.Core;
+using CitizenFX.Core.Native;
 using static CitizenFX.Core.Native.API;
 
 namespace Red.Common.Client
@@ -150,6 +151,8 @@ namespace Red.Common.Client
         /// <returns></returns>
         public static bool DoesModelExist(Model model) => DoesModelExist((uint)model.Hash);
         #endregion
+
+        #region Teleport
         /// <summary>
         /// Teleports a player to a specific set of coords
         /// freezing them or teleporting the player with their vehicle is optional
@@ -176,6 +179,9 @@ namespace Red.Common.Client
                 SetPedCoordsKeepVehicle(PlayerCharacter.Handle, pos.X, pos.Y, pos.Z);
             }
         }
+        #endregion
+
+        #region Entity Opacity
         /// <summary>
         /// Changes the entity opacity
         /// </summary>
@@ -190,6 +196,9 @@ namespace Red.Common.Client
         /// <param name="alpha"></param>
         /// <param name="changeSkin"></param>
         public static void SetEntityOpacity(Entity entity, int alpha, bool changeSkin = false) => SetEntityAlpha(entity.Handle, alpha, changeSkin ? 1 : 0);
+        #endregion
+
+        #region Requests
         /// <summary>
         /// Request an animation dictionary.
         /// </summary>
@@ -228,6 +237,9 @@ namespace Red.Common.Client
         /// </summary>
         /// <param name="animSet"></param>
         public static async void RequestAnimationSet(string animSet) => RequestSet(animSet);
+        #endregion
+
+        #region Animations
         /// <summary>
         /// Plays an animation
         /// </summary>
@@ -265,6 +277,9 @@ namespace Red.Common.Client
         /// <param name="animationFlags"></param>
         /// <param name="playbackRate"></param>
         public static void PlayAnimation(string dictionary, string name, float blendInSpeed, float blendOutSpeed, int duration, int animationFlags, float playbackRate) => PlayAnim(dictionary, name, blendInSpeed, blendOutSpeed, duration, (AnimationFlags)animationFlags, playbackRate);
+        #endregion
+
+        #region Controls
         /// <summary>
         /// Disables movement controls on control and on keyboard
         /// </summary>
@@ -286,6 +301,15 @@ namespace Red.Common.Client
                 Game.DisableControlThisFrame(2, control);
             }
         }
+        /// <summary>
+        /// Checks if the last input was a controller input.
+        /// </summary>
+        /// <returns></returns>
+        public static bool LastInputWasController()
+        {
+            return Function.Call<bool>(Hash._IS_INPUT_DISABLED, 2);
+        }
+        #endregion
         /// <summary>
         /// Clears all of the peds current tasks that they are performing such as an animation within the next frame
         /// </summary>

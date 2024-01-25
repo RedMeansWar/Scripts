@@ -6,7 +6,7 @@ namespace Red.InteractionMenu.Client
 {
     public class MainMenu : BaseScript
     {
-        protected Menu menu = new(Constants.communityName, "~b~Main Menu");
+        protected Menu menu = new(ClientMain.communityName, "~b~Main Menu");
 
         public MainMenu()
         {

@@ -19,7 +19,7 @@ namespace Red.InteractionMenu.Client.Menus
 
         public static Menu GetMenu()
         {
-            Menu menu = new($"{Constants.communityName} Menu", "~b~Police Menu");
+            Menu menu = new($"{ClientMain.communityName} Menu", "~b~Police Menu");
             MenuItem sceneManageBtn = new("Scene Management");
 
             menu.AddMenuItem(sceneManageBtn);
@@ -27,13 +27,23 @@ namespace Red.InteractionMenu.Client.Menus
 
             menu.AddMenuItem(new MenuListItem("Restrainment", new List<string> { "Rear Cuff", "Front Cuff", "Rear Ziptie", "Front Ziptie" }, 0));
             menu.AddMenuItem(new MenuListItem("Hands On", new List<string> { "Grab", "Seat", "Unseat"}, 0));
-            menu.AddMenuItem(new MenuListItem("Loadout", new List<string> { "Default", "SWAT" }, 0));
+            menu.AddMenuItem(new("Breathalyzer"));
+            
+            menu.AddMenuItem(new("Toggle LiDAR Gun"));
+            menu.AddMenuItem(new("Search Vehicle"));
+            menu.AddMenuItem(new("Search Ped"));
 
             menu.AddMenuItem(new("Refill Taser Cartridges"));
-            menu.AddMenuItem(new MenuListItem("Weapon Retention", new List<string> { "Carbine", "Shotgun" }, 0));
+            menu.AddMenuItem(new MenuListItem("Weapon Retention", new List<string> { "Carbine", "Shotgun", "SMG" }, 0));
             menu.AddMenuItem(new("Conduct CPR"));
 
+            menu.AddMenuItem(new MenuListItem("Step Out Of Vehicle", new List<string> { "Driver", "Passanger", "Rear Driver", "Rear Passanger" }, 0));
             menu.AddMenuItem(new("Toggle Shield"));
+            menu.AddMenuItem(new MenuListItem("Loadout", new List<string> { "Default", "SWAT" }, 0));
+
+            menu.AddMenuItem(new("Toggle Beanbag Shotgun"));
+            menu.AddMenuItem(new("~o~Back"));
+            menu.AddMenuItem(new("~r~Close"));
 
             menu.OnItemSelect += Menu_OnItemSelect;
             menu.OnListItemSelect += Menu_OnListItemSelect;
@@ -56,6 +66,73 @@ namespace Red.InteractionMenu.Client.Menus
             else if (item == "Toggle Shield")
             {
                 ToggleShield();
+            }
+            else if (item == "Toggle LiDAR Gun")
+            {
+                Vehicle closestVehicle = GetClosestVehicle(1f);
+
+                if (PlayerPed.IsInPoliceVehicle || closestVehicle?.ClassType == VehicleClass.Emergency)
+                {
+                    if (PlayerPed.Weapons.HasWeapon((WeaponHash)Game.GenerateHashASCII("WEAPON_PROLASER4")))
+                    {
+                        SuccessNotification("You've put the LiDAR gun back on the passenger seat.", true);
+                    }
+                    else
+                    {
+                        SuccessNotification("You've taken the LiDAR gun off the passenger seat.", true);
+                    }
+
+                    ExecuteCommand("lidarweapon");
+                }
+                else
+                {
+                    ErrorNotification("You must be in or near a police cruiser to use this.", true);
+                }
+            }
+            else if (item == "Toggle Beanbag Shotgun")
+            {
+                Vehicle closestVehicle = GetClosestVehicle(1f);
+
+                if (PlayerPed.IsInPoliceVehicle || closestVehicle?.ClassType == VehicleClass.Emergency)
+                {
+                    if (PlayerPed.Weapons.HasWeapon((WeaponHash)Game.GenerateHashASCII("WEAPON_BEANBAGSHOTGUN")))
+                    {
+                        SuccessNotification("You have equipped your beanbag shotgun.", true);
+                    }
+                    else
+                    {
+                        SuccessNotification("You have unequipped your beanbag shotgun.", true);
+                    }
+
+                    PlayerPed.Weapons.Give((WeaponHash)Game.GenerateHashASCII("WEAPON_BEANBAGSHOTGUN"), 60, true, true);
+                }
+                else
+                {
+                    ErrorNotification("You must be in or near a police cruiser to use this.", true);
+                }
+            }
+            else if (item == "Toggle Radar Remote")
+            {
+                if (PlayerPed.IsInPoliceVehicle)
+                {
+                    TriggerEvent("wk:openRemote");
+                }
+                else
+                {
+                    ErrorNotification("You must be in or near a police cruiser to use this.", true);
+                }
+            }
+            else if (item == "Breathalyzer")
+            {
+                ExecuteCommand("bac");
+            }
+            else if (item == "~o~Back")
+            {
+                menu.GoBack();
+            }
+            else if (item == "~r~Close")
+            {
+                MenuController.CloseAllMenus();
             }
         }
 
@@ -161,6 +238,10 @@ namespace Red.InteractionMenu.Client.Menus
                         RetainWeaponSystem(WeaponHash.PumpShotgun);
                         break;
 
+                    case 2:
+                        RetainWeaponSystem(WeaponHash.MicroSMG);
+                        break;
+
                     default:
                         break;
                 }
@@ -175,6 +256,7 @@ namespace Red.InteractionMenu.Client.Menus
             {
                 WeaponHash.CarbineRifle => "long gun",
                 WeaponHash.PumpShotgun => "12 gauge shotgun",
+                WeaponHash.MicroSMG => "9mm open-bolt submachine gun",
                 _ => "gun"
             };
 
