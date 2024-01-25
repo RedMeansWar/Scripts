@@ -1,9 +1,7 @@
-﻿using MenuAPI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using MenuAPI;
+using CitizenFX.Core;
+using static CitizenFX.Core.Native.API;
 
 namespace Red.InteractionMenu.Client.Menus
 {

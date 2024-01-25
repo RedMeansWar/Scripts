@@ -3,6 +3,9 @@
         <Compile Include="../Shared/**/*.cs" />
     </ItemGroup>
     <ItemGroup>
+      <None Remove="Menus\PoliceMenu.cs~RF25b1e00a.TMP" />
+    </ItemGroup>
+    <ItemGroup>
       <Reference Include="MenuAPI">
         <HintPath>..\..\_References_\MenuAPI.dll</HintPath>
       </Reference>
