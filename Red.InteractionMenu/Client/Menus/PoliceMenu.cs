@@ -19,7 +19,7 @@ namespace Red.InteractionMenu.Client.Menus
 
         public static Menu GetMenu()
         {
-            Menu menu = new($"{ClientMain.communityName} Menu", "~b~Police Menu");
+            Menu menu = new("Red Menu", "~b~Police Menu");
             MenuItem sceneManageBtn = new("Scene Management");
 
             menu.AddMenuItem(sceneManageBtn);
@@ -335,8 +335,6 @@ namespace Red.InteractionMenu.Client.Menus
             }
 
             SetEnableHandcuffs(PlayerPed.Handle, true);
-            TriggerEvent("Menu:Client:enableShield");
-
             if (!hadPistolForShield)
             {
                 DeleteEntity(ref propEntity);
@@ -351,29 +349,6 @@ namespace Red.InteractionMenu.Client.Menus
                 hadPistolForShield = false;
                 shieldEnabled = false;
             }
-        }
-        #endregion
-
-        #region Event Handlers
-        [EventHandler("Menu:Client:enableShield")]
-        private void OnEnabledShield()
-        {
-            if (shieldEnabled)
-            {
-                Tick += PoliceShield_Tick;
-            }
-            else
-            {
-                Tick -= PoliceShield_Tick;
-            }
-        }
-        #endregion
-
-        #region Ticks
-        private async Task PoliceShield_Tick()
-        {
-            Game.DisableControlThisFrame(0, Control.Enter);
-            Game.DisableControlThisFrame(0, Control.VehicleExit);
         }
         #endregion
     }

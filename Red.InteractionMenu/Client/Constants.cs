@@ -1,5 +1,4 @@
-﻿using SharpConfig;
-using static CitizenFX.Core.Native.API;
+﻿using static CitizenFX.Core.Native.API;
 
 namespace Red.InteractionMenu.Client
 {

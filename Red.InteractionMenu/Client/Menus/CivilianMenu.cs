@@ -10,7 +10,7 @@ namespace Red.InteractionMenu.Client.Menus
     {
         public static Menu GetMenu()
         {
-            Menu menu = new($"{ClientMain.communityName} Menu", "~b~Civilian Menu");
+            Menu menu = new("Red Menu", "~b~Civilian Menu");
 
             MenuItem sceneManage = new("Scene Management") { Label = Constants.forwardArrow };
             MenuController.BindMenuItem(GetMenu(), SceneManagement.GetMenu(), sceneManage);

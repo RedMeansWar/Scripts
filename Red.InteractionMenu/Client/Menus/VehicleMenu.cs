@@ -12,7 +12,7 @@ namespace Red.InteractionMenu.Client.Menus
     {
         public static Menu GetMenu()
         {
-            Menu menu = new($"{ClientMain.communityName} Menu", "~b~Vehicle Menu");
+            Menu menu = new("Red Menu", "~b~Vehicle Menu");
             Menu confirmDeleteMenu = new("Confirm Action", "Delete Vehicle, are you sure?");
 
             menu.AddMenuItem(new MenuListItem("Roll Up / Down Windows", new List<string> { "Roll Up Windows", "Roll Down Windows" }, 0));

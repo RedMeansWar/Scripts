@@ -7,7 +7,7 @@ namespace Red.InteractionMenu.Client.Menus
     {
         public static Menu GetMenu()
         {
-            Menu menu = new($"{ClientMain.communityName} Menu", "~b~Settings Menu");
+            Menu menu = new("Red Menu", "~b~Settings Menu");
             
             menu.AddMenuItem(new MenuCheckboxItem("Right-Align Menu"));
             menu.AddMenuItem(new("~o~Back", "Go back one menu."));
