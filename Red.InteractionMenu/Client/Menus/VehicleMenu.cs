@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using MenuAPI;
 using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
-using static Red.Common.Client.Client;
-using static Red.Common.Client.Hud.HUD;
+using static Red.InteractionMenu.Client.Constants;
 
 namespace Red.InteractionMenu.Client.Menus
 {

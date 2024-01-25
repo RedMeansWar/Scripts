@@ -4,21 +4,21 @@ using Red.InteractionMenu.Client.Menus;
 
 namespace Red.InteractionMenu.Client
 {
-    public class ClientMain : BaseScript
+    public class MainMenu : BaseScript
     {
-        protected Menu menu = new("Red Menu", "~b~Main Menu");
+        protected readonly Menu menu = new("Red Menu", "~b~Main Menu");
 
-        public ClientMain()
+        public MainMenu()
         {
             MenuController.MenuToggleKey = Control.InteractionMenu;
             MenuController.MenuAlignment = MenuController.MenuAlignmentOption.Left;
+            MenuController.AddMenu(menu);
 
             MenuItem policeBtn = new("Police Menu", "Go to the police menu") { Label = Constants.forwardArrow };
             MenuController.BindMenuItem(menu, PoliceMenu.GetMenu(), policeBtn);
             menu.AddMenuItem(policeBtn);
 
             MenuItem fireBtn = new("Fire Menu", "Go to the fire menu") { Label = Constants.forwardArrow };
-            MenuController.BindMenuItem(menu, FireMenu.GetMenu(), fireBtn);
             menu.AddMenuItem(policeBtn);
 
             MenuItem civBtn = new("Civilian Menu", "Go to the police menu") { Label = Constants.forwardArrow };

@@ -1,12 +1,9 @@
-﻿using System.Threading.Tasks;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using MenuAPI;
 using CitizenFX.Core;
-using Red.Common.Client;
 using Red.InteractionMenu.Client.Menus.SubMenus;
 using static CitizenFX.Core.Native.API;
-using static Red.Common.Client.Client;
-using static Red.Common.Client.Hud.HUD;
+using static Red.InteractionMenu.Client.Constants;
 
 namespace Red.InteractionMenu.Client.Menus
 {
@@ -61,7 +58,7 @@ namespace Red.InteractionMenu.Client.Menus
             }
             else if (item == "Conduct CPR")
             {
-                PlayerPed.PlayAnim("mini@cpr@char_a@cpr_de", "cpr_success", 8.0f, 1.0f, -1, AnimationFlags.StayInEndFrame, 0.0f, false, false, false);
+                TaskPlayAnim(PlayerPed.Handle, "mini@cpr@char_a@cpr_de", "cpr_success", 8.0f, 1.0f, -1, 2, 0.0f, false, false, false);
             }
             else if (item == "Toggle Shield")
             {
@@ -316,7 +313,7 @@ namespace Red.InteractionMenu.Client.Menus
             }
 
             RequestAnimDict(animDict);
-            PlayerPed.PlayAnim(animDict, "0", 8.0f, 8.0f, -1, AnimationFlags.StayInEndFrame | AnimationFlags.UpperBodyOnly | AnimationFlags.AllowRotation, 0.0f, false, false, false);
+            TaskPlayAnim(PlayerPed.Handle, animDict, "0", 8.0f, 8.0f, -1, 2 + 16 + 32, 0.0f, false, false, false);
 
             shieldProp = await World.CreateProp("prop_ballistic_shield", PlayerPed.Position, true, true);
             
@@ -338,7 +335,7 @@ namespace Red.InteractionMenu.Client.Menus
             if (!hadPistolForShield)
             {
                 DeleteEntity(ref propEntity);
-                ClearAllTasksImmediately();
+                PlayerPed.Task.ClearAllImmediately();
 
                 SetWeaponAnimationOverride(PlayerPed.Handle, (uint)GetHashKey("Default"));
                 SetCurrentPedWeapon(PlayerPed.Handle, (uint)WeaponHash.Unarmed, true);
