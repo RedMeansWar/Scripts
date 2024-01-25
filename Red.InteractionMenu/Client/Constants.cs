@@ -12,12 +12,7 @@ namespace Red.InteractionMenu.Client
         public static string backwardArrow = "←←←";
 
         public static Vehicle GetClosestVehicle(float radius = 2f) => PlayerPed.GetClosestVehicleToClient(radius);
-
-        public static bool LastInputWasController()
-        {
-            return Function.Call<bool>(Hash._IS_INPUT_DISABLED, 2);
-        }
-
+        
         public static string SuccessNotification(string message, bool blink = false)
         {
             Screen.ShowNotification($"~g~~h~Success~h~~s~: {message}", blink);

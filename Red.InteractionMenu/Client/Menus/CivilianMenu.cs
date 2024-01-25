@@ -18,7 +18,7 @@ namespace Red.InteractionMenu.Client.Menus
 
             menu.AddMenuItem(new MenuListItem("Restrainment", new List<string> { "Rear Ziptie", "Front Ziptie" }, 0));
             menu.AddMenuItem(new MenuListItem("Step Out Of Vehicle", new List<string> { "Driver", "Passanger", "Rear Driver", "Rear Passanger" }, 0));
-            
+
             menu.AddMenuItem(new("Drop Weapon"));
             menu.AddMenuItem(new("Hands Up"));
             menu.AddMenuItem(new("Hands Up & Knees"));

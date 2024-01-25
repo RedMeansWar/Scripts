@@ -13,17 +13,18 @@ namespace Red.InteractionMenu.Client.Menus
         {
             Menu menu = new("Red Menu", "~b~Vehicle Menu");
             Menu confirmDeleteMenu = new("Confirm Action", "Delete Vehicle, are you sure?");
+             
 
             menu.AddMenuItem(new MenuListItem("Roll Up / Down Windows", new List<string> { "Roll Up Windows", "Roll Down Windows" }, 0));
             menu.AddMenuItem(new("Toggle Engine", "Toggle the current vehicles engines"));
             menu.AddMenuItem(new("Toggle Trunk", "Opens and closes the trunk of the current vehicle."));
-            
+
             menu.AddMenuItem(new("Toggle Hood", "Opens and closes the hood of the current vehicle."));
             menu.AddMenuItem(new MenuListItem("Open / Close Door", new List<string> { "Driver", "Passanger", "Rear Driver", "Rear Passanger" }, 0));
             menu.AddMenuItem(new("Shuffle Seats", "Shuffle to a different seat."));
 
             menu.AddMenuItem(new("Flip Vehicle", "Flips a vehicle that is upside down back upright"));
-            menu.AddMenuItem(new MenuListItem("", new List<string> { "Unlock Doors", "Lock Doors" }, 0));
+            menu.AddMenuItem(new MenuListItem("Door Locks", new List<string> { "Unlock Doors", "Lock Doors" }, 0));
             menu.AddMenuItem(new("Toggle Seatbelt"));
 
             MenuItem deleteBtn = new("~r~Delete Vehicle") { LeftIcon = MenuItem.Icon.WARNING, Label = Constants.forwardArrow };
@@ -93,7 +94,6 @@ namespace Red.InteractionMenu.Client.Menus
                 }
                 else
                 {
-                    SeatbeltPlayer();
                 }
             }
             else if (item == "~o~Go Back")
@@ -154,11 +154,9 @@ namespace Red.InteractionMenu.Client.Menus
                 switch (selectedIndex)
                 {
                     case 0:
-                        VehicleLock(true);
                         break;
 
                     case 1:
-                        VehicleLock();
                         break;
 
                     default:
@@ -166,31 +164,6 @@ namespace Red.InteractionMenu.Client.Menus
                 }
             }
         }
-
-        private static void SeatbeltPlayer()
-        {
-            if (Game.IsDisabledControlPressed(0, Control.VehicleSubDescend) || Game.IsControlPressed(0, Control.VehicleSubDescend) && Game.IsControlJustPressed(0, Control.MoveDownOnly) || Game.IsDisabledControlJustPressed(0, Control.MoveDownOnly) && !LastInputWasController())
-            {
-                // todo
-            }
-        }
-
-        private static void VehicleLock(bool unlock = false)
-        {
-            if (PlayerPed.CurrentVehicle is null)
-            {
-                ErrorNotification("You must be in a vehicle.", true);
-                return;
-            }
-
-            if (PlayerPed.CurrentVehicle.Driver != PlayerPed)
-            {
-                ErrorNotification("You must be the driver.", true);
-                return;
-            }
-
-            PlayerPed.CurrentVehicle.LockStatus = unlock ? VehicleLockStatus.Unlocked : VehicleLockStatus.Locked;
-            SuccessNotification($"{(unlock ? "Unlocked" : "Locked")}.", true);
-        }
+        
     }
 }

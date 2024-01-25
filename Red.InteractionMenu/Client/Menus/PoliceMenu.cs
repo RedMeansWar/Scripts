@@ -18,14 +18,15 @@ namespace Red.InteractionMenu.Client.Menus
         {
             Menu menu = new("Red Menu", "~b~Police Menu");
             MenuItem sceneManageBtn = new("Scene Management");
+            MenuController.AddMenu(menu);
 
             menu.AddMenuItem(sceneManageBtn);
-            MenuController.BindMenuItem(GetMenu(), SceneManagement.GetMenu(), sceneManageBtn);
+            MenuController.BindMenuItem(menu, SceneManagement.GetMenu(), sceneManageBtn);
 
             menu.AddMenuItem(new MenuListItem("Restrainment", new List<string> { "Rear Cuff", "Front Cuff", "Rear Ziptie", "Front Ziptie" }, 0));
-            menu.AddMenuItem(new MenuListItem("Hands On", new List<string> { "Grab", "Seat", "Unseat"}, 0));
+            menu.AddMenuItem(new MenuListItem("Hands On", new List<string> { "Grab", "Seat", "Unseat" }, 0));
             menu.AddMenuItem(new("Breathalyzer"));
-            
+
             menu.AddMenuItem(new("Toggle LiDAR Gun"));
             menu.AddMenuItem(new("Search Vehicle"));
             menu.AddMenuItem(new("Search Ped"));
@@ -62,62 +63,17 @@ namespace Red.InteractionMenu.Client.Menus
             }
             else if (item == "Toggle Shield")
             {
-                ToggleShield();
             }
             else if (item == "Toggle LiDAR Gun")
             {
-                Vehicle closestVehicle = GetClosestVehicle(1f);
-
-                if (PlayerPed.IsInPoliceVehicle || closestVehicle?.ClassType == VehicleClass.Emergency)
-                {
-                    if (PlayerPed.Weapons.HasWeapon((WeaponHash)Game.GenerateHashASCII("WEAPON_PROLASER4")))
-                    {
-                        SuccessNotification("You've put the LiDAR gun back on the passenger seat.", true);
-                    }
-                    else
-                    {
-                        SuccessNotification("You've taken the LiDAR gun off the passenger seat.", true);
-                    }
-
-                    ExecuteCommand("lidarweapon");
-                }
-                else
-                {
-                    ErrorNotification("You must be in or near a police cruiser to use this.", true);
-                }
+               
             }
             else if (item == "Toggle Beanbag Shotgun")
             {
-                Vehicle closestVehicle = GetClosestVehicle(1f);
-
-                if (PlayerPed.IsInPoliceVehicle || closestVehicle?.ClassType == VehicleClass.Emergency)
-                {
-                    if (PlayerPed.Weapons.HasWeapon((WeaponHash)Game.GenerateHashASCII("WEAPON_BEANBAGSHOTGUN")))
-                    {
-                        SuccessNotification("You have equipped your beanbag shotgun.", true);
-                    }
-                    else
-                    {
-                        SuccessNotification("You have unequipped your beanbag shotgun.", true);
-                    }
-
-                    PlayerPed.Weapons.Give((WeaponHash)Game.GenerateHashASCII("WEAPON_BEANBAGSHOTGUN"), 60, true, true);
-                }
-                else
-                {
-                    ErrorNotification("You must be in or near a police cruiser to use this.", true);
-                }
             }
             else if (item == "Toggle Radar Remote")
             {
-                if (PlayerPed.IsInPoliceVehicle)
-                {
-                    TriggerEvent("wk:openRemote");
-                }
-                else
-                {
-                    ErrorNotification("You must be in or near a police cruiser to use this.", true);
-                }
+                
             }
             else if (item == "Breathalyzer")
             {
@@ -288,65 +244,6 @@ namespace Red.InteractionMenu.Client.Menus
             }
         }
 
-        private static async void ToggleShield()
-        {
-            Vehicle closestVehicle = GetClosestVehicle(1f);
-            string animDict = "combat@gestures@gang@pistol_1h@beckon";
-            int propEntity = shieldProp.Handle;
-
-            shieldEnabled = !shieldEnabled;
-
-            if (closestVehicle is null || closestVehicle?.ClassType != VehicleClass.Emergency)
-            {
-                shieldEnabled = false;
-
-                ErrorNotification("You must be near a police cruiser to do this");
-                return;
-            }
-
-            if (PlayerPed.IsGettingIntoAVehicle || PlayerPed.IsInVehicle())
-            {
-                shieldEnabled = false;
-
-                ErrorNotification("You can't be in a vehicle to get a shield out.");
-                return;
-            }
-
-            RequestAnimDict(animDict);
-            TaskPlayAnim(PlayerPed.Handle, animDict, "0", 8.0f, 8.0f, -1, 2 + 16 + 32, 0.0f, false, false, false);
-
-            shieldProp = await World.CreateProp("prop_ballistic_shield", PlayerPed.Position, true, true);
-            
-            AttachEntityToEntity(shieldProp.Handle, PlayerPed.Handle, GetPedBoneIndex(PlayerPed.Handle, 6286), 0.0f, -0.05f, -0.10f, -30.0f, 180.0f, 40.0f, false, false, true, false, 0, true);
-            SetWeaponAnimationOverride(PlayerPed.Handle, (uint)GetHashKey("Gang1H"));
-
-            if (HasPedGotWeapon(PlayerPed.Handle, (uint)WeaponHash.Pistol, false) || GetSelectedPedWeapon(PlayerPed.Handle) == (int)WeaponHash.Pistol)
-            {
-                PlayerPed.Weapons.Select(WeaponHash.Pistol);
-                hadPistolForShield = true;
-            }
-            else
-            {
-                PlayerPed.Weapons.Give(WeaponHash.Pistol, 60, true, false);
-                hadPistolForShield = false;
-            }
-
-            SetEnableHandcuffs(PlayerPed.Handle, true);
-            if (!hadPistolForShield)
-            {
-                DeleteEntity(ref propEntity);
-                PlayerPed.Task.ClearAllImmediately();
-
-                SetWeaponAnimationOverride(PlayerPed.Handle, (uint)GetHashKey("Default"));
-                SetCurrentPedWeapon(PlayerPed.Handle, (uint)WeaponHash.Unarmed, true);
-
-                PlayerPed.Weapons.Remove(WeaponHash.CombatPistol);
-                SetEnableHandcuffs(PlayerPed.Handle, false);
-
-                hadPistolForShield = false;
-                shieldEnabled = false;
-            }
-        }
         #endregion
     }
 }

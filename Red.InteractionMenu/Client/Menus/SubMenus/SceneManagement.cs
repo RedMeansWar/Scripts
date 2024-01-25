@@ -13,6 +13,7 @@ namespace Red.InteractionMenu.Client.Menus.SubMenus
         public static Menu GetMenu()
         {
             Menu menu = new("Red Menu", "Scene Menu");
+            MenuController.AddMenu(menu);
 
             return menu;
         }
