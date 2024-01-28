@@ -84,7 +84,7 @@ namespace Red.ShowId.Client
 
         #region Event Handlers
         [EventHandler("ShowId:Client:showId")]
-        private void OnShowId() => TriggerServerEvent("");
+        private void OnShowId() => TriggerServerEvent("ShowId:Server:showId");
 
         [EventHandler("ShowId:Client:returnId")]
         private void OnReturnId()

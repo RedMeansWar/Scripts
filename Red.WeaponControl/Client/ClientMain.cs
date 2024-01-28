@@ -36,7 +36,7 @@ namespace Red.WeaponControl.Client
         [Tick]
         private async Task ChangeFireModeTick()
         {
-            Weapon weapon = Game.PlayerPed.Weapons.Current;
+            Weapon weapon = PlayerPed.Weapons.Current;
 
             safetyEnabled = true;
 
@@ -101,7 +101,7 @@ namespace Red.WeaponControl.Client
         [Tick]
         private async Task ShowCurrentModeTick()
         {
-            Weapon weapon = Game.PlayerPed.Weapons.Current;
+            Weapon weapon = PlayerPed.Weapons.Current;
 
             if (weapon == (WeaponHash)Game.GenerateHashASCII("WEAPON_PROLASER4"))
             {
@@ -155,8 +155,8 @@ namespace Red.WeaponControl.Client
         [Tick]
         private async Task TaserTick()
         {
-            Weapon taser = Game.PlayerPed.Weapons.Current;
-            SetPedMinGroundTimeForStungun(Game.PlayerPed.Handle, 10000);
+            Weapon taser = PlayerPed.Weapons.Current;
+            SetPedMinGroundTimeForStungun(PlayerPed.Handle, 10000);
 
             if (taser is null || taser != WeaponHash.StunGun)
             {
@@ -164,7 +164,7 @@ namespace Red.WeaponControl.Client
                 return;
             }
 
-            if (Game.PlayerPed.IsShooting)
+            if (PlayerPed.IsShooting)
             {
                 taserCartridges--;
             }
@@ -189,7 +189,7 @@ namespace Red.WeaponControl.Client
         {
             Vehicle closestVeh = GetClosestVehicleToPlayer(1f);
 
-            if (Game.PlayerPed.IsInPoliceVehicle || closestVeh?.ClassType == VehicleClass.Emergency)
+            if (PlayerPed.IsInPoliceVehicle || closestVeh?.ClassType == VehicleClass.Emergency)
             {
                 taserCartridges = 2;
                 ShowNotification("~g~~h~Success~h~~s~: Refilled taser cartridges.", true);

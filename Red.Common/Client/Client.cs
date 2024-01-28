@@ -1,7 +1,6 @@
-using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using CitizenFX.Core;
-using CitizenFX.Core.Native;
 using static CitizenFX.Core.Native.API;
 
 namespace Red.Common.Client
@@ -239,6 +238,53 @@ namespace Red.Common.Client
         public static async void RequestAnimationSet(string animSet) => RequestSet(animSet);
         #endregion
 
+        #region Loads
+        /// <summary>
+        /// Loads an animation
+        /// </summary>
+        /// <param name="animDict"></param>
+        /// <returns></returns>
+        public static async Task LoadAnimDict(string animDict)
+        {
+            RequestAnimDict(animDict);
+            while (!HasAnimDictLoaded(animDict))
+            {
+                await Delay(0);
+            }
+        }
+        /// <summary>
+        /// Loads a prop using a model's hash
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public static async Task LoadModel(uint model)
+        {
+            RequestModel(model);
+            while (!HasModelLoaded(model))
+            {
+                await Delay(0);
+            }
+        }
+        /// <summary>
+        /// Loads a prop using a string model
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public static async Task LoadModel(string model) => await LoadModel((uint)GetHashKey(model));
+        /// <summary>
+        /// Loads an audio bank ambient sound
+        /// </summary>
+        /// <param name="audioBank"></param>
+        /// <returns></returns>
+        public static async Task LoadAmbientAudioBank(string audioBank)
+        {
+            while (!RequestAmbientAudioBank(audioBank, false))
+            {
+                await Delay(0);
+            }
+        }
+        #endregion
+
         #region Animations
         /// <summary>
         /// Plays an animation
@@ -305,11 +351,10 @@ namespace Red.Common.Client
         /// Checks if the last input was a controller input.
         /// </summary>
         /// <returns></returns>
-        public static bool LastInputWasController()
-        {
-            return Function.Call<bool>(Hash._IS_INPUT_DISABLED, 2);
-        }
+        public static bool LastInputWasController() => IsUsingKeyboard(2);
         #endregion
+
+        #region Tasks
         /// <summary>
         /// Clears all of the peds current tasks that they are performing such as an animation within the next frame
         /// </summary>
@@ -328,6 +373,7 @@ namespace Red.Common.Client
         /// <param name="animDict"></param>
         /// <param name="animName"></param>
         public static void ClearAnimationTask(string animDict, string animName) => PlayerPed.Task.ClearAnimation(animDict, animName);
+        #endregion
 
         #region Chat Methods
         /// <summary>

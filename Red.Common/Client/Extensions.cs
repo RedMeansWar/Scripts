@@ -121,35 +121,18 @@ namespace Red.Common.Client
             return distance;
         }
         /// <summary>
-        /// Modified Version of TaskPlayAnimation
+        /// Calculates the distance between a target position and ped.
         /// </summary>
         /// <param name="ped"></param>
-        /// <param name="dictionary"></param>
-        /// <param name="name"></param>
-        /// <param name="blendInSpeed"></param>
-        /// <param name="blendOutSpeed"></param>
-        /// <param name="duration"></param>
-        /// <param name="flags"></param>
-        /// <param name="playbackRate"></param>
-        /// <param name="lockX"></param>
-        /// <param name="lockY"></param>
-        /// <param name="lockZ"></param>
-        public static void PlayAnim(this Ped ped, string dictionary, string name, float blendInSpeed, float blendOutSpeed, int duration, AnimationFlags flags, float playbackRate, bool lockX, bool lockY, bool lockZ) => TaskPlayAnim(ped.Handle, dictionary, name, blendInSpeed, blendOutSpeed, duration, (int)flags, playbackRate, lockX, lockY, lockZ);
-        /// <summary>
-        /// Modified Version of TaskPlayAnimation
-        /// </summary>
-        /// <param name="ped"></param>
-        /// <param name="dictionary"></param>
-        /// <param name="name"></param>
-        /// <param name="blendInSpeed"></param>
-        /// <param name="blendOutSpeed"></param>
-        /// <param name="duration"></param>
-        /// <param name="flags"></param>
-        /// <param name="playbackRate"></param>
-        /// <param name="lockX"></param>
-        /// <param name="lockY"></param>
-        /// <param name="lockZ"></param>
-        public static void PlayAnim(this Ped ped, string dictionary, string name, float blendInSpeed, float blendOutSpeed, int duration, int flags, float playbackRate, bool lockX, bool lockY, bool lockZ) => TaskPlayAnim(ped.Handle, dictionary, name, blendInSpeed, blendOutSpeed, duration, flags, playbackRate, lockX, lockY, lockZ);
+        /// <param name="targetPos"></param>
+        /// <returns></returns>
+        public static float CalculateDistanceTo(this Ped ped, Vector3 targetPos)
+        {
+            Vector3 pedPosition = ped.Position;
+            float distance = Vector3.DistanceSquared(pedPosition, targetPos);
+
+            return distance;
+        }
         #endregion
 
         #region Misc Extensions
@@ -193,6 +176,39 @@ namespace Red.Common.Client
                 return (Prop)raycast.HitEntity;
             }
         }
+        #endregion
+
+        #region Animations
+        /// <summary>
+        /// Modified Version of TaskPlayAnimation
+        /// </summary>
+        /// <param name="ped"></param>
+        /// <param name="dictionary"></param>
+        /// <param name="name"></param>
+        /// <param name="blendInSpeed"></param>
+        /// <param name="blendOutSpeed"></param>
+        /// <param name="duration"></param>
+        /// <param name="flags"></param>
+        /// <param name="playbackRate"></param>
+        /// <param name="lockX"></param>
+        /// <param name="lockY"></param>
+        /// <param name="lockZ"></param>
+        public static void PlayAnim(this Ped ped, string dictionary, string name, float blendInSpeed, float blendOutSpeed, int duration, AnimationFlags flags, float playbackRate, bool lockX, bool lockY, bool lockZ) => TaskPlayAnim(ped.Handle, dictionary, name, blendInSpeed, blendOutSpeed, duration, (int)flags, playbackRate, lockX, lockY, lockZ);
+        /// <summary>
+        /// Modified Version of TaskPlayAnimation
+        /// </summary>
+        /// <param name="ped"></param>
+        /// <param name="dictionary"></param>
+        /// <param name="name"></param>
+        /// <param name="blendInSpeed"></param>
+        /// <param name="blendOutSpeed"></param>
+        /// <param name="duration"></param>
+        /// <param name="flags"></param>
+        /// <param name="playbackRate"></param>
+        /// <param name="lockX"></param>
+        /// <param name="lockY"></param>
+        /// <param name="lockZ"></param>
+        public static void PlayAnim(this Ped ped, string dictionary, string name, float blendInSpeed, float blendOutSpeed, int duration, int flags, float playbackRate, bool lockX, bool lockY, bool lockZ) => TaskPlayAnim(ped.Handle, dictionary, name, blendInSpeed, blendOutSpeed, duration, flags, playbackRate, lockX, lockY, lockZ);
         #endregion
     }
 }

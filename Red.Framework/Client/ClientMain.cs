@@ -965,7 +965,6 @@ namespace Red.Framework.Client
         private async Task MainTick()
         {
             await Delay(55000);
-            TriggerServerEvent("Framework:Server:syncInfo", currentAOP);
 
             foreach (Vehicle vehicle in World.GetAllVehicles().Where(v => suppressedModels.Contains(v.DisplayName.ToLower()) && !v.PreviouslyOwnedByPlayer))
             {

@@ -50,7 +50,7 @@ namespace Red.Framework.Server
         private void OnSyncInfo(string aop) => TriggerClientEvent("Framework:Client:syncAop", aop);
 
         [EventHandler("Framework:Server:configError")]
-        private void OnConficError(string message) => Debug.WriteLine(message);
+        private void OnConfigError(string message) => Debug.WriteLine(message);
 
         [EventHandler("Framework:Server:updateCommunityName")]
         private void OnUpdateCommunityName(string communityName) => TriggerClientEvent("Framework:Client:updateCommunityName", communityName);
