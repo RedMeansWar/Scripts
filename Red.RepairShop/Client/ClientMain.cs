@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Red.Common.Client;
 using CitizenFX.Core;
-using CitizenFX.Core.UI;
 using static CitizenFX.Core.Native.API;
 using static Red.Common.Client.Hud.HUD;
 using static Red.Common.Client.Client;
@@ -33,7 +32,43 @@ namespace Red.RepairShop.Client
         [Command("repair")]
         private async void RepairCommand()
         {
-            // todo
+            Vehicle currentVehicle = PlayerPed.CurrentVehicle;
+
+            if (currentVehicle is null)
+            {
+                ErrorNotification("You need to be in a vehicle to do this");
+                return;
+            }
+
+            if (currentVehicle.Driver != PlayerPed)
+            {
+                ErrorNotification("You need to be the driver to do this");
+                return;
+            }
+
+            if (currentVehicle.Health < 265)
+            {
+                ShowSubtitle("You are attempting to fix your vehicle", 1500);
+
+                bool fixedVehicle = random.Next(0, 101) < 70;
+                currentVehicle.Health = fixedVehicle ? 301 : 210;
+
+                await Delay(1500);
+                DisplayNotification(fixedVehicle ? "~g~You managed to fix your vehicle slightly, get it to a shop!" : "~r~You somehow managed to break your vehicle even more, get it to a shop!");
+            }
+
+            foreach (Vector3 location in repairShopsPosition)
+            {
+                if (PlayerPed.CalculateDistanceTo(location) < 10.0f)
+                {
+                    ShowSubtitle("The mechanic is looking at your vehicle", 1500);
+
+                    await Delay(2000);
+                    ShowSubtitle("The mechanic ~g~fixed~w~ your vehicle", 1500);
+
+                    currentVehicle.Repair();
+                }
+            }
         }
         #endregion
 

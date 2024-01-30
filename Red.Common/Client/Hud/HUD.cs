@@ -13,15 +13,18 @@ namespace Red.Common.Client.Hud
         /// </summary>
         /// <param name="display"></param>
         public static void DisplayHUD(bool display = true) => DisplayHud(display);
+
         /// <summary>
         /// Shortened version of Screen.Hud.IsVisable
         /// </summary>
         public static bool HUDIsVisible => Screen.Hud.IsVisible;
+
         /// <summary>
         /// Determines if the HUD is hidden another version of IsHudHidden
         /// </summary>
         /// <returns></returns>
         public static bool IsHUDHidden() => IsHudHidden();
+
         #region Notifications
         /// <summary>
         /// Gives a success notification using bold, green, and white text
@@ -34,6 +37,7 @@ namespace Red.Common.Client.Hud
             Screen.ShowNotification($"~g~~h~Success~h~~s~: {message}", blink);
             return message;
         }
+
         /// <summary>
         /// Gives a error notification using bold, red, and white text
         /// </summary>
@@ -45,6 +49,7 @@ namespace Red.Common.Client.Hud
             Screen.ShowNotification($"~r~~h~Error~h~~s~: {message}", blink);
             return message;
         }
+
         /// <summary>
         /// Gives a alert notification using bold, yello, and white text
         /// </summary>
@@ -108,8 +113,9 @@ namespace Red.Common.Client.Hud
             // Draw rectangle with position based off player's anchor.
             DrawRect(anchor.LeftX + x + (width / 2), anchor.BottomY - y + (height / 2), width, height, r, g, b, a);
         }
+
         /// <summary>
-        /// Shortened version of DrawRectangle but only color value in the opacity (a)
+        /// Draws a rectangle on the screen that keeps its position when adjusting the safezone size or aspect ratio
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
@@ -175,6 +181,7 @@ namespace Red.Common.Client.Hud
         public static void DrawText2d(float x, float y, float size, string text) => DrawText2d(x, y, size, text, 255, 255, 255, 255, Alignment.Left);
         public static void DrawText2d(float x, float y, float size, string text, int a) => DrawText2d(x, y, size, text, 255, 255, 255, a);
         public static void DrawText2d(float x, float y, float size, string text, Alignment alignment) => DrawText2d(x, y, size, text, 255, 255, 255, 255, alignment);
+
         /// <summary>
         /// Creates text on the 3rd dimension that shows up on all client side
         /// forked from https://forum.cfx.re/t/draw-3d-text-as-marker/2643565 by JoeyTheDev (Converted to C#) 
@@ -207,7 +214,6 @@ namespace Red.Common.Client.Hud
                 SetTextFont(0); // Font ID: 0 (adjustable if needed what do other fonts look like?)
                 SetTextColour(r, g, b, a);
                 SetTextDropshadow(0, 0, 0, 0, 255); // Black drop shadow (hard to tell when viewing it in-game)
-                SetTextDropShadow();
                 SetTextOutline();
 
                 // Prepare text for rendering
@@ -220,17 +226,34 @@ namespace Red.Common.Client.Hud
                 DrawRect(screenXPos, screenYPos + 0.125f, (float)text.Length / 300, 0.03f, 23, 23, 23, 70);
             }
         }
+
         /// <summary>
         /// Shortened version of DisplayHelpTextThisFrame
         /// </summary>
         /// <param name="text"></param>
         public static void DisplayHelpText(string text) => Screen.DisplayHelpTextThisFrame(text);
+
         /// <summary>
         /// Shortened version of DisplayHelpTextThisFrame
         /// </summary>
         /// <param name="text"></param>
         public static void DrawHelpText(string text) => Screen.DisplayHelpTextThisFrame(text);
+
+        /// <summary>
+        /// Draws a subtitle
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="duration"></param>
+        public static void DisplaySubtitle(string text, int duration = 2500) => Screen.ShowSubtitle(text, duration);
+
+        /// <summary>
+        /// Draws a subtitle
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="duration"></param>
+        public static void ShowSubtitle(string text, int duration = 2500) => Screen.ShowSubtitle(text, duration);
         #endregion
+
         /// <summary>
         /// Draws a texture on the screen.
         /// </summary>
@@ -246,28 +269,33 @@ namespace Red.Common.Client.Hud
                 await Delay(0);
             }
         }
+
         /// <summary>
         /// Draws a texture on the screen.
         /// </summary>
         /// <param name="textureDict"></param>
         public static async void RequestTextureDict(string textureDict) => RequestTextureDictionary(textureDict);
+
         /// <summary>
         /// Get a user input text string.
         /// </summary>
         /// <returns></returns>
         public static async Task<string> GetUserInput() => await GetUserInput(null, null, 30);
+
         /// <summary>
         /// Get a user input text string.
         /// </summary>
         /// <param name="maxInputLength"></param>
         /// <returns></returns>
         public static async Task<string> GetUserInput(int maxInputLength) => await GetUserInput(null, null, maxInputLength);
+
         /// <summary>
         /// Get a user input text string.
         /// </summary>
         /// <param name="windowTitle"></param>
         /// <returns></returns>
         public static async Task<string> GetUserInput(string windowTitle) => await GetUserInput(windowTitle, null, 30);
+
         /// <summary>
         /// Get a user input text string.
         /// </summary>
@@ -275,6 +303,7 @@ namespace Red.Common.Client.Hud
         /// <param name="maxInputLength"></param>
         /// <returns></returns>
         public static async Task<string> GetUserInput(string windowTitle, int maxInputLength) => await GetUserInput(windowTitle, null, maxInputLength);
+
         /// <summary>
         /// Get a user input text string.
         /// </summary>
@@ -282,6 +311,7 @@ namespace Red.Common.Client.Hud
         /// <param name="defaultText"></param>
         /// <returns></returns>
         public static async Task<string> GetUserInput(string windowTitle, string defaultText) => await GetUserInput(windowTitle, defaultText, 30);
+
         /// <summary>
         /// Get a user input text string.
         /// </summary>

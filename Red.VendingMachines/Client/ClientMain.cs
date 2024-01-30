@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CitizenFX.Core;
+using CitizenFX.Core.UI;
 using Red.Common.Client;
 using static CitizenFX.Core.Native.API;
 using static Red.Common.Client.Client;
@@ -38,6 +39,8 @@ namespace Red.VendingMachines.Client
 
             if (!owner)
             {
+                await Delay(250);
+                return;
             }
         }
         #endregion

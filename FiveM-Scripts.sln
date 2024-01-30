@@ -89,6 +89,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Red.VendingMachines.Client"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Red.VendingMachines.Server", "Red.VendingMachines\Server\Red.VendingMachines.Server.csproj", "{C299A024-81B3-4F3C-A350-07AB3D6F9100}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Red.Common.Server", "Red.Common\Server\Red.Common.Server.csproj", "{7448C740-E161-40AB-99D3-B8159A2EAE42}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -199,6 +201,10 @@ Global
 		{C299A024-81B3-4F3C-A350-07AB3D6F9100}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C299A024-81B3-4F3C-A350-07AB3D6F9100}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C299A024-81B3-4F3C-A350-07AB3D6F9100}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7448C740-E161-40AB-99D3-B8159A2EAE42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7448C740-E161-40AB-99D3-B8159A2EAE42}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7448C740-E161-40AB-99D3-B8159A2EAE42}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7448C740-E161-40AB-99D3-B8159A2EAE42}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -230,6 +236,7 @@ Global
 		{8120CD93-9E3F-4174-A193-8586AC428029} = {25A5357D-F640-404C-B13A-3662C2BE3937}
 		{7E717BAD-D383-4615-8062-E8CD0D6056A9} = {E1C116F6-3041-4A9E-AB00-B005220E20E7}
 		{C299A024-81B3-4F3C-A350-07AB3D6F9100} = {E1C116F6-3041-4A9E-AB00-B005220E20E7}
+		{7448C740-E161-40AB-99D3-B8159A2EAE42} = {4AF5CFA8-7212-4F67-A69B-9ACD566EC44E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8F79F3DE-076E-4294-B734-D572D4B64ADD}

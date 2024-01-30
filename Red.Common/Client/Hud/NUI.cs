@@ -8,37 +8,60 @@ namespace Red.Common.Client.Hud
     public class NUI : ClientScript
     {
         /// <summary>
-        /// RegisterNUICallback converted from LUA to C#
+        /// Registers a callback for a specific NUI message, providing a convenient way to handle NUI interactions.
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="callback"></param>
-        public static void RegisterNUICallback(string message, Action<IDictionary<string, object>, CallbackDelegate> callback) => RegisterNuiCallback(message, callback);
-        /// <summary>
-        /// SendNUIMessage converted from LUA to C#
-        /// </summary>
-        /// <param name="message"></param>
-        public static void SendNUIMessage(string message) => SendNuiMessage(message);
-        /// <summary>
-        /// SetNUIFocus converted from LUA to C#
-        /// </summary>
-        /// <param name="hasFocus"></param>
-        /// <param name="hasCursor"></param>
-        public static void SetNUIFocus(bool hasFocus, bool hasCursor) => SetNuiFocus(hasFocus, hasCursor);
-        /// <summary>
-        /// Advanced Version of SetNUIFocus with a keep input function.
-        /// </summary>
-        /// <param name="hasFocus"></param>
-        /// <param name="hasCursor"></param>
-        /// <param name="keepInput"></param>
-        public static void SetNUIFocus(bool hasFocus, bool hasCursor, bool keepInput = false)
+        /// <param name="message">The NUI message to register the callback for.</param>
+        /// <param name="callback">The callback function to invoke when the NUI message is received.</param>
+        public static void RegisterNUICallback(string message, Action<IDictionary<string, object>, CallbackDelegate> callback)
         {
-            SetNUIFocus(hasFocus, hasCursor);
-            SetNUIFocusKeepInput(keepInput);
+            // Utilize the underlying RegisterNuiCallback function for registration.
+            RegisterNuiCallback(message, callback);
         }
+
         /// <summary>
-        /// SetNUIFocusKeepInput converted from LUA to C#
+        /// Sends a message to the NUI (New User Interface), providing a bridge for communication between C# and the JavaScript NUI file.
         /// </summary>
-        /// <param name="keepInput"></param>
-        public static void SetNUIFocusKeepInput(bool keepInput) => SetNuiFocusKeepInput(keepInput);
+        /// <param name="message">The message to send to the NUI.</param>
+        public static void SendNUIMessage(string message)
+        {
+            // Utilize the underlying SendNuiMessage function to transmit the message to the NUI.
+            SendNuiMessage(message);
+        }
+
+        /// <summary>
+        /// Sets the focus and cursor visibility for the NUI (New User Interface), controlling user interaction with NUI elements.
+        /// </summary>
+        /// <param name="hasFocus">Whether the NUI should have input focus.</param>
+        /// <param name="hasCursor">Whether the mouse cursor should be visible over the NUI.</param>
+        public static void SetNUIFocus(bool hasFocus, bool hasCursor)
+        {
+            // Utilize the underlying SetNuiFocus function to adjust NUI focus and cursor visibility.
+            SetNuiFocus(hasFocus, hasCursor);
+        }
+
+        /// <summary>
+        /// Sets the focus and cursor visibility for the NUI (New User Interface), optionally preserving input even when losing focus.
+        /// </summary>
+        /// <param name="hasFocus">Whether the NUI should have input focus.</param>
+        /// <param name="hasCursor">Whether the mouse cursor should be visible over the NUI.</param>
+        /// <param name="keepInput">Whether to keep input handling even when losing focus (default: false).</param>
+        public static void SetNUIFocusWithInput(bool hasFocus, bool hasCursor, bool keepInput = false)
+        {
+            // Set the NUI focus and cursor visibility.
+            SetNUIFocus(hasFocus, hasCursor);
+
+            // Optionally enable input handling persistence.
+            SetNuiFocusKeepInput(keepInput);
+        }
+
+        /// <summary>
+        /// Controls whether the NUI (New User Interface) retains input handling even when losing focus.
+        /// </summary>
+        /// <param name="keepInput">Whether to keep input handling when the NUI loses focus.</param>
+        public static void SetNUIFocusKeepInput(bool keepInput)
+        {
+            // Utilize the underlying SetNuiFocusKeepInput function to set input persistence behavior.
+            SetNuiFocusKeepInput(keepInput);
+        }
     }
 }

@@ -133,14 +133,9 @@ namespace Red.Common.Server
         /// <param name="reason"></param>
         [EventHandler("Server:DropPlayer")]
         private void OnDropPlayer([FromSource] Player player, string reason = "No reason given.") => DropPlayer(player.Handle, reason);
-        /// <summary>
-        /// A event form of Client:SoundToClient
-        /// </summary>
-        /// <param name="networkId"></param>
-        /// <param name="soundFile"></param>
-        /// <param name="soundVolume"></param>
         #endregion
 
+        #region Classes
         public class DiscordUser
         {
             [JsonProperty("id")]
@@ -200,5 +195,6 @@ namespace Red.Common.Server
             [JsonProperty("deaf")]
             public bool Deaf { get; set; }
         }
+        #endregion
     }
 }

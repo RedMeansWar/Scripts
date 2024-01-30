@@ -7,26 +7,32 @@ namespace Red.Common.Client.Misc
     public class Network : ClientScript
     {
         /// <summary>
-        /// Requests control of entity by network.
+        /// Requests control of an entity from the network and awaits confirmation.
         /// </summary>
-        /// <param name="entity"></param>
-        /// <returns></returns>
+        /// <param name="entity">The entity to request control of.</param>
+        /// <returns>A task that completes when control is granted or fails.</returns>
         public static async Task RequestControlOfEntity(Entity entity)
         {
+            // Initiate the network request for entity control.
             NetworkRequestControlOfEntity(entity.Handle);
 
+            // Await control confirmation with a timeout mechanism.
             for (int i = 4; !NetworkHasControlOfEntity(entity.Handle) && i > 0; --i)
             {
-                await Delay(250);
+                // Wait briefly for control to be granted.
+                await Delay(250);  // Delay 250 milliseconds
             }
 
+            // If control was obtained, return successfully.
             if (NetworkHasControlOfEntity(entity.Handle))
             {
                 return;
             }
 
-            Debug.WriteLine("unable to get control of entity");
+            // Otherwise, log a warning message indicating failure.
+            Debug.WriteLine("Unable to get control of entity");
         }
+
         /// <summary>
         /// Gets a entity from their Network Id.
         /// </summary>

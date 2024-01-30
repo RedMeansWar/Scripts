@@ -15,6 +15,7 @@ namespace Red.Common.Client.Hud
         public float BottomY { get; set; }
         public float XUnit { get; set; }
         public float YUnit { get; set; }
+        
         /// <summary>
         /// Gets the minimap and anchors it, helps with text position without
         /// it moving (adjusts based off of SafeZone sizes).

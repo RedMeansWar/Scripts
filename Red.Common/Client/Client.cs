@@ -45,80 +45,74 @@ namespace Red.Common.Client
         #region Extensions
         public static Ped PlayerPed = Game.PlayerPed;
         public static Ped PlayerCharacter = Game.Player.Character;
+
         /// <summary>
         /// Shortened version of GetClosestPlayerToPlayer without PlayerPlayer to access it.
         /// </summary>
         /// <param name="radius"></param>
         /// <returns></returns>
         public static Player GetClosestPlayer(float radius = 2f) => Player.GetClosestPlayerToClient(radius);
+
         /// <summary>
         /// Shortened version of GetClosestPlayerToPlayer without PlayerPlayer to access it.
         /// </summary>
         /// <param name="radius"></param>
         /// <returns></returns>
         public static Player GetClosestPlayerToPed(float radius = 2f) => Player.GetClosestPlayerToClient(radius);
+
         /// <summary>
         /// Shortened version of GetClosestVehicle without PlayerPed to access it.
         /// </summary>
         /// <param name="radius"></param>
         /// <returns></returns>
         public static Vehicle GetClosestVehicle(float radius = 2f) => PlayerPed.GetClosestVehicleToClient(radius);
+
         /// <summary>
         /// Shortened version of GetClosestVehicle without PlayerPed to access it.
         /// </summary>
         /// <param name="radius"></param>
         /// <returns></returns>
         public static Vehicle GetClosestVehicleToPlayer(float radius = 2f) => PlayerPed.GetClosestVehicleToClient(radius);
+
         /// <summary>
         /// Shortened version of GetClosestVehicle without PlayerPed to access it.
         /// </summary>
         /// <param name="radius"></param>
         /// <returns></returns>
         public static Vehicle GetClosestVehicleToPed(float radius = 2f) => PlayerPed.GetClosestVehicleToClient(radius);
+
         /// <summary>
         /// Shortened version of GetClosestPropToClient without PlayerPed to access it.
         /// </summary>
         /// <param name="radius"></param>
         /// <returns></returns>
         public static Prop GetClosestProp(float radius = 5f) => PlayerPed.GetClosestPropToClient(radius);
+
         /// <summary>
         /// Shortened version of GetClosestPropToClient without PlayerPed to access it.
         /// </summary>
         /// <param name="radius"></param>
         /// <returns></returns>
         public static Prop GetClosestPropToPlayer(float radius = 5f) => PlayerPed.GetClosestPropToClient(radius);
+
         /// <summary>
         /// Shortened version of GetClosestPropToClient without PlayerPed to access it.
         /// </summary>
         /// <param name="radius"></param>
         /// <returns></returns>
         public static Prop GetClosestPropToPed(float radius = 5f) => PlayerPed.GetClosestPropToClient(radius);
+
         /// <summary>
         /// Plays an animation
         /// </summary>
         /// <param name="dictionary"></param>
         /// <param name="name"></param>
         public static void PlayAnim(string dictionary, string name) => PlayerPed.Task.PlayAnimation(dictionary, name);
-        /// <summary>
-        /// Plays an animation
-        /// </summary>
-        /// <param name="dictionary"></param>
-        /// <param name="name"></param>
-        /// <param name="blindInSpeed"></param>
-        /// <param name="duration"></param>
-        /// <param name="flags"></param>
+
         public static void PlayAnim(string dictionary, string name, float blindInSpeed, int duration, AnimationFlags flags) => PlayerPed.Task.PlayAnimation(dictionary, name, blindInSpeed, duration, flags);
-        /// <summary>
-        /// Plays an animation
-        /// </summary>
-        /// <param name="dictionary"></param>
-        /// <param name="name"></param>
-        /// <param name="blindInSpeed"></param>
-        /// <param name="blindOutSpeed"></param>
-        /// <param name="duration"></param>
-        /// <param name="flags"></param>
-        /// <param name="playbackRate"></param>
+
         public static void PlayAnim(string dictionary, string name, float blindInSpeed, float blindOutSpeed, int duration, AnimationFlags flags, float playbackRate) => PlayerPed.Task.PlayAnimation(dictionary, name, blindInSpeed, blindOutSpeed, duration, flags, playbackRate);
+
         /// <summary>
         /// Calculates the distance to a blip
         /// </summary>
@@ -151,35 +145,6 @@ namespace Red.Common.Client
         public static bool DoesModelExist(Model model) => DoesModelExist((uint)model.Hash);
         #endregion
 
-        #region Teleport
-        /// <summary>
-        /// Teleports a player to a specific set of coords
-        /// freezing them or teleporting the player with their vehicle is optional
-        /// </summary>
-        /// <param name="playerId"></param>
-        /// <param name="pos"></param>
-        /// <param name="withVehicle"></param>
-        /// <param name="freezePlayer"></param>
-        public static void TeleportPlayer(int playerId, Vector3 pos, bool withVehicle, bool freezePlayer)
-        {
-            PlayerList Players = PlayerList.Players;
-            Player player = Players[playerId];
-
-            if (freezePlayer && player is not null && PlayerCharacter.Exists())
-            {
-                PlayerCharacter.IsPositionFrozen = true;
-                FreezeEntityPosition(PlayerCharacter.Handle, true);
-                ClearPedTasksImmediately(PlayerCharacter.Handle);
-                ClearPedTasks(PlayerCharacter.Handle);
-            }
-
-            if (withVehicle && player is not null && PlayerCharacter.Exists() && player.Character.IsInVehicle())
-            {
-                SetPedCoordsKeepVehicle(PlayerCharacter.Handle, pos.X, pos.Y, pos.Z);
-            }
-        }
-        #endregion
-
         #region Entity Opacity
         /// <summary>
         /// Changes the entity opacity
@@ -188,12 +153,7 @@ namespace Red.Common.Client
         /// <param name="alpha"></param>
         /// <param name="changeSkin"></param>
         public static void SetEntityOpacity(int entity, int alpha, bool changeSkin = false) => SetEntityAlpha(entity, alpha, changeSkin ? 1 : 0);
-        /// <summary>
-        /// Changes the entity opacity
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="alpha"></param>
-        /// <param name="changeSkin"></param>
+
         public static void SetEntityOpacity(Entity entity, int alpha, bool changeSkin = false) => SetEntityAlpha(entity.Handle, alpha, changeSkin ? 1 : 0);
         #endregion
 
@@ -212,25 +172,28 @@ namespace Red.Common.Client
 
             await Delay(0);
         }
+
         /// <summary>
         /// Same as RequestAnim just extended
         /// </summary>
         /// <param name="animDict"></param>
         public static async void RequestAnimation(string animDict) => RequestAnim(animDict);
+
         /// <summary>
         /// Request an animation set
         /// </summary>
         /// <param name="animSet"></param>
         public static async void RequestSet(string animSet)
         {
-            RequestAnimSet(animSet);
+            RequestAnimSet(animSet); // Request an animation set
             while (!HasAnimSetLoaded(animSet))
             {
-                await Delay(100);
+                await Delay(100); 
             }
 
             await Delay(0);
         }
+
         /// <summary>
         /// Request an animation set
         /// </summary>
@@ -252,6 +215,7 @@ namespace Red.Common.Client
                 await Delay(0);
             }
         }
+
         /// <summary>
         /// Loads a prop using a model's hash
         /// </summary>
@@ -265,12 +229,14 @@ namespace Red.Common.Client
                 await Delay(0);
             }
         }
+
         /// <summary>
         /// Loads a prop using a string model
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
         public static async Task LoadModel(string model) => await LoadModel((uint)GetHashKey(model));
+
         /// <summary>
         /// Loads an audio bank ambient sound
         /// </summary>
@@ -292,61 +258,41 @@ namespace Red.Common.Client
         /// <param name="dictionary"></param>
         /// <param name="name"></param>
         public static void PlayAnimation(string dictionary, string name) => PlayAnim(dictionary, name);
-        /// <summary>
-        /// Plays an animation
-        /// </summary>
-        /// <param name="dictionary"></param>
-        /// <param name="name"></param>
-        /// <param name="blindInSpeed"></param>
-        /// <param name="duration"></param>
-        /// <param name="flags"></param>
+        
         public static void PlayAnimation(string dictionary, string name, float blendOutSpeed, int duration, AnimationFlags flags) => PlayAnim(dictionary, name, blendOutSpeed, duration, flags);
-        /// <summary>
-        /// Plays an animation
-        /// </summary>
-        /// <param name="dictionary"></param>
-        /// <param name="name"></param>
-        /// <param name="blindInSpeed"></param>
-        /// <param name="blindOutSpeed"></param>
-        /// <param name="duration"></param>
-        /// <param name="flags"></param>
-        /// <param name="playbackRate"></param>
+        
         public static void PlayAnimation(string dictionary, string name, float blindInSpeed, float blendOutSpeed, int duration, AnimationFlags flags, float playbackRate) => PlayAnim(dictionary, name, blindInSpeed, blendOutSpeed, duration, flags, playbackRate);
-        /// <summary>
-        /// Plays an animation
-        /// </summary>
-        /// <param name="dictionary"></param>
-        /// <param name="name"></param>
-        /// <param name="blendInSpeed"></param>
-        /// <param name="blendOutSpeed"></param>
-        /// <param name="duration"></param>
-        /// <param name="animationFlags"></param>
-        /// <param name="playbackRate"></param>
+        
         public static void PlayAnimation(string dictionary, string name, float blendInSpeed, float blendOutSpeed, int duration, int animationFlags, float playbackRate) => PlayAnim(dictionary, name, blendInSpeed, blendOutSpeed, duration, (AnimationFlags)animationFlags, playbackRate);
         #endregion
 
         #region Controls
         /// <summary>
-        /// Disables movement controls on control and on keyboard
+        /// Disables specific player controls for the current frame, optionally including camera controls.
         /// </summary>
-        /// <param name="cameraMovement"></param>
+        /// <param name="cameraMovement">Whether to disable camera controls in addition to movement controls.</param>
         public static void DisableMovementControls(bool cameraMovement)
         {
+            // Disable camera controls if requested.
             if (cameraMovement)
             {
                 foreach (Control control in cameraControls)
                 {
-                    Game.DisableControlThisFrame(0, control);
-                    Game.DisableControlThisFrame(2, control);
+                    // Disable the control for both the player and third-person camera.
+                    Game.DisableControlThisFrame(0, control);  // Player
+                    Game.DisableControlThisFrame(2, control);  // Third-person camera
                 }
             }
 
+            // Disable movement controls.
             foreach (Control control in movementControls)
             {
+                // Disable the control for both the player and third-person camera.
                 Game.DisableControlThisFrame(0, control);
                 Game.DisableControlThisFrame(2, control);
             }
         }
+
         /// <summary>
         /// Checks if the last input was a controller input.
         /// </summary>
@@ -359,14 +305,17 @@ namespace Red.Common.Client
         /// Clears all of the peds current tasks that they are performing such as an animation within the next frame
         /// </summary>
         public static void ClearAllTasks() => PlayerPed.Task.ClearAll();
+
         /// <summary>
         /// Clears all of the peds current tasks that they are performing such as an animation within the time of the method is called.
         /// </summary>
         public static void ClearAllTasksImmediately() => PlayerPed.Task.ClearAllImmediately();
+
         /// <summary>
         /// Clears the secondary task of the ped that they are performing such as an animation within the next frame
         /// </summary>
         public static void ClearSecondaryTask() => PlayerPed.Task.ClearSecondary();
+
         /// <summary>
         /// Clears a current animation from the player
         /// </summary>
@@ -385,6 +334,7 @@ namespace Red.Common.Client
         /// <param name="g"></param>
         /// <param name="b"></param>
         public static void AddChatMessage(string author, string message, int r = 255, int g = 255, int b = 255) => TriggerEvent("chat:addMessage", new { color = new[] { r, g, b }, args = new[] { author, message } });
+
         /// <summary>
         /// Shortened down version of the _chat:chatMessage event.
         /// </summary>
