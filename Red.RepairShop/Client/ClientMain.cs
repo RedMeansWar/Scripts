@@ -22,7 +22,8 @@ namespace Red.RepairShop.Client
             new(-1155.15f, -2003.02f, 13.18f),
             new(1174.87f, 2640.67f, 37.75f),
             new(-209.77f, -1324.05f, 30.89f),
-            new(1773.75f, 3333.8f, 41.35f)
+            new(1773.75f, 3333.8f, 41.35f),
+            new(-30.38f, -1680.62f, 29.44f)
         };
         #endregion
 
