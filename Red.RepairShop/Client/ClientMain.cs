@@ -1,9 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Red.Common.Client;
 using CitizenFX.Core;
-using static CitizenFX.Core.Native.API;
 using static Red.Common.Client.Hud.HUD;
 using static Red.Common.Client.Client;
 
@@ -13,7 +11,6 @@ namespace Red.RepairShop.Client
     {
         #region Variables
         protected Blip repairBlip;
-        protected Random random = new();
 
         protected readonly List<Vector3> repairShopsPosition = new()
         {
@@ -49,7 +46,7 @@ namespace Red.RepairShop.Client
 
             foreach (Vector3 location in repairShopsPosition)
             {
-                if (PlayerPed.CalculateDistanceTo(location) < 15f)
+                if (PlayerPed.CalculateDistanceTo(location) < 10f)
                 {
                     ShowSubtitle("The mechanic is looking at your vehicle...", 5000);
 

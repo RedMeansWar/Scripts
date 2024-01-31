@@ -7,7 +7,6 @@ using CitizenFX.Core.UI;
 using static CitizenFX.Core.Native.API;
 using static CitizenFX.Core.UI.Screen;
 using static Red.Common.Client.Hud.HUD;
-using static Red.Common.Client.Client;
 
 namespace Red.VehicleControl.Client
 {
