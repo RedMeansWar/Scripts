@@ -24,7 +24,8 @@ namespace Red.RepairShop.Client
             new(-340.32f, -137.62f, 39.01f),
             new(-1155.15f, -2003.02f, 13.18f),
             new(1174.87f, 2640.67f, 37.75f),
-            new(-209.77f, -1324.05f, 30.89f)
+            new(-209.77f, -1324.05f, 30.89f),
+            new(1773.75f, 3333.8f, 41.35f)
         };
         #endregion
 
@@ -36,35 +37,24 @@ namespace Red.RepairShop.Client
 
             if (currentVehicle is null)
             {
-                ErrorNotification("You need to be in a vehicle to do this");
+                ErrorNotification("You need to be in a vehicle to do this.");
                 return;
             }
 
             if (currentVehicle.Driver != PlayerPed)
             {
-                ErrorNotification("You need to be the driver to do this");
+                ErrorNotification("You need to be the driver to do this.");
                 return;
-            }
-
-            if (currentVehicle.Health < 265)
-            {
-                ShowSubtitle("You are attempting to fix your vehicle", 1500);
-
-                bool fixedVehicle = random.Next(0, 101) < 70;
-                currentVehicle.Health = fixedVehicle ? 301 : 210;
-
-                await Delay(1500);
-                DisplayNotification(fixedVehicle ? "~g~You managed to fix your vehicle slightly, get it to a shop!" : "~r~You somehow managed to break your vehicle even more, get it to a shop!");
             }
 
             foreach (Vector3 location in repairShopsPosition)
             {
-                if (PlayerPed.CalculateDistanceTo(location) < 10.0f)
+                if (PlayerPed.CalculateDistanceTo(location) < 15f)
                 {
-                    ShowSubtitle("The mechanic is looking at your vehicle", 1500);
+                    ShowSubtitle("The mechanic is looking at your vehicle...", 5000);
 
-                    await Delay(2000);
-                    ShowSubtitle("The mechanic ~g~fixed~w~ your vehicle", 1500);
+                    await Delay(5500);
+                    ShowSubtitle("The mechanic ~g~fixed~w~ your vehicle!", 4000);
 
                     currentVehicle.Repair();
                 }

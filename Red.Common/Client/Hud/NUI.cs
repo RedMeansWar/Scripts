@@ -63,5 +63,23 @@ namespace Red.Common.Client.Hud
             // Utilize the underlying SetNuiFocusKeepInput function to set input persistence behavior.
             SetNuiFocusKeepInput(keepInput);
         }
+
+        /// <summary>
+        /// Checks if the NUI (New User Interface) has focus.
+        /// </summary>
+        /// <returns>True if the NUI has focus, false otherwise.</returns>
+        public static bool IsNUIFocused()
+        {
+            return IsNuiFocused();
+        }
+
+        /// <summary>
+        /// Checks if the NUI has focus while allowing input to pass through to the game.
+        /// </summary>
+        /// <returns>True if the NUI has focus while keeping input open, false otherwise.</returns>
+        public static bool IsNUIFocusedKeepingInput()
+        {
+            return IsNuiFocusKeepingInput();
+        }
     }
 }

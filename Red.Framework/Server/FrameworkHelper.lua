@@ -1,11 +1,11 @@
 local roleIds = {
-    ['1155944363688468553'] = 'LSPD',
-    ['1155944430147207268'] = 'LSFD',
-    ['1155944387294015518'] = 'SAHP',
-    ['1155944413734895741'] = 'BCSO',
-    ['1155944541656977670'] = 'Development',
-    ['1155944524993015910'] = 'CIV',
-    ['1023653888429133895'] = 'Head Administration'
+    ['ROLE_ID'] = 'LSPD',
+    ['ROLE_ID'] = 'LSFD',
+    ['ROLE_ID'] = 'SAHP',
+    ['ROLE_ID'] = 'BCSO',
+    ['ROLE_ID'] = 'Development',
+    ['ROLE_ID'] = 'CIV',
+    ['ROLE_ID'] = 'Head Administration'
 }
 
 local function getPlayerIdentifierFromType(type, player)

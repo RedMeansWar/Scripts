@@ -7,6 +7,7 @@ using System.Net.Http.Headers;
 using Newtonsoft.Json;
 using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
+using CitizenFX.Core.Native;
 
 namespace Red.Common.Server
 {

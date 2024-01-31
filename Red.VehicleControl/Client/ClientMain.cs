@@ -91,7 +91,7 @@ namespace Red.VehicleControl.Client
             }
 
             DrawRectangle(0.095f, 0.06f, 0.046f, 0.03f, 0, 0, 0, 100);
-            DrawText2d(0.847f, -0.111f, 0.6f, $"{Math.Ceiling(Game.PlayerPed.CurrentVehicle.Speed * 2.236936f)}", 255, 255, 255, 255, Alignment.Right);
+            DrawText2d(0.847f, -0.111f, 0.6f, $"{Math.Ceiling(vehicle.Speed * 2.236936f)}", 255, 255, 255, 255, Alignment.Right);
             DrawText2d(0.875f, -0.118f, 0.4f, "mph", 255, 255, 255, 255);
 
             if (vehicle.Model.IsPlane || vehicle.Model.IsHelicopter)
@@ -101,16 +101,13 @@ namespace Red.VehicleControl.Client
                 DrawText2d(0.875f, -0.01f, 0.4f, "feet", 255, 255, 255, 255);
             }
 
-            DrawText2d(0.5f, 0.045f, 0.55f, vehicle.Mods.LicensePlate, 255, 255, 255, 255, Alignment.Center);
-            DrawText2d(1f, 0.065f, 0.45f, vehicle.IsEngineRunning ? "~g~ENG" : "~r~ENG", 255, 255, 255, 200, Alignment.Right);
-            DrawText2d(0.15f, 0.04f, 0.45f, vehicle.IsInBurnout ? "~r~DSC" : "DSC", 255, 255, 255, 200);
+            DrawText2d(0.5f, 0.049f, 0.55f, vehicle.Mods.LicensePlate, 255, 255, 255, 255, Alignment.Center);
+            DrawText2d(1f, 0.07f, 0.45f, vehicle.IsEngineRunning ? "~g~ENG" : "~r~ENG", 255, 255, 255, 200, Alignment.Right);
+            DrawText2d(0.15f, 0.044f, 0.45f, vehicle.IsInBurnout ? "~r~DSC" : "DSC", 255, 255, 255, 200);
 
-            float bodyHealth = vehicle.BodyHealth;
-            float engineHealth = vehicle.EngineHealth;
-
-            DrawText2d(1f, 0.04f, 0.45f, bodyHealth < 310 ? "~r~AC" : bodyHealth < 900 ? "~y~AC" : "AC", 255, 255, 255, 200, Alignment.Right);
-            DrawText2d(.75f, 0.04f, 0.45f, engineHealth < 110 ? "~r~Fluid" : engineHealth < 315 ? "~r~Fluid" : engineHealth < 900 ? "~y~Fluid" : "Fluid", 255, 255, 255, 200);
-            DrawText2d(.01f, 0.04f, 0.45f, engineHealth < 110 ? "~r~Oil" : engineHealth < 315 ? "~y~Oil" : "Oil", 255, 255, 255, 200);
+            DrawText2d(1f, 0.044f, 0.45f, vehicle.BodyHealth < 310 ? "~r~AC" : vehicle.BodyHealth < 900 ? "~y~AC" : "AC", 255, 255, 255, 200, Alignment.Right);
+            DrawText2d(0.75f, 0.044f, 0.45f, vehicle.EngineHealth < 110 ? "~r~Fluid" : vehicle.EngineHealth < 315 ? "~r~Fluid" : vehicle.EngineHealth < 900 ? "~y~Fluid" : "Fluid", 255, 255, 255, 200);
+            DrawText2d(0.01f, 0.044f, 0.45f, vehicle.EngineHealth < 110 ? "~r~Oil" : vehicle.EngineHealth < 315 ? "~y~Oil" : "Oil", 255, 255, 255, 200);
         }
 
         [Tick]
@@ -238,7 +235,7 @@ namespace Red.VehicleControl.Client
         [Tick]
         private async Task CruiseControlUiTick()
         {
-            if (!Hud.IsVisible || Game.PlayerPed.CurrentVehicle is null)
+            if (!HUDIsVisible || PlayerPed.CurrentVehicle is null)
             {
                 await Delay(1000);
                 return;
@@ -256,7 +253,8 @@ namespace Red.VehicleControl.Client
                 }
             }
 
-            DrawText2d(0.01f, 0.065f, 0.45f, cruise, 255, 255, 255, 200);
+
+            DrawText2d(0.01f, 0.07f, 0.45f, cruise, 255, 255, 255, 200);
         }
         #endregion
     }

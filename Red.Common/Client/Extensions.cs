@@ -185,9 +185,8 @@ namespace Red.Common.Client
             // Retrieve the blip's position in the world.
             Vector3 blipLocation = blip.Position;
 
-            // Calculate the squared distance between the blip and the target position.
-            // Using squared distance avoids the overhead of a square root calculation.
-            float distanceSquared = Vector3.DistanceSquared(blipLocation, targetPos);
+            // Calculate the distance between the blip and the target position.
+            float distanceSquared = Vector3.Distance(blipLocation, targetPos);
 
             return distanceSquared;
         }
@@ -203,9 +202,8 @@ namespace Red.Common.Client
             // Retrieve the ped's position in the world.
             Vector3 pedPosition = ped.Position;
 
-            // Calculate the squared distance between the ped and the target position.
-            // Using squared distance avoids the overhead of a square root calculation.
-            float distance = Vector3.DistanceSquared(pedPosition, targetPos);
+            // Calculate the squared between the ped and the target position.
+            float distance = Vector3.Distance(pedPosition, targetPos);
 
             return distance;
         }
