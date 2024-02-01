@@ -91,6 +91,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Red.VendingMachines.Server"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Red.Common.Server", "Red.Common\Server\Red.Common.Server.csproj", "{7448C740-E161-40AB-99D3-B8159A2EAE42}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Red.InteractionMenu.Server", "Red.InteractionMenu\Server\Red.InteractionMenu.Server.csproj", "{64CB5D86-D96F-4AA7-960C-545D049427F8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -205,6 +207,10 @@ Global
 		{7448C740-E161-40AB-99D3-B8159A2EAE42}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7448C740-E161-40AB-99D3-B8159A2EAE42}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7448C740-E161-40AB-99D3-B8159A2EAE42}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64CB5D86-D96F-4AA7-960C-545D049427F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64CB5D86-D96F-4AA7-960C-545D049427F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64CB5D86-D96F-4AA7-960C-545D049427F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64CB5D86-D96F-4AA7-960C-545D049427F8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -237,6 +243,7 @@ Global
 		{7E717BAD-D383-4615-8062-E8CD0D6056A9} = {E1C116F6-3041-4A9E-AB00-B005220E20E7}
 		{C299A024-81B3-4F3C-A350-07AB3D6F9100} = {E1C116F6-3041-4A9E-AB00-B005220E20E7}
 		{7448C740-E161-40AB-99D3-B8159A2EAE42} = {4AF5CFA8-7212-4F67-A69B-9ACD566EC44E}
+		{64CB5D86-D96F-4AA7-960C-545D049427F8} = {25A5357D-F640-404C-B13A-3662C2BE3937}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8F79F3DE-076E-4294-B734-D572D4B64ADD}

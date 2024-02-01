@@ -11,7 +11,7 @@ namespace Red.InteractionMenu.Client
         public MainMenu()
         {
             MenuController.MenuToggleKey = Control.InteractionMenu;
-            MenuController.MenuAlignment = MenuController.MenuAlignmentOption.Left;
+            MenuController.MenuAlignment = MenuController.MenuAlignmentOption.Left; 
             MenuController.AddMenu(menu);
 
             MenuItem policeButton = new("Police Toolbox");

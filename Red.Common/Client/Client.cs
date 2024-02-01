@@ -206,7 +206,7 @@ namespace Red.Common.Client
         /// Loads an animation
         /// </summary>
         /// <param name="animDict"></param>
-        /// <returns></returns>
+        /// <returns>An animation dictionary</returns>
         public static async Task LoadAnimDict(string animDict)
         {
             RequestAnimDict(animDict);
@@ -217,31 +217,10 @@ namespace Red.Common.Client
         }
 
         /// <summary>
-        /// Loads a prop using a model's hash
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        public static async Task LoadModel(uint model)
-        {
-            RequestModel(model);
-            while (!HasModelLoaded(model))
-            {
-                await Delay(0);
-            }
-        }
-
-        /// <summary>
-        /// Loads a prop using a string model
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        public static async Task LoadModel(string model) => await LoadModel((uint)GetHashKey(model));
-
-        /// <summary>
         /// Loads an audio bank ambient sound
         /// </summary>
         /// <param name="audioBank"></param>
-        /// <returns></returns>
+        /// <returns>Loading an audio bank</returns>
         public static async Task LoadAmbientAudioBank(string audioBank)
         {
             while (!RequestAmbientAudioBank(audioBank, false))
@@ -257,6 +236,7 @@ namespace Red.Common.Client
         /// </summary>
         /// <param name="dictionary"></param>
         /// <param name="name"></param>
+        /// <returns>An animation being played</returns>
         public static void PlayAnimation(string dictionary, string name) => PlayAnim(dictionary, name);
         
         public static void PlayAnimation(string dictionary, string name, float blendOutSpeed, int duration, AnimationFlags flags) => PlayAnim(dictionary, name, blendOutSpeed, duration, flags);

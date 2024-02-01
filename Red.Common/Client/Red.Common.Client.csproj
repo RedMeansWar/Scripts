@@ -7,6 +7,7 @@
         <Compile Include="../Shared/**/*.cs" />
     </ItemGroup>
     <ItemGroup>
+      <None Remove="Client.cs~RF3b3bd08.TMP" />
       <None Remove="ClientMain.cs~RF1e1ac970.TMP" />
       <None Remove="Hud\NUI.cs~RF1983ea88.TMP" />
     </ItemGroup>

@@ -1,14 +1,22 @@
 ﻿using System.Collections.Generic;
 using MenuAPI;
 using CitizenFX.Core;
+using Red.Common.Client;
 using static CitizenFX.Core.Native.API;
 using static Red.Common.Client.Client;
 using static Red.Common.Client.Hud.HUD;
+using static Red.Common.Client.Misc.Object;
+using System.Threading.Tasks;
 
 namespace Red.InteractionMenu.Client.Menus
 {
-    internal class LEToolbox
+    internal class LEToolbox : BaseScript
     {
+        #region Variables
+        protected static bool shieldActive;
+        protected static int shieldEnt;
+        #endregion
+
         public static Menu GetMenu()
         {
             Menu menu = new("Red Menu", "~b~Law Enforcement Toolbox");
@@ -24,6 +32,9 @@ namespace Red.InteractionMenu.Client.Menus
             menu.AddMenuItem(new("Refill Taser Cartridges"));
             menu.AddMenuItem(new MenuListItem("Weapon Retention", new List<string> { "Long Gun", "Shotgun", "Less Lethal Shotgun" }, 0));
             menu.AddMenuItem(new("Breathalyzer"));
+
+            menu.AddMenuItem(new MenuListItem("Set Spike Strips", new List<string> { "2", "3", "4" }, 0));
+            menu.AddMenuItem(new("Remove Spike Strips"));
 
             menu.AddMenuItem(new("Toggle Riot Shield"));
             menu.AddMenuItem(new MenuListItem("Step Out Of Vehicle", new List<string> { "Driver", "Passenger", "Driver Rear", "Passenger Rear" }, 0));
@@ -52,6 +63,11 @@ namespace Red.InteractionMenu.Client.Menus
             }
             else if (item == "Toggle Riot Shield")
             {
+                ToggleShield();
+            }
+            else if (item == "Remove Spike Strips")
+            {
+
             }
             else if (item == "~o~Back")
             {
@@ -202,9 +218,85 @@ namespace Red.InteractionMenu.Client.Menus
             }
         }
 
-        private void ToggleShield()
+        private static async void ToggleShield()
         {
+            shieldActive = true;
 
+            Vector3 playerPos = PlayerPed.Position;
+            Vehicle closestVehicle = GetClosestVehicle(1f);
+
+            if (closestVehicle is null)
+            {
+                shieldActive = false;
+
+                ErrorNotification("You must be near a police cruiser to do this.", true);
+                return;
+            }
+
+            if (!PlayerPed.IsInPoliceVehicle || closestVehicle?.ClassType == VehicleClass.Emergency)
+            {
+                RequestAnimation("combat@gestures@gang@pistol_1h@beckon");
+                PlayerPed.PlayAnim("combat@gestures@gang@pistol_1h@beckon", "0", 8.0f, -8.0f, -1, AnimationFlags.StayInEndFrame | AnimationFlags.AllowRotation | AnimationFlags.UpperBodyOnly, 0.0f, false, false, false);
+
+                await LoadModel("prop_ballistic_shield");
+                var shield = CreateObject(GetHashKey("prop_ballistic_shield"), playerPos.X, playerPos.Y, playerPos.Z, true, true, true);
+
+                int shieldEnt = shield;
+
+                AttachEntityToEntity(shieldEnt, PlayerPed.Handle, GetEntityBoneIndexByName(PlayerPed.Handle, "IK_L_Hand"), 0.0f, -0.05f, -0.10f, -30.0f, 180.0f, 40.0f, false, false, true, false, 0, true);
+                SetWeaponAnimationOverride(PlayerPed.Handle, (uint)GetHashKey("Gang1H"));
+
+                if (HasPedGotWeapon(PlayerPed.Handle, (uint)WeaponHash.CombatPistol, false) || GetSelectedPedWeapon(PlayerPed.Handle) == (int)WeaponHash.CombatPistol)
+                {
+                    SetCurrentPedWeapon(PlayerPed.Handle, (uint)WeaponHash.CombatPistol, true);
+                }
+                else
+                {
+                    GiveWeaponToPed(PlayerPed.Handle, (uint)WeaponHash.CombatPistol, 80, false, true);
+                    SetCurrentPedWeapon(PlayerPed.Handle, (uint)WeaponHash.CombatPistol, true);
+                }
+
+                SetEnableHandcuffs(PlayerPed.Handle, true);
+
+                if (shieldActive)
+                {
+                    TriggerEvent("Menu:Client:disableRiotShieldControls", true);
+                }
+            }
+
+            if (PlayerPed.Weapons.Current == WeaponHash.Unarmed && shieldActive)
+            {
+                DeleteEntity(ref shieldEnt);
+                ClearPedTasksImmediately(PlayerPed.Handle);
+
+                SetCurrentPedWeapon(PlayerPed.Handle, (uint)WeaponHash.Unarmed, true);
+                SetWeaponAnimationOverride(PlayerPed.Handle, (uint)GetHashKey("Default"));
+
+                shieldActive = false;
+            }
+            else
+            {
+                ErrorNotification("You need combat pistol and have it selected to do this!", true);
+            }
+        }
+
+        [EventHandler("Menu:Client:disableRiotShieldControls")]
+        private void OnDisableWhileShieldActive(bool shieldActive)
+        {
+            if (shieldActive)
+            {
+                Tick += DisableWhileShieldActive;
+            }
+            else
+            {
+                Tick -= DisableWhileShieldActive;
+            }
+        }
+
+        private async Task DisableWhileShieldActive()
+        {
+            DisableControlAction(1, 23, true);
+            DisableControlAction(1, 75, true);
         }
         #endregion
     }

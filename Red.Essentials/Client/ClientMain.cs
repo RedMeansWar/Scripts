@@ -9,7 +9,7 @@ using static Red.Common.Client.Hud.HUD;
 using static Red.Common.Client.Client;
 
 namespace Red.Essentials.Client
-{
+{ 
     internal class ClientMain : BaseScript
     {
         #region Variables
