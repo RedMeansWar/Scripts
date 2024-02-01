@@ -1,47 +1,35 @@
 ﻿using CitizenFX.Core;
-using CitizenFX.Core.Native;
-using CitizenFX.Core.UI;
+using static CitizenFX.Core.Native.API;
 
 namespace Red.InteractionMenu.Client
 {
     internal class Constants
     {
-        public static Ped PlayerPed = Game.PlayerPed;
-
         public static string forwardArrow = "→→→";
         public static string backwardArrow = "←←←";
 
-        public static Vehicle GetClosestVehicle(float radius = 2f) => PlayerPed.GetClosestVehicleToClient(radius);
-        
-        public static string SuccessNotification(string message, bool blink = false)
+        public static bool RightAlignMenu
         {
-            Screen.ShowNotification($"~g~~h~Success~h~~s~: {message}", blink);
-            return message;
+            get => GetSettings("redMenuAlignRight");
+            set => SetSavedSettings("redMenuAlignRight", value);
         }
 
-        public static string ErrorNotification(string message, bool blink = false)
+        private static bool GetSettings(string kvpString)
         {
-            Screen.ShowNotification($"~r~~h~Error~h~~s~: {message}", blink);
-            return message;
-        }
-    }
+            string savedVal = GetResourceKvpString($"red_menu_{kvpString}");
+            bool savedValExists = !string.IsNullOrEmpty(savedVal);
 
-    public static class Extensions
-    {
-        public static Vehicle GetClosestVehicleToClient(this Ped ped, float radius = 2f)
-        {
-            Vector3 plyrPos = ped.Position;
-
-            RaycastResult raycast = World.RaycastCapsule(plyrPos, plyrPos, radius, (IntersectOptions)10, Game.PlayerPed);
-
-            if (!Entity.Exists(raycast.HitEntity) || !raycast.HitEntity.Model.IsVehicle || !raycast.DitHitEntity)
+            if (!savedValExists)
             {
-                return null;
+                SetSavedSettings(kvpString, false);
+                return false;
             }
             else
             {
-                return (Vehicle)raycast.HitEntity;
+                return GetResourceKvpString($"red_menu_{kvpString}").ToLower() == "true";
             }
         }
+
+        private static void SetSavedSettings(string kvpString, bool newSavedValue) => SetResourceKvp("red_menu_" + kvpString, newSavedValue.ToString());
     }
 }

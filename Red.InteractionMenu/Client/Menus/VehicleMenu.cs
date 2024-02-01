@@ -1,68 +1,71 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using MenuAPI;
 using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
-using static Red.InteractionMenu.Client.Constants;
+using static Red.Common.Client.Client;
+using static Red.Common.Client.Hud.HUD;
 
 namespace Red.InteractionMenu.Client.Menus
 {
     internal class VehicleMenu
     {
+        protected static Menu DeleteConfirmMenu { get; private set; }
+
         public static Menu GetMenu()
         {
-            Menu menu = new("Red Menu", "~b~Vehicle Menu");
-            Menu confirmDeleteMenu = new("Confirm Action", "Delete Vehicle, are you sure?");
-             
+            Menu vehicleMenu = new("Red Menu", "~b~Vehicle Menu");
 
-            menu.AddMenuItem(new MenuListItem("Roll Up / Down Windows", new List<string> { "Roll Up Windows", "Roll Down Windows" }, 0));
-            menu.AddMenuItem(new("Toggle Engine", "Toggle the current vehicles engines"));
-            menu.AddMenuItem(new("Toggle Trunk", "Opens and closes the trunk of the current vehicle."));
+            DeleteConfirmMenu = new Menu("Confirm Action", "Delete vehicle, are you sure?");
 
-            menu.AddMenuItem(new("Toggle Hood", "Opens and closes the hood of the current vehicle."));
-            menu.AddMenuItem(new MenuListItem("Open / Close Door", new List<string> { "Driver", "Passanger", "Rear Driver", "Rear Passanger" }, 0));
-            menu.AddMenuItem(new("Shuffle Seats", "Shuffle to a different seat."));
+            vehicleMenu.AddMenuItem(new("Toggle Engine"));
+            vehicleMenu.AddMenuItem(new("Toggle Hood"));
+            vehicleMenu.AddMenuItem(new("Toggle Trunk"));
+            vehicleMenu.AddMenuItem(new("Shuffle Seats"));
+            vehicleMenu.AddMenuItem(new MenuListItem("Vehicle Locks", new List<string> { "Unlock Doors", "Lock Doors" }, 0));
 
-            menu.AddMenuItem(new("Flip Vehicle", "Flips a vehicle that is upside down back upright"));
-            menu.AddMenuItem(new MenuListItem("Door Locks", new List<string> { "Unlock Doors", "Lock Doors" }, 0));
-            menu.AddMenuItem(new("Toggle Seatbelt"));
-
-            MenuItem deleteBtn = new("~r~Delete Vehicle") { LeftIcon = MenuItem.Icon.WARNING, Label = Constants.forwardArrow };
-            menu.AddMenuItem(deleteBtn);
-
-            MenuController.AddSubmenu(menu, confirmDeleteMenu);
-            MenuItem deleteNoBtn = new("NO, Cancel", "NO, do NOT delete my vehicle and go back!");
-            MenuItem deleteYesBtn = new("~r~YES, DELETE", "Yes, I'm sure. Delete my vehicle, please. I understand this cannot be undone.") { LeftIcon = MenuItem.Icon.WARNING };
-
-            confirmDeleteMenu.AddMenuItem(deleteNoBtn);
-            confirmDeleteMenu.AddMenuItem(deleteYesBtn);
-
-            confirmDeleteMenu.OnItemSelect += (sender, item, select) =>
+            MenuItem deleteBtn = new("~r~Delete Vehicle")
             {
-                if (item != null)
+                LeftIcon = MenuItem.Icon.WARNING,
+                Label = "→→→"
+            };
+            vehicleMenu.AddMenuItem(deleteBtn);
+
+            vehicleMenu.AddMenuItem(new("~o~Back"));
+            vehicleMenu.AddMenuItem(new("~r~Close"));
+
+            MenuController.AddSubmenu(vehicleMenu, DeleteConfirmMenu);
+            MenuItem deleteNoBtn = new("NO, CANCEL", "NO, do NOT delete my vehicle and go back!");
+            MenuItem deleteYesBtn = new("~r~YES, DELETE", "Yes, I'm sure. Delete my vehicle, please. I understand this cannot be undone.")
+            {
+                LeftIcon = MenuItem.Icon.WARNING
+            };
+
+            DeleteConfirmMenu.AddMenuItem(deleteNoBtn);
+            DeleteConfirmMenu.AddMenuItem(deleteYesBtn);
+
+            DeleteConfirmMenu.OnItemSelect += (sender, item, select) =>
+            {
+                if (item == deleteNoBtn)
                 {
-                    confirmDeleteMenu.GoBack();
+                    DeleteConfirmMenu.GoBack();
                 }
                 else
                 {
                     ExecuteCommand("dv");
                 }
 
-                confirmDeleteMenu.GoBack();
+                DeleteConfirmMenu.GoBack();
             };
 
-            MenuController.BindMenuItem(menu, confirmDeleteMenu, deleteBtn);
+            MenuController.BindMenuItem(vehicleMenu, DeleteConfirmMenu, deleteBtn);
 
-            menu.AddMenuItem(new("~o~Back", "Go back one menu."));
-            menu.AddMenuItem(new("~r~Close", "Close all menus."));
+            vehicleMenu.OnItemSelect += VehicleMenu_OnItemSelect;
+            vehicleMenu.OnListItemSelect += VehicleMenu_OnListItemSelect;
 
-            menu.OnItemSelect += Menu_OnItemSelect;
-            menu.OnListItemSelect += Menu_OnListItemSelect;
-
-            return menu;
+            return vehicleMenu;
         }
 
-        private static void Menu_OnItemSelect(Menu menu, MenuItem menuItem, int itemIndex)
+        private static void VehicleMenu_OnItemSelect(Menu menu, MenuItem menuItem, int itemIndex)
         {
             string item = menuItem.Text;
 
@@ -70,33 +73,19 @@ namespace Red.InteractionMenu.Client.Menus
             {
                 ExecuteCommand("eng");
             }
-            else if (item == "Toggle Trunk")
-            {
-                ExecuteCommand("trunk");
-            }
             else if (item == "Toggle Hood")
             {
                 ExecuteCommand("hood");
+            }
+            else if (item == "Toggle Trunk")
+            {
+                ExecuteCommand("trunk");
             }
             else if (item == "Shuffle Seats")
             {
                 ExecuteCommand("shuffle");
             }
-            else if (item == "Flip Vehicle")
-            {
-                ExecuteCommand("flip");
-            }
-            else if (item == "Toggle Seatbelt")
-            {
-                if (!PlayerPed.IsInVehicle())
-                {
-                    ErrorNotification("You need to be in vehicle to use this!", true);
-                }
-                else
-                {
-                }
-            }
-            else if (item == "~o~Go Back")
+            else if (item == "~o~Back")
             {
                 menu.GoBack();
             }
@@ -106,64 +95,42 @@ namespace Red.InteractionMenu.Client.Menus
             }
         }
 
-        private static void Menu_OnListItemSelect(Menu menu, MenuListItem listItem, int selectedIndex, int itemIndex)
+        private static void VehicleMenu_OnListItemSelect(Menu menu, MenuListItem listItem, int selectedIndex, int itemIndex)
         {
             string item = listItem.Text;
-            Vehicle vehicle = Game.PlayerPed.CurrentVehicle;
 
-            if (item == "Roll Up / Down Windows")
+            if (item == "Vehicle Locks")
             {
                 switch (selectedIndex)
                 {
                     case 0:
-                        vehicle.Windows.RollUpAllWindows();
+                        VehicleLockHandler(true);
                         break;
                     case 1:
-                        vehicle.Windows.RollDownAllWindows();
+                        VehicleLockHandler();
                         break;
-                    default:
-                        break;
-                }
-            }
-            else if (item == "Open / Close Door")
-            {
-                switch (selectedIndex)
-                {
-                    case 0:
-                        ExecuteCommand("door 1");
-                        break;
-
-                    case 1:
-                        ExecuteCommand("door 2");
-                        break;
-
-                    case 2:
-                        ExecuteCommand("door 3");
-                        break;
-
-                    case 3:
-                        ExecuteCommand("door 4");
-                        break;
-
-                    default:
-                        break;
-                }
-            }
-            else if (item == "Vehicle Locks")
-            {
-                switch (selectedIndex)
-                {
-                    case 0:
-                        break;
-
-                    case 1:
-                        break;
-
                     default:
                         break;
                 }
             }
         }
-        
+
+        private static void VehicleLockHandler(bool unlock = false)
+        {
+            if (PlayerPed.CurrentVehicle is null)
+            {
+                ErrorNotification(" You must be in a vehicle.", true);
+                return;
+            }
+
+            if (PlayerPed.CurrentVehicle.Driver != PlayerPed)
+            {
+                ErrorNotification("You must be the driver.", true);
+                return;
+            }
+
+            PlayerPed.CurrentVehicle.LockStatus = unlock ? VehicleLockStatus.Unlocked : VehicleLockStatus.Locked;
+            SuccessNotification($"{(unlock ? "Unlocked" : "Locked")}.", true);
+        }
     }
 }

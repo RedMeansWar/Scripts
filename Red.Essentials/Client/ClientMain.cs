@@ -22,71 +22,33 @@ namespace Red.Essentials.Client
 
         protected readonly IReadOnlyList<string> scenarioTypes = new List<string>
         {
-            "WORLD_VEHICLE_MILITARY_PLANES_SMALL", "WORLD_VEHICLE_MILITARY_PLANES_BIG", "WORLD_VEHICLE_AMBULANCE", "WORLD_VEHICLE_POLICE_NEXT_TO_CAR", "WORLD_VEHICLE_POLICE_CAR", "WORLD_VEHICLE_POLICE_BIKE", "WORLD_VEHICLE_DRIVE_PASSENGERS_LIMITED"
+            "WORLD_VEHICLE_MILITARY_PLANES_SMALL", "WORLD_VEHICLE_MILITARY_PLANES_BIG", "WORLD_VEHICLE_AMBULANCE", "WORLD_VEHICLE_POLICE_NEXT_TO_CAR", "WORLD_VEHICLE_POLICE_CAR", 
+            "WORLD_VEHICLE_POLICE_BIKE", "WORLD_VEHICLE_DRIVE_PASSENGERS_LIMITED"
         };
 
         protected readonly IReadOnlyList<string> scenarioGroups = new List<string>
         {
-            "MP_POLICE", "ARMY_HELI", "POLICE_POUND1", "POLICE_POUND2", "POLICE_POUND3", "POLICE_POUND4", "POLICE_POUND5", "SANDY_PLANES", "ALAMO_PLANES", "GRAPESEED_PLANES", "LSA_PLANES", "NG_PLANES"
+            "MP_POLICE", "ARMY_HELI", "POLICE_POUND1", "POLICE_POUND2", "POLICE_POUND3", "POLICE_POUND4", "POLICE_POUND5", "SANDY_PLANES", "ALAMO_PLANES", 
+            "GRAPESEED_PLANES", "LSA_PLANES", "NG_PLANES"
         };
 
         protected readonly IReadOnlyList<string> relationshipGroups = new List<string>
         {
-            "AMBIENT_GANG_HILLBILLY", "AMBIENT_GANG_BALLAS", "AMBIENT_GANG_MEXICAN", "AMBIENT_GANG_FAMILY", "AMBIENT_GANG_MARABUNTE", "AMBIENT_GANG_SALVA", "GANG_1", "GANG_2", "GANG_9", "GANG_10", "FIREMAN", "MEDIC", "COP"
+            "AMBIENT_GANG_HILLBILLY", "AMBIENT_GANG_BALLAS", "AMBIENT_GANG_MEXICAN", "AMBIENT_GANG_FAMILY", "AMBIENT_GANG_MARABUNTE", "AMBIENT_GANG_SALVA", 
+            "GANG_1", "GANG_2", "GANG_9", "GANG_10", "FIREMAN", "MEDIC", "COP"
         };
 
         protected readonly IReadOnlyList<string> suppressedModels = new List<string>
         {
-            "police",
-            "police2",
-            "police3",
-            "police4",
-            "policeb",
-            "policeold1",
-            "policeold2",
-            "policet",
-            "polmav",
-            "pranger",
-            "sheriff",
-            "sheriff2",
-            "stockade3",
-            "buffalo3",
-            "fbi",
-            "fbi2",
-            "firetruk",
-            "jester2",
-            "lguard",
-            "ambulance",
-            "riot",
-            "SHAMAL",
-            "LUXOR",
-            "LUXOR2",
-            "JET",
-            "LAZER",
-            "TITAN",
-            "BARRACKS",
-            "BARRACKS2",
-            "CRUSADER",
-            "RHINO",
-            "AIRTUG",
-            "RIPLEY",
-            "docktrailer",
-            "trflat",
-            "trailersmall",
-            "boattrailer",
-            "cargobob",
-            "cargobob2",
-            "cargobob3",
-            "cargobob4",
-            "volatus",
-            "buzzard",
-            "buzzard2",
-            "besra",
+            "police", "police2", "police3", "police4", "policeb", "policeold1", "policeold2", "policet", "polmav", "pranger", "sheriff", "sheriff2", "stockade3", "buffalo3", "fbi",
+            "fbi2", "firetruk", "jester2", "lguard", "ambulance", "riot", "SHAMAL", "LUXOR", "LUXOR2", "JET", "LAZER", "TITAN", "BARRACKS", "BARRACKS2", "CRUSADER", "RHINO", "AIRTUG",
+            "RIPLEY", "docktrailer", "trflat", "trailersmall", "boattrailer", "cargobob", "cargobob2", "cargobob3", "cargobob4", "volatus", "buzzard", "buzzard2", "besra",
         };
 
         protected readonly IReadOnlyList<Control> controlsToDisable = new List<Control>
         {
-            Control.Aim, Control.Attack, Control.Attack2, Control.Cover, Control.Jump, Control.MeleeAttack1, Control.MeleeAttack2, Control.MeleeAttackAlternate, Control.MeleeAttackHeavy, Control.MeleeAttackLight, Control.MeleeBlock, Control.Reload
+            Control.Aim, Control.Attack, Control.Attack2, Control.Cover, Control.Jump, Control.MeleeAttack1, Control.MeleeAttack2, Control.MeleeAttackAlternate, 
+            Control.MeleeAttackHeavy, Control.MeleeAttackLight, Control.MeleeBlock, Control.Reload
         };
         #endregion
 
@@ -118,7 +80,7 @@ namespace Red.Essentials.Client
 
             foreach (string relationshipGroup in relationshipGroups)
             {
-                SetRelationshipBetweenGroups(1, Game.GenerateHashASCII(relationshipGroup), (uint)player);
+                SetRelationshipBetweenGroups(1, Game.GenerateHashASCII(relationshipGroup), player);
             }
 
             for (int i = 0; i < 15; i++)
@@ -203,7 +165,7 @@ namespace Red.Essentials.Client
 
             if (handsUp)
             {
-                Game.PlayerPed.Task.PlayAnimation("random@mugging3", "handsup_standing_base", 2.5f, -1, AnimationFlags.StayInEndFrame | AnimationFlags.UpperBodyOnly | AnimationFlags.AllowRotation);
+                PlayAnimation("random@mugging3", "handsup_standing_base", 2.5f, -1, AnimationFlags.StayInEndFrame | AnimationFlags.UpperBodyOnly | AnimationFlags.AllowRotation);
                 Tick += DisableControls;
             }
             else
@@ -229,7 +191,7 @@ namespace Red.Essentials.Client
 
             if (handsOnHead)
             {
-                Game.PlayerPed.Task.PlayAnimation("random@arrests@busted", "idle_c", 2.5f, -1, AnimationFlags.StayInEndFrame | AnimationFlags.UpperBodyOnly | AnimationFlags.AllowRotation);
+                PlayAnimation("random@arrests@busted", "idle_c", 2.5f, -1, AnimationFlags.StayInEndFrame | AnimationFlags.UpperBodyOnly | AnimationFlags.AllowRotation);
                 Tick += DisableControls;
             }
             else
@@ -253,10 +215,10 @@ namespace Red.Essentials.Client
                 Tick -= DisableControls;
             }
 
-            if (handsUpKnees && !Game.PlayerPed.IsGettingIntoAVehicle && !Game.PlayerPed.IsInVehicle())
+            if (handsUpKnees && !PlayerPed.IsGettingIntoAVehicle && !PlayerPed.IsInVehicle())
             {
-                Game.PlayerPed.Task.PlayAnimation("random@mugging3", "handsup_standing_base", 2.5f, -1, AnimationFlags.StayInEndFrame | AnimationFlags.UpperBodyOnly | AnimationFlags.AllowRotation);
-                Game.PlayerPed.Task.PlayAnimation("random@getawaydriver", "idle_a", 2.5f, -1, AnimationFlags.StayInEndFrame);
+                PlayAnimation("random@mugging3", "handsup_standing_base", 2.5f, -1, AnimationFlags.StayInEndFrame | AnimationFlags.UpperBodyOnly | AnimationFlags.AllowRotation);
+                PlayAnimation("random@getawaydriver", "idle_a", 2.5f, -1, AnimationFlags.StayInEndFrame);
                 Tick += DisableControls;
             }
             else
@@ -276,7 +238,7 @@ namespace Red.Essentials.Client
         [Command("camera")]
         private void OnCameraCommand()
         {
-            if (!Game.PlayerPed.IsOnFoot)
+            if (!PlayerPed.IsOnFoot)
             {
                 return;
             }
@@ -312,9 +274,9 @@ namespace Red.Essentials.Client
         [Command("dv")]
         private async void DvVehicleCommand()
         {
-            if (Game.PlayerPed.CurrentVehicle is null)
+            if (PlayerPed.CurrentVehicle is null)
             {
-                Vehicle closestVehicle = Game.PlayerPed.GetClosestVehicleToClient(3f);
+                Vehicle closestVehicle = PlayerPed.GetClosestVehicleToClient(3f);
 
                 if (closestVehicle is null)
                 {
@@ -332,7 +294,7 @@ namespace Red.Essentials.Client
                 {
                     bool deleted = await DvVehicle(closestVehicle);
 
-                    Screen.ShowNotification(deleted ? "~g~Vehicle deleted." : "~r~Failed to delete vehicle, try again.", true);
+                    DisplayNotification(deleted ? "~g~Vehicle deleted." : "~r~Failed to delete vehicle, try again.", true);
                 }
                 else
                 {
@@ -351,18 +313,18 @@ namespace Red.Essentials.Client
                         await Delay(0);
                     }
 
-                    Screen.ShowNotification("~g~Vehicle deleted.");
+                    DisplayNotification("~g~Vehicle deleted.");
                 }
             }
-            else if (Game.PlayerPed.SeatIndex != VehicleSeat.Driver)
+            else if (PlayerPed.SeatIndex != VehicleSeat.Driver)
             {
                 ErrorNotification("You must be the driver.");
             }
             else
             {
-                bool deleted = await DvVehicle(Game.PlayerPed.CurrentVehicle);
+                bool deleted = await DvVehicle(PlayerPed.CurrentVehicle);
 
-                Screen.ShowNotification(deleted ? "~g~Deleted vehicle." : "~r~Failed to delete vehicle, try again.", true);
+                DisplayNotification(deleted ? "~g~Deleted vehicle." : "~r~Failed to delete vehicle, try again.", true);
             }
         }
 
@@ -372,11 +334,11 @@ namespace Red.Essentials.Client
         [Command("flip")]
         private void OnFlipCommand()
         {
-            Vehicle vehicle = Game.PlayerPed.CurrentVehicle;
+            Vehicle vehicle = PlayerPed.CurrentVehicle;
 
             if (vehicle is not null)
             {
-                if (Game.PlayerPed.SeatIndex != VehicleSeat.Driver)
+                if (PlayerPed.SeatIndex != VehicleSeat.Driver)
                 {
                     ErrorNotification("You must be the driver.");
                     return;
@@ -399,7 +361,7 @@ namespace Red.Essentials.Client
         [Command("trunk")]
         private void OnTrunkCommand()
         {
-            Vehicle vehicle = Game.PlayerPed.CurrentVehicle ?? Game.PlayerPed.GetClosestVehicleToClient(1f);
+            Vehicle vehicle = PlayerPed.CurrentVehicle ?? PlayerPed.GetClosestVehicleToClient(1f);
 
             if (vehicle is null)
             {
@@ -407,7 +369,7 @@ namespace Red.Essentials.Client
                 return;
             }
 
-            if (Game.PlayerPed.CurrentVehicle is not null && Game.PlayerPed.SeatIndex != VehicleSeat.Driver)
+            if (PlayerPed.CurrentVehicle is not null && PlayerPed.SeatIndex != VehicleSeat.Driver)
             {
                 ErrorNotification("You must be the driver.");
                 return;
@@ -448,6 +410,7 @@ namespace Red.Essentials.Client
                 {
                     TriggerServerEvent("Essentials:Server:doorAction", vehicle.NetworkId, (int)VehicleDoorIndex.Trunk, true);
                 }
+
                 SuccessNotification("Trunk opened.");
             }
         }
@@ -455,7 +418,7 @@ namespace Red.Essentials.Client
         [Command("hood")]
         private void OnHoodCommand()
         {
-            Vehicle vehicle = Game.PlayerPed.CurrentVehicle ?? Game.PlayerPed.GetClosestVehicleToClient(1f);
+            Vehicle vehicle = PlayerPed.CurrentVehicle ?? PlayerPed.GetClosestVehicleToClient(1f);
 
             if (vehicle is null)
             {
@@ -463,7 +426,7 @@ namespace Red.Essentials.Client
                 return;
             }
 
-            if (Game.PlayerPed.CurrentVehicle is not null && Game.PlayerPed.SeatIndex != VehicleSeat.Driver)
+            if (PlayerPed.CurrentVehicle is not null && PlayerPed.SeatIndex != VehicleSeat.Driver)
             {
                 ErrorNotification("You must be the driver.");
                 return;
@@ -512,7 +475,7 @@ namespace Red.Essentials.Client
         [Command("door")]
         private void OnDoorCommand(string[] args)
         {
-            Vehicle vehicle = Game.PlayerPed.CurrentVehicle ?? Game.PlayerPed.GetClosestVehicleToClient(1f);
+            Vehicle vehicle = PlayerPed.CurrentVehicle ?? PlayerPed.GetClosestVehicleToClient(1f);
 
             if (vehicle is null)
             {
@@ -520,7 +483,7 @@ namespace Red.Essentials.Client
                 return;
             }
 
-            if (Game.PlayerPed.CurrentVehicle is not null && Game.PlayerPed.SeatIndex != VehicleSeat.Driver)
+            if (PlayerPed.CurrentVehicle is not null && PlayerPed.SeatIndex != VehicleSeat.Driver)
             {
                 ErrorNotification("You must be the driver.");
                 return;
@@ -580,13 +543,13 @@ namespace Red.Essentials.Client
         [Command("anchor")]
         private void AnchorCommand()
         {
-            if (!Game.PlayerPed.IsInBoat)
+            if (!PlayerPed.IsInBoat)
             {
                 ErrorNotification("You must be conning a boat.");
                 return;
             }
 
-            Vehicle boat = Game.PlayerPed.CurrentVehicle;
+            Vehicle boat = PlayerPed.CurrentVehicle;
 
             if (boat.Speed >= 5f)
             {
@@ -637,7 +600,7 @@ namespace Red.Essentials.Client
 
             if (vehicle.Driver == Game.PlayerPed)
             {
-                Game.PlayerPed.SetIntoVehicle(vehicle, VehicleSeat.Passenger);
+                PlayerPed.SetIntoVehicle(vehicle, VehicleSeat.Passenger);
             }
             else
             {
@@ -701,7 +664,7 @@ namespace Red.Essentials.Client
         [Tick]
         private async Task SecondaryTick()
         {
-            Vehicle vehicle = Game.PlayerPed.CurrentVehicle;
+            Vehicle vehicle = PlayerPed.CurrentVehicle;
 
             if (vehicle is null)
             {
@@ -709,11 +672,11 @@ namespace Red.Essentials.Client
                 return;
             }
 
-            if (Game.IsControlPressed(0, Control.VehicleExit) && Game.PlayerPed.IsAlive && vehicle.ClassType != VehicleClass.Helicopters && vehicle.ClassType != VehicleClass.Planes)
+            if (Game.IsControlPressed(0, Control.VehicleExit) && PlayerPed.IsAlive && vehicle.ClassType != VehicleClass.Helicopters && vehicle.ClassType != VehicleClass.Planes)
             {
                 await Delay(150);
 
-                if (Game.IsControlPressed(0, Control.VehicleExit) && Game.PlayerPed.IsAlive)
+                if (Game.IsControlPressed(0, Control.VehicleExit) && PlayerPed.IsAlive)
                 {
                     vehicle.IsEngineRunning = true;
                 }
@@ -721,7 +684,7 @@ namespace Red.Essentials.Client
 
             if (noShuffle)
             {
-                if (vehicle.GetPedOnSeat(VehicleSeat.Passenger) == Game.PlayerPed && GetIsTaskActive(Game.PlayerPed.Handle, 165))
+                if (vehicle.GetPedOnSeat(VehicleSeat.Passenger) == PlayerPed && GetIsTaskActive(PlayerPed.Handle, 165))
                 {
                     if (!vehicle.IsSeatFree(VehicleSeat.Driver) && !vehicle.Driver.IsPlayer)
                     {
@@ -729,16 +692,16 @@ namespace Red.Essentials.Client
                     }
                     else
                     {
-                        Game.PlayerPed.SetConfigFlag(184, true);
-                        Game.PlayerPed.Task.ClearAllImmediately();
-                        Game.PlayerPed.SetIntoVehicle(vehicle, VehicleSeat.Passenger);
+                        PlayerPed.SetConfigFlag(184, true);
+                        PlayerPed.Task.ClearAllImmediately();
+                        PlayerPed.SetIntoVehicle(vehicle, VehicleSeat.Passenger);
                     }
                 }
             }
             else if (vehicle.IsSeatFree(VehicleSeat.Driver))
             {
-                Game.PlayerPed.ResetConfigFlag(184);
-                Game.PlayerPed.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+                PlayerPed.ResetConfigFlag(184);
+                PlayerPed.SetIntoVehicle(vehicle, VehicleSeat.Driver);
                 noShuffle = true;
             }
 
@@ -760,7 +723,7 @@ namespace Red.Essentials.Client
                 steeringAngle = vehicle.SteeringAngle;
             }
 
-            if (Game.PlayerPed.IsOnFoot || vehicle.IsStopped)
+            if (PlayerPed.IsOnFoot || vehicle.IsStopped)
             {
                 vehicle.SteeringAngle = steeringAngle;
             }

@@ -1,45 +1,34 @@
 ﻿using System.Collections.Generic;
 using MenuAPI;
 using CitizenFX.Core;
-using Red.InteractionMenu.Client.Menus.SubMenus;
 using static CitizenFX.Core.Native.API;
-using static Red.InteractionMenu.Client.Constants;
+using static Red.Common.Client.Client;
+using static Red.Common.Client.Hud.HUD;
 
 namespace Red.InteractionMenu.Client.Menus
 {
-    internal class PoliceMenu : BaseScript
+    internal class LEToolbox
     {
-        #region Variables
-        protected static Prop shieldProp;
-        protected static bool hadPistolForShield, shieldEnabled;
-        #endregion
-
         public static Menu GetMenu()
         {
-            Menu menu = new("Red Menu", "~b~Police Menu");
-            MenuItem sceneManageBtn = new("Scene Management");
-            MenuController.AddMenu(menu);
+            Menu menu = new("Red Menu", "~b~Law Enforcement Toolbox");
 
-            menu.AddMenuItem(sceneManageBtn);
-            MenuController.BindMenuItem(menu, SceneManagement.GetMenu(), sceneManageBtn);
+            MenuItem sceneManangeBtn = new("Scene Management") { Label = Constants.forwardArrow };
+            menu.AddMenuItem(sceneManangeBtn);
+            MenuController.BindMenuItem(menu, SceneManagement.GetMenu(), sceneManangeBtn);
 
-            menu.AddMenuItem(new MenuListItem("Restrainment", new List<string> { "Rear Cuff", "Front Cuff", "Rear Ziptie", "Front Ziptie" }, 0));
             menu.AddMenuItem(new MenuListItem("Hands On", new List<string> { "Grab", "Seat", "Unseat" }, 0));
-            menu.AddMenuItem(new("Breathalyzer"));
-
-            menu.AddMenuItem(new("Toggle LiDAR Gun"));
-            menu.AddMenuItem(new("Search Vehicle"));
-            menu.AddMenuItem(new("Search Ped"));
+            menu.AddMenuItem(new MenuListItem("Restrainment", new List<string> { "Rear Cuff", "Front Cuff", "Rear Ziptie", "Front Ziptie" }, 0));
+            menu.AddMenuItem(new MenuListItem("Duty Loadout", new List<string> { "Standard", "SWAT" }, 0));
 
             menu.AddMenuItem(new("Refill Taser Cartridges"));
-            menu.AddMenuItem(new MenuListItem("Weapon Retention", new List<string> { "Carbine", "Shotgun", "SMG" }, 0));
+            menu.AddMenuItem(new MenuListItem("Weapon Retention", new List<string> { "Long Gun", "Shotgun", "Less Lethal Shotgun" }, 0));
+            menu.AddMenuItem(new("Breathalyzer"));
+
+            menu.AddMenuItem(new("Toggle Riot Shield"));
+            menu.AddMenuItem(new MenuListItem("Step Out Of Vehicle", new List<string> { "Driver", "Passenger", "Driver Rear", "Passenger Rear" }, 0));
             menu.AddMenuItem(new("Conduct CPR"));
 
-            menu.AddMenuItem(new MenuListItem("Step Out Of Vehicle", new List<string> { "Driver", "Passanger", "Rear Driver", "Rear Passanger" }, 0));
-            menu.AddMenuItem(new("Toggle Shield"));
-            menu.AddMenuItem(new MenuListItem("Loadout", new List<string> { "Default", "SWAT" }, 0));
-
-            menu.AddMenuItem(new("Toggle Beanbag Shotgun"));
             menu.AddMenuItem(new("~o~Back"));
             menu.AddMenuItem(new("~r~Close"));
 
@@ -57,27 +46,12 @@ namespace Red.InteractionMenu.Client.Menus
             {
                 ExecuteCommand("refill");
             }
-            else if (item == "Conduct CPR")
-            {
-                TaskPlayAnim(PlayerPed.Handle, "mini@cpr@char_a@cpr_de", "cpr_success", 8.0f, 1.0f, -1, 2, 0.0f, false, false, false);
-            }
-            else if (item == "Toggle Shield")
-            {
-            }
-            else if (item == "Toggle LiDAR Gun")
-            {
-               
-            }
-            else if (item == "Toggle Beanbag Shotgun")
-            {
-            }
-            else if (item == "Toggle Radar Remote")
-            {
-                
-            }
             else if (item == "Breathalyzer")
             {
                 ExecuteCommand("bac");
+            }
+            else if (item == "Toggle Riot Shield")
+            {
             }
             else if (item == "~o~Back")
             {
@@ -93,31 +67,7 @@ namespace Red.InteractionMenu.Client.Menus
         {
             string item = listItem.Text;
 
-            if (item == "Restrainment")
-            {
-                switch (selectedIndex)
-                {
-                    case 0:
-                        ExecuteCommand("cuff");
-                        break;
-
-                    case 1:
-                        ExecuteCommand("frontcuff");
-                        break;
-
-                    case 2:
-                        ExecuteCommand("ziptie");
-                        break;
-
-                    case 3:
-                        ExecuteCommand("frontziptie");
-                        break;
-
-                    default:
-                        break;
-                }
-            }
-            else if (item == "Hands On")
+            if (item == "Hands On")
             {
                 switch (selectedIndex)
                 {
@@ -137,41 +87,53 @@ namespace Red.InteractionMenu.Client.Menus
                         break;
                 }
             }
-            else if (item == "Loadout")
+            else if (item == "Restrainment")
             {
                 switch (selectedIndex)
                 {
                     case 0:
-                        PlayerPed.Weapons.Give(WeaponHash.CombatPistol, 60, false, true);
-                        PlayerPed.Weapons.Give(WeaponHash.StunGun, 9999, false, false);
-                        PlayerPed.Weapons.Give(WeaponHash.Flashlight, 9999, false, false);
+                        ExecuteCommand("cuff");
+                        break;
 
-                        PlayerPed.Weapons.Give(WeaponHash.Nightstick, 9999, false, false);
+                    case 1:
+                        ExecuteCommand("frontcuff");
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+            else if (item == "Duty Loadout")
+            {
+                PlayerPed.Weapons.RemoveAll();
+
+                switch (selectedIndex)
+                {
+                    case 0:
+                        PlayerPed.Weapons.Give(WeaponHash.CombatPistol, 60, false, true);
+                        PlayerPed.Weapons.Give(WeaponHash.StunGun, 9999, false, true);
+                        PlayerPed.Weapons.Give(WeaponHash.Flashlight, 9999, false, true);
+                        PlayerPed.Weapons.Give(WeaponHash.Nightstick, 9999, false, true);
+                        ExecuteCommand("lidarweapon");
                         PlayerPed.Weapons[WeaponHash.CombatPistol].Ammo = PlayerPed.Weapons[WeaponHash.CombatPistol].MaxAmmoInClip * 3;
                         PlayerPed.Weapons[WeaponHash.CombatPistol].Components[WeaponComponentHash.AtPiFlsh].Active = true;
-
                         PlayerPed.Weapons.Select(WeaponHash.Unarmed);
                         SuccessNotification("You've equipped the standard duty loadout.", true);
-
                         break;
 
                     case 1:
                         PlayerPed.Weapons.Give(WeaponHash.CombatPistol, 80, false, true);
                         PlayerPed.Weapons.Give(WeaponHash.StunGun, 9999, false, true);
                         PlayerPed.Weapons.Give(WeaponHash.CarbineRifle, 210, false, true);
-
                         PlayerPed.Weapons.Give(WeaponHash.Flashlight, 9999, false, true);
                         PlayerPed.Weapons.Give(WeaponHash.Knife, 9999, false, true);
                         PlayerPed.Weapons[WeaponHash.CombatPistol].Ammo = PlayerPed.Weapons[WeaponHash.CombatPistol].MaxAmmoInClip * 3;
-
                         PlayerPed.Weapons[WeaponHash.CarbineRifle].Ammo = PlayerPed.Weapons[WeaponHash.CarbineRifle].MaxAmmoInClip * 3;
                         PlayerPed.Weapons[WeaponHash.CombatPistol].Components[WeaponComponentHash.AtPiFlsh].Active = true;
                         PlayerPed.Weapons[WeaponHash.CarbineRifle].Components[WeaponComponentHash.AtArAfGrip].Active = true;
-
                         PlayerPed.Weapons[WeaponHash.CarbineRifle].Components[WeaponComponentHash.AtArFlsh].Active = true;
                         PlayerPed.Weapons[WeaponHash.CarbineRifle].Components[WeaponComponentHash.AtScopeMedium].Active = true;
                         PlayerPed.Weapons.Select(WeaponHash.Unarmed);
-
                         SuccessNotification("You've equipped the SWAT duty loadout.", true);
                         break;
 
@@ -184,15 +146,11 @@ namespace Red.InteractionMenu.Client.Menus
                 switch (selectedIndex)
                 {
                     case 0:
-                        RetainWeaponSystem(WeaponHash.CarbineRifle);
+                        WeaponSystem(WeaponHash.CarbineRifle);
                         break;
 
                     case 1:
-                        RetainWeaponSystem(WeaponHash.PumpShotgun);
-                        break;
-
-                    case 2:
-                        RetainWeaponSystem(WeaponHash.MicroSMG);
+                        WeaponSystem(WeaponHash.PumpShotgun);
                         break;
 
                     default:
@@ -200,22 +158,22 @@ namespace Red.InteractionMenu.Client.Menus
                 }
             }
         }
+
         #region Methods
-        private static void RetainWeaponSystem(WeaponHash weaponHash)
+        private static void WeaponSystem(WeaponHash hash)
         {
             Vehicle closestVehicle = GetClosestVehicle(1f);
 
-            string gun = weaponHash switch
+            string gun = hash switch
             {
                 WeaponHash.CarbineRifle => "long gun",
                 WeaponHash.PumpShotgun => "12 gauge shotgun",
-                WeaponHash.MicroSMG => "9mm open-bolt submachine gun",
                 _ => "gun"
             };
 
             if (PlayerPed.IsInPoliceVehicle || closestVehicle?.ClassType == VehicleClass.Emergency)
             {
-                Weapon playerWeapon = PlayerPed.Weapons[weaponHash];
+                Weapon playerWeapon = PlayerPed.Weapons[hash];
 
                 if (playerWeapon is not null)
                 {
@@ -224,18 +182,18 @@ namespace Red.InteractionMenu.Client.Menus
                 }
                 else
                 {
-                    playerWeapon = PlayerPed.Weapons.Give(weaponHash, 0, true, true);
+                    playerWeapon = PlayerPed.Weapons.Give(hash, 0, true, true);
                     playerWeapon.Ammo = playerWeapon.MaxAmmoInClip * 3;
                     playerWeapon.Components[WeaponComponentHash.AtArFlsh].Active = true;
 
-                    if (weaponHash == WeaponHash.CarbineRifle)
+                    if (hash == WeaponHash.CarbineRifle)
                     {
                         playerWeapon.Components[WeaponComponentHash.AtPiFlsh].Active = true;
                         playerWeapon.Components[WeaponComponentHash.AtArAfGrip].Active = true;
                         playerWeapon.Components[WeaponComponentHash.AtScopeMedium].Active = true;
                     }
 
-                    SuccessNotification($"You've unlocked and equipped your {gun}.", true);
+                    SuccessNotification($"You've unlocked and equipped your {gun}", true);
                 }
             }
             else
@@ -244,6 +202,10 @@ namespace Red.InteractionMenu.Client.Menus
             }
         }
 
+        private void ToggleShield()
+        {
+
+        }
         #endregion
     }
 }

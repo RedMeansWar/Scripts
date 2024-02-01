@@ -1,33 +1,31 @@
 ﻿using System.Collections.Generic;
-using MenuAPI;
 using CitizenFX.Core;
+using MenuAPI;
 using static CitizenFX.Core.Native.API;
-using Red.InteractionMenu.Client.Menus.SubMenus;
+using static Red.Common.Client.Client;
+using static Red.Common.Client.Hud.HUD;
 
 namespace Red.InteractionMenu.Client.Menus
 {
-    internal class CivilianMenu : BaseScript
+    internal class CivToolbox : BaseScript
     {
         public static Menu GetMenu()
         {
-            Menu menu = new("Red Menu", "~b~Civilian Menu");
+            Menu menu = new("Red Menu", "~b~Civilian Toolbox");
 
-            MenuItem sceneManage = new("Scene Management") { Label = Constants.forwardArrow };
-            MenuController.BindMenuItem(GetMenu(), SceneManagement.GetMenu(), sceneManage);
-            menu.AddMenuItem(sceneManage);
-
+            MenuItem propButton = new("Prop Spawner");
+            menu.AddMenuItem(propButton);
+            MenuController.BindMenuItem(menu, PropMenu.GetMenu(), propButton);
+            
             menu.AddMenuItem(new MenuListItem("Restrainment", new List<string> { "Rear Ziptie", "Front Ziptie" }, 0));
-            menu.AddMenuItem(new MenuListItem("Step Out Of Vehicle", new List<string> { "Driver", "Passanger", "Rear Driver", "Rear Passanger" }, 0));
-
             menu.AddMenuItem(new("Drop Weapon"));
+
             menu.AddMenuItem(new("Hands Up"));
             menu.AddMenuItem(new("Hands Up & Knees"));
-
             menu.AddMenuItem(new("Hands On Head"));
-            menu.AddMenuItem(new("Set BAC"));
 
-            menu.AddMenuItem(new("~o~Back", "Go back one menu."));
-            menu.AddMenuItem(new("~r~Close", "Closes all menus."));
+            menu.AddMenuItem(new("~o~Back"));
+            menu.AddMenuItem(new("~r~Close"));
 
             menu.OnItemSelect += Menu_OnItemSelect;
             menu.OnListItemSelect += Menu_OnListItemSelect;
@@ -41,7 +39,15 @@ namespace Red.InteractionMenu.Client.Menus
 
             if (item == "Drop Weapon")
             {
-                ExecuteCommand("dropweapon");
+                if (PlayerPed.Weapons.Current != WeaponHash.Unarmed)
+                {
+                    SuccessNotification($"You've dropped your {PlayerPed.Weapons.Current.LocalizedName}");
+                    PlayerPed.Weapons.Drop();
+                }
+                else
+                {
+                    ErrorNotification("You must equip the weapon you wish to drop.");
+                }
             }
             else if (item == "Hands Up")
             {
@@ -55,9 +61,13 @@ namespace Red.InteractionMenu.Client.Menus
             {
                 ExecuteCommand("hoh");
             }
-            else if (item == "Set BAC")
+            else if (item == "~o~Back")
             {
-                ExecuteCommand("setbac");
+                menu.GoBack();
+            }
+            else if (item == "~r~Close")
+            {
+                MenuController.CloseAllMenus();
             }
         }
 
@@ -70,13 +80,11 @@ namespace Red.InteractionMenu.Client.Menus
                 switch (selectedIndex)
                 {
                     case 0:
-                        ExecuteCommand("ziptie");
+                        TriggerEvent("Cuff:Client:cuffClosestPlayer", false, true);
                         break;
-
                     case 1:
-                        ExecuteCommand("frontziptie");
+                        TriggerEvent("Cuff:Client:cuffClosestPlayer", true, true);
                         break;
-
                     default:
                         break;
                 }

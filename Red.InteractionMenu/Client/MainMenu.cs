@@ -14,24 +14,23 @@ namespace Red.InteractionMenu.Client
             MenuController.MenuAlignment = MenuController.MenuAlignmentOption.Left;
             MenuController.AddMenu(menu);
 
-            MenuItem policeBtn = new("Police Menu", "Go to the police menu") { Label = Constants.forwardArrow };
-            MenuController.BindMenuItem(menu, PoliceMenu.GetMenu(), policeBtn);
-            menu.AddMenuItem(policeBtn);
+            MenuItem policeButton = new("Police Toolbox");
+            menu.AddMenuItem(policeButton);
+            MenuController.BindMenuItem(menu, LEToolbox.GetMenu(), policeButton);
 
-            MenuItem fireBtn = new("Fire Menu", "Go to the fire menu") { Label = Constants.forwardArrow };
-            menu.AddMenuItem(policeBtn);
+            MenuItem fireButton = new("Fire Toolbox");
+            menu.AddMenuItem(fireButton);
 
-            MenuItem civBtn = new("Civilian Menu", "Go to the police menu") { Label = Constants.forwardArrow };
-            MenuController.BindMenuItem(menu, CivilianMenu.GetMenu(), civBtn);
-            menu.AddMenuItem(policeBtn);
+            MenuItem civButton = new("Civilian Toolbox");
+            menu.AddMenuItem(civButton);
 
-            MenuItem vehBtn = new("Vehicle Menu", "Go to the fire menu") { Label = Constants.forwardArrow };
-            MenuController.BindMenuItem(menu, VehicleMenu.GetMenu(), vehBtn);
-            menu.AddMenuItem(policeBtn);
+            MenuItem vehButton = new("Vehicle Menu");
+            menu.AddMenuItem(vehButton);
+            MenuController.BindMenuItem(menu, VehicleMenu.GetMenu(), vehButton);
 
-            MenuItem setBtn = new("Settings Menu", "Go to the fire menu") { Label = Constants.forwardArrow };
-            MenuController.BindMenuItem(menu, SettingsMenu.GetMenu(), setBtn);
-            menu.AddMenuItem(policeBtn);
+            MenuItem setButton = new("Settings Menu");
+            menu.AddMenuItem(setButton);
+            MenuController.BindMenuItem(menu, SettingsMenu.GetMenu(), setButton);
 
             menu.AddMenuItem(new("~r~Close", "Close all menus"));
 

@@ -1,5 +1,4 @@
-﻿using System;
-using MenuAPI;
+﻿using MenuAPI;
 
 namespace Red.InteractionMenu.Client.Menus
 {
@@ -7,12 +6,11 @@ namespace Red.InteractionMenu.Client.Menus
     {
         public static Menu GetMenu()
         {
-            Menu menu = new("Red Menu", "~b~Settings Menu");
-            MenuController.AddMenu(menu);
+            Menu menu = new("Red Menu", "~b~Menu Settings");
 
-            menu.AddMenuItem(new MenuCheckboxItem("Right-Align Menu"));
-            menu.AddMenuItem(new("~o~Back", "Go back one menu."));
-            menu.AddMenuItem(new("~r~Close", "Close all menus."));
+            menu.AddMenuItem(new MenuCheckboxItem("Right-Align Menu", Constants.RightAlignMenu));
+            menu.AddMenuItem(new("~o~Back"));
+            menu.AddMenuItem(new("~r~Close"));
 
             menu.OnItemSelect += Menu_OnItemSelect;
             menu.OnCheckboxChange += Menu_OnCheckboxChange;
@@ -36,9 +34,12 @@ namespace Red.InteractionMenu.Client.Menus
 
         private static void Menu_OnCheckboxChange(Menu menu, MenuCheckboxItem menuItem, int itemIndex, bool newCheckedState)
         {
-            if (newCheckedState == true)
+            string item = menuItem.Text;
+
+            if (item == "Right-Align Menu")
             {
-                MenuController.MenuAlignment = MenuController.MenuAlignmentOption.Right;
+                Constants.RightAlignMenu = newCheckedState;
+                MenuController.MenuAlignment = newCheckedState ? MenuController.MenuAlignmentOption.Right : MenuController.MenuAlignmentOption.Left;
             }
         }
     }
