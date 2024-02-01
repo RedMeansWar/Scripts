@@ -10,7 +10,7 @@ resources/[gameplay]/chat
 resources/[gameplay]/chat-theme-gtao
 ```
 
-There is a downside with my chat and that is you have to add the suggestions manually because it reads from a Json file and it was the fastest way that I can get the chat done. The html files was taken from Yuvalino's chat that can be found [here](https://github.com/yuvalino/main-chat/tree/master/html).
+There are 2 downsides with my chat the first one is you have to add the suggestions manually because it reads from a Json file and it was the fastest way that I can get the chat done. The second downside is that if you restart the framework you have to restart the chat (this applies for every framework dependent script that I made) The html files was taken from Yuvalino's chat that can be found [here](https://github.com/yuvalino/main-chat/tree/master/html).
 
 ## License:
 [GPL 3.0](https://choosealicense.com/licenses/gpl-3.0/)
