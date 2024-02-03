@@ -2,15 +2,7 @@ using CitizenFX.Core;
 
 namespace Red.InteractionMenu
 {
-    public class SceneProp
-    {
-        public string Name { get; set; }
-        public string Model { get; set; }
-        public Vector3 Position { get; set; }
-        public float Heading { get; set; }
-    }
-
-    public class SpeedZone
+    public class Speedzone
     {
         public Vector3 Position { get; set; }
         public int Radius { get; set; }

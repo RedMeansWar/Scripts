@@ -10,19 +10,20 @@ namespace Red.InteractionMenu.Server
     public class ServerMain : BaseScript
     {
         #region Variables
-        protected readonly List<SpeedZone> speedzones = new();
+        protected readonly List<Speedzone> speedzones = new();
 
         protected readonly static List<int> speedZoneRadiuses = new()
         {
             25, 50, 75, 100
         };
+
         #endregion
 
         #region Event Handlers
         [EventHandler("playerDropped")]
         private void OnPlayerDropped([FromSource] Player player)
         {
-            SpeedZone playerZone = speedzones.FirstOrDefault(sz => sz.ServerId == int.Parse(player.Handle));
+            Speedzone playerZone = speedzones.FirstOrDefault(sz => sz.ServerId == int.Parse(player.Handle));
 
             if (playerZone is not null)
             {
@@ -49,7 +50,7 @@ namespace Red.InteractionMenu.Server
             }
             else
             {
-                speedzones.Add(new SpeedZone { Position = zonePos, Radius = zoneRadius, Speed = zoneSpeed, ServerId = int.Parse(player.Handle) });
+                speedzones.Add(new Speedzone { Position = zonePos, Radius = zoneRadius, Speed = zoneSpeed, ServerId = int.Parse(player.Handle) });
                 TriggerClientEvent("Menu:Client:updateSpeedzones", Json.Stringify(speedzones));
                 player.TriggerEvent("Menu:Client:showClientNotification", "~g~~h~Success~h~~s~: Speedzone created.");
             }
@@ -58,10 +59,10 @@ namespace Red.InteractionMenu.Server
         [EventHandler("Menu:Server:deleteSpeedzone")]
         private void OnSpeedzoneDeleted([FromSource] Player player, Vector3 playerPos)
         {
-            SpeedZone closestZone = null;
+            Speedzone closestZone = null;
             float closestDistance = speedZoneRadiuses.Last() + 1;
 
-            foreach (SpeedZone zone in speedzones)
+            foreach (Speedzone zone in speedzones)
             {
                 float distance = Vector3.Distance(playerPos, zone.Position);
 
@@ -84,7 +85,7 @@ namespace Red.InteractionMenu.Server
             }
         }
 
-        [EventHandler("bMenu:Server:deleteProp")]
+        [EventHandler("Menu:Server:deleteProp")]
         private void OnDeleteProp(int netId)
         {
             Entity prop = Entity.FromNetworkId(netId);

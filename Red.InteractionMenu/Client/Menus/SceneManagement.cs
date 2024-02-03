@@ -1,25 +1,23 @@
-﻿using System;
+﻿using MenuAPI;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using MenuAPI;
-using Red.Common.Client;
 using CitizenFX.Core;
 using CitizenFX.Core.UI;
+using Red.Common.Client;
 using static CitizenFX.Core.Native.API;
 using static Red.Common.Client.Client;
-using static Red.Common.Client.Hud.HUD;
 
 namespace Red.InteractionMenu.Client.Menus
 {
-    internal class SceneManagement : BaseScript
+    public class SceneManagement : BaseScript
     {
         #region Variables
         protected static int zoneRadius = 50;
         protected static float zoneSpeed = 30;
         protected static Prop visualizedProp;
         protected static SceneProp visualizedSceneProp;
-        protected readonly List<SpeedZone> speedzones = new();
+        protected static readonly List<Speedzone> speedzones = new();
 
         protected readonly static IReadOnlyList<SceneProp> sceneProps = new List<SceneProp>()
         {
@@ -46,8 +44,12 @@ namespace Red.InteractionMenu.Client.Menus
         #endregion
 
         #region Constructor
+
         public SceneManagement() => TriggerServerEvent("Menu:Server:getAllSpeedzones");
+
         #endregion
+
+        #region Methods
 
         public static Menu GetMenu()
         {
@@ -67,17 +69,17 @@ namespace Red.InteractionMenu.Client.Menus
             menu.AddMenuItem(new("~o~Back"));
             menu.AddMenuItem(new("~r~Close"));
 
-            menu.OnItemSelect += Menu_OnItemSelect;
-            menu.OnMenuOpen += Menu_OnMenuOpen;
-            menu.OnListItemSelect += Menu_OnListItemSelect;
-            menu.OnIndexChange += Menu_OnIndexChange;
-            menu.OnListIndexChange += Menu_OnListIndexChange;
-            menu.OnMenuClose += Menu_OnMenuClose;
+            menu.OnItemSelect += SceneManagement_OnItemSelect;
+            menu.OnMenuOpen += SceneManagement_OnMenuOpen;
+            menu.OnListItemSelect += SceneManagement_OnListItemSelect;
+            menu.OnIndexChange += SceneManagement_OnIndexChange;
+            menu.OnListIndexChange += SceneManagement_OnListIndexChange;
+            menu.OnMenuClose += SceneManagement_OnMenuClose;
 
             return menu;
         }
 
-        private static void Menu_OnListIndexChange(Menu menu, MenuListItem listItem, int oldSelectionIndex, int newSelectionIndex, int itemIndex)
+        private static void SceneManagement_OnListIndexChange(Menu menu, MenuListItem listItem, int oldSelectionIndex, int newSelectionIndex, int itemIndex)
         {
             string item = listItem.Text;
 
@@ -95,7 +97,7 @@ namespace Red.InteractionMenu.Client.Menus
             }
         }
 
-        private static void Menu_OnIndexChange(Menu menu, MenuItem oldItem, dynamic newItem, int oldIndex, int newIndex)
+        private static void SceneManagement_OnIndexChange(Menu menu, MenuItem oldItem, dynamic newItem, int oldIndex, int newIndex)
         {
             if (newIndex == 0)
             {
@@ -108,9 +110,9 @@ namespace Red.InteractionMenu.Client.Menus
             }
         }
 
-        private static void Menu_OnMenuClose(Menu menu) => visualizedSceneProp = null;
+        private static void SceneManagement_OnMenuClose(Menu menu) => visualizedSceneProp = null;
 
-        private static void Menu_OnMenuOpen(Menu menu)
+        private static void SceneManagement_OnMenuOpen(Menu menu)
         {
             if (menu.CurrentIndex == 0)
             {
@@ -119,7 +121,7 @@ namespace Red.InteractionMenu.Client.Menus
             }
         }
 
-        private static async void Menu_OnListItemSelect(Menu menu, MenuListItem listItem, int selectedIndex, int itemIndex)
+        private static async void SceneManagement_OnListItemSelect(Menu menu, MenuListItem listItem, int selectedIndex, int itemIndex)
         {
             if (listItem.Text == "Spawn Prop")
             {
@@ -129,17 +131,17 @@ namespace Red.InteractionMenu.Client.Menus
             }
         }
 
-        private static void Menu_OnItemSelect(Menu menu, MenuItem menuItem, int itemIndex)
+        private static void SceneManagement_OnItemSelect(Menu menu, MenuItem menuItem, int itemIndex)
         {
             string item = menuItem.Text;
 
             if (item == "Create Speedzone")
             {
-                TriggerServerEvent("Menu:Server:createSpeedzone", Game.PlayerPed.Position, zoneRadius, zoneSpeed);
+                TriggerServerEvent("Menu:Server:createSpeedzone", PlayerPed.Position, zoneRadius, zoneSpeed);
             }
             else if (item == "Delete Closest Speedzone")
             {
-                TriggerServerEvent("Menu:Server:deleteSpeedzone", Game.PlayerPed.Position);
+                TriggerServerEvent("Menu:Server:deleteSpeedzone", PlayerPed.Position);
             }
             else if (item == "Delete Closest Prop")
             {
@@ -157,7 +159,6 @@ namespace Red.InteractionMenu.Client.Menus
             }
         }
 
-        #region Methods
         private static bool DeleteClosestSceneProp()
         {
             Vector3 plyPos = Game.PlayerPed.Position;
@@ -247,9 +248,9 @@ namespace Red.InteractionMenu.Client.Menus
         [EventHandler("Menu:Client:updateSpeedzones")]
         private void OnSpeedzonesUpdated(string json)
         {
-            List<SpeedZone> updatedZones = Json.Parse<List<SpeedZone>>(json);
+            List<Speedzone> updatedZones = Json.Parse<List<Speedzone>>(json);
 
-            foreach (SpeedZone zone in speedzones)
+            foreach (Speedzone zone in speedzones)
             {
                 if (!updatedZones.Any(uz => uz == zone))
                 {
@@ -266,10 +267,9 @@ namespace Red.InteractionMenu.Client.Menus
                 }
             }
 
-            foreach (SpeedZone zone in updatedZones)
+            foreach (Speedzone zone in updatedZones)
             {
                 zone.Blip = AddBlipForRadius(zone.Position.X, zone.Position.Y, zone.Position.Z, zone.Radius);
-
                 SetBlipColour(zone.Blip, 3);
                 SetBlipAlpha(zone.Blip, 80);
                 SetBlipSprite(zone.Blip, 9);
@@ -282,6 +282,15 @@ namespace Red.InteractionMenu.Client.Menus
 
         [EventHandler("Menu:Client:showClientNotification")]
         private void OnShowClientNotification(string message) => Screen.ShowNotification(message, true);
+        #endregion
+
+        #region Classes
+        public class SceneProp
+        {
+            public string Name { get; set; }
+            public string Model { get; set; }
+            public float Heading { get; set; }
+        }
         #endregion
     }
 }
