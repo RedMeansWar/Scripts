@@ -9,8 +9,13 @@
   
     <ItemGroup>
       <PackageReference Include="CitizenFX.Core.Server" Version="1.0.*" />
+		<Compile Include="../Shared/**/*.cs" />
+    </ItemGroup>
   
-      <Compile Include="../Shared/**/*.cs" />
+    <ItemGroup>
+      <Reference Include="Red.Common.Server.net">
+        <HintPath>..\..\_References_\Red.Common.Server.net.dll</HintPath>
+      </Reference>
     </ItemGroup>
 </Project>
   

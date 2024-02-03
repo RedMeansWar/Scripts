@@ -13,7 +13,7 @@ namespace Red.Common.Client
         /// Determines if the Client cannot do a certain action.
         /// </summary>
         /// <param name="ped"></param>
-        /// <returns></returns>
+        /// <returns>If the ped can do an action or not.</returns>
         public static bool CannotDoAction(this Ped ped) => 
            ped.IsCuffed || ped.IsDead || ped.IsBeingStunned
            || ped.IsClimbing || ped.IsDiving || ped.IsFalling
@@ -196,17 +196,52 @@ namespace Red.Common.Client
         /// </summary>
         /// <param name="blip">The blip to calculate the distance from.</param>
         /// <param name="targetPos">The target position to measure the distance to.</param>
-        /// <returns>The squared distance between the ped and the target position.</returns>
+        /// <returns>The distance between the ped and the target position.</returns>
         public static float CalculateDistanceTo(this Ped ped, Vector3 targetPos)
         {
             // Retrieve the ped's position in the world.
             Vector3 pedPosition = ped.Position;
 
-            // Calculate the squared between the ped and the target position.
+            // Calculate the distance between the ped and the target position.
             float distance = Vector3.Distance(pedPosition, targetPos);
 
             return distance;
         }
+
+        /// <summary>
+        /// Calculates the distance between a vehicle and a target position.
+        /// </summary>
+        /// <param name="vehicle">The vehicle to calculate the distance from.</param>
+        /// <param name="targetPos">The target position to measure the distance to.</param>
+        /// <returns>The distance between the vehicle and the target position.</returns>
+        public static float CalculeDistanceTo(this Vehicle vehicle, Vector3 targetPos)
+        {
+            // Retrieve the vehicle's position in the world.
+            Vector3 vehPosition = vehicle.Position;
+
+            // Calculate the distance between the vehicle and the target position.
+            float distance = Vector3.Distance(vehPosition, targetPos);
+
+            return distance;
+        }
+
+        /// <summary>
+        /// Calculates the distance between a prop and a target position.
+        /// </summary>
+        /// <param name="prop">The prop to calculate the distance from.</param>
+        /// <param name="targetPos">The target position to measure the distance to.</param>
+        /// <returns>The distance between the prop and the target position.</returns>
+        public static float CalculeDistanceTo(this Prop prop, Vector3 targetPos)
+        {
+            // Retrieve the prop's position in the world.
+            Vector3 propPos = prop.Position;
+
+            // Calculate the distance between the prop and the target position.
+            float distance = Vector3.Distance(propPos, targetPos);
+
+            return distance;
+        }
+
         #endregion
 
         #region Misc Extensions

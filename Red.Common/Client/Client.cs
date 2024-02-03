@@ -203,20 +203,6 @@ namespace Red.Common.Client
 
         #region Loads
         /// <summary>
-        /// Loads an animation
-        /// </summary>
-        /// <param name="animDict"></param>
-        /// <returns>An animation dictionary</returns>
-        public static async Task LoadAnimDict(string animDict)
-        {
-            RequestAnimDict(animDict);
-            while (!HasAnimDictLoaded(animDict))
-            {
-                await Delay(0);
-            }
-        }
-
-        /// <summary>
         /// Loads an audio bank ambient sound
         /// </summary>
         /// <param name="audioBank"></param>

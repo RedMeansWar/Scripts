@@ -87,6 +87,11 @@ namespace Red.Essentials.Client
             {
                 EnableDispatchService(i, false);
             }
+
+            foreach (string suppressedModel in suppressedModels)
+            {
+                SetVehicleModelIsSuppressed(Game.GenerateHashASCII(suppressedModel), true);
+            }
         }
         #endregion
 
@@ -735,11 +740,6 @@ namespace Red.Essentials.Client
             for (int i = 0; i < 16; i++)
             {
                 EnableDispatchService(i, false);
-            }
-
-            foreach (var model in suppressedModels)
-            {
-                SetVehicleModelIsSuppressed(Game.GenerateHashASCII(model), true);
             }
 
             DisablePlayerVehicleRewards(PlayerPed.Handle);

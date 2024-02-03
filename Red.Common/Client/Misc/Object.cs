@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using CitizenFX.Core;
+using CitizenFX.Core.Native;
 using static CitizenFX.Core.Native.API;
 
 namespace Red.Common.Client.Misc
@@ -18,6 +19,10 @@ namespace Red.Common.Client.Misc
         /// <param name="placeOnGround"></param>
         /// <returns></returns>
         public static Task<Prop> CreateProp(Model model, Vector3 position, bool physics = false, bool placeOnGround = false) => World.CreateProp(model, position, physics, placeOnGround);
+
+        public static Task<Prop> CreateProp(string model, Vector3 position, bool physics = false, bool placeOnGround = false) => World.CreateProp(model, position, physics, placeOnGround);
+
+        public static Task<Prop> CreateProp(string model, float x, float y, float z, bool physics = false, bool placeOnGround = false) => World.CreateProp(model, new(x, y, z), physics, placeOnGround);
 
         /// <summary>
         /// Creates a prop using the CreateObject method in the FiveM API
@@ -75,9 +80,9 @@ namespace Red.Common.Client.Misc
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        public static async Task LoadModel(uint model)
+        public static async void RequestModel(uint model)
         {
-            RequestModel(model);
+            API.RequestModel(model);
             while (!HasModelLoaded(model))
             {
                 await Delay(0);
@@ -89,6 +94,6 @@ namespace Red.Common.Client.Misc
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        public static async Task LoadModel(string model) => await LoadModel((uint)GetHashKey(model));
+        public static void RequestModel(string model) => RequestModel((uint)GetHashKey(model));
     }
 }

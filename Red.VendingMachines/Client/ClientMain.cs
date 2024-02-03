@@ -18,16 +18,14 @@ namespace Red.VendingMachines.Client
             { GetHashKey("prop_vend_soda_02"), GetHashKey("prop_ld_can_01b") }
         };
 
-        /*
-        protected string buyAnimDict = "MINI@SPRUNK";
+        protected string buyAnimName = "MINI@SPRUNK";
         protected string buyAnimDict = "PLYR_BUY_DRINK_PT1";
-        */
         #endregion
 
         #region Methods
         private async Task Dispense(Entity vendingMachine)
         {
-            Prop closestProp = PlayerPed.GetClosestPropToClient(1.5f);
+            Prop closestProp = PlayerPed.GetClosestPropToClient(1f);
 
             if (closestProp is null)
             {
@@ -40,6 +38,11 @@ namespace Red.VendingMachines.Client
             {
                 await Delay(250);
                 return;
+            }
+
+            if (PlayerPed.CalculateDistanceTo(closestProp.Position) < 1.5f)
+            {
+                PlayAnim(, "",)
             }
         }
         #endregion

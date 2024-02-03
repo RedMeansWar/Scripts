@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using MenuAPI;
 using CitizenFX.Core;
 using Red.Common.Client;
@@ -6,15 +7,28 @@ using static CitizenFX.Core.Native.API;
 using static Red.Common.Client.Client;
 using static Red.Common.Client.Hud.HUD;
 using static Red.Common.Client.Misc.Object;
-using System.Threading.Tasks;
 
 namespace Red.InteractionMenu.Client.Menus
 {
     internal class LEToolbox : BaseScript
     {
         #region Variables
-        protected static bool shieldActive;
-        protected static int shieldEnt;
+        protected static bool shieldActive, holdingShield, usingShield, conductingCPR;
+        protected static string shieldPropName = "prop_riot_shield", shieldAnimDict = "combat@gestures@gang@pistol_1h@beckon", bone;
+        protected static int shieldNetworkId, index;
+        protected static Prop shieldProp, spikeProp;
+
+        protected static List<int> spawnedSpikes;
+
+        protected static readonly Dictionary<string, int> wheelIndex = new Dictionary<string, int>()
+        {
+            { "wheel_lf", 0 },
+            { "wheel_rf", 1 },
+            { "wheel_lm", 2 },
+            { "wheel_rm", 3 },
+            { "wheel_lr", 4 },
+            { "wheel_rr", 5 }
+        };
         #endregion
 
         public static Menu GetMenu()
@@ -49,7 +63,7 @@ namespace Red.InteractionMenu.Client.Menus
             return menu;
         }
 
-        private static void Menu_OnItemSelect(Menu menu, MenuItem menuItem, int itemIndex)
+        private static async void Menu_OnItemSelect(Menu menu, MenuItem menuItem, int itemIndex)
         {
             string item = menuItem.Text;
 
@@ -68,6 +82,22 @@ namespace Red.InteractionMenu.Client.Menus
             else if (item == "Remove Spike Strips")
             {
 
+            }
+            else if (item == "Conduct CPR")
+            {
+                if (conductingCPR)
+                {
+                    PlayAnimation("mini@cpr@char_a@cpr_str", "cpr_fail", 8.0f, -1, AnimationFlags.None);
+                    conductingCPR = false;
+
+                    await Delay(9500);
+                    PlayerPed.Task.ClearAnimation("mini@cpr@char_a@cpr_str", "cpr_fail");
+                }
+                else
+                {
+                    PlayAnimation("mini@cpr@char_a@cpr_str", "cpr_pumpchest", 8.0f, -1, AnimationFlags.StayInEndFrame | AnimationFlags.Loop);
+                    conductingCPR = true;
+                }
             }
             else if (item == "~o~Back")
             {
@@ -173,13 +203,36 @@ namespace Red.InteractionMenu.Client.Menus
                         break;
                 }
             }
+            else if (item == "Set Spike Strips")
+            {
+                switch (selectedIndex)
+                {
+                    case 0:
+                        break;
+
+                    case 1:
+                        break;
+
+                    case 2:
+                        break;
+
+                    default:
+                        break;
+                }
+            }
         }
 
         #region Methods
+        /// <summary>
+        /// Manages weapon equipping and unequipping for police-specific weapons.
+        /// </summary>
+        /// <param name="hash">The hash of the weapon to handle.</param>
         private static void WeaponSystem(WeaponHash hash)
         {
+            // Get the closest vehicle for proximity checks.
             Vehicle closestVehicle = GetClosestVehicle(1f);
 
+            // Determine the appropriate gun name for notifications.
             string gun = hash switch
             {
                 WeaponHash.CarbineRifle => "long gun",
@@ -187,10 +240,13 @@ namespace Red.InteractionMenu.Client.Menus
                 _ => "gun"
             };
 
+            // Check if the player is in or near a police vehicle.
             if (PlayerPed.IsInPoliceVehicle || closestVehicle?.ClassType == VehicleClass.Emergency)
             {
+                // Get the player's current instance of the weapon, if any.
                 Weapon playerWeapon = PlayerPed.Weapons[hash];
 
+                // If the player already has the weapon, remove it.
                 if (playerWeapon is not null)
                 {
                     PlayerPed.Weapons.Remove(playerWeapon);
@@ -198,6 +254,7 @@ namespace Red.InteractionMenu.Client.Menus
                 }
                 else
                 {
+                    // Give the player the weapon, set its ammo and components, and notify success
                     playerWeapon = PlayerPed.Weapons.Give(hash, 0, true, true);
                     playerWeapon.Ammo = playerWeapon.MaxAmmoInClip * 3;
                     playerWeapon.Components[WeaponComponentHash.AtArFlsh].Active = true;
@@ -214,89 +271,112 @@ namespace Red.InteractionMenu.Client.Menus
             }
             else
             {
+                // Notify the player that they need to be near a police vehicle.
                 ErrorNotification("You must be in or near a police cruiser to use this.", true);
             }
         }
 
+        /// <summary>
+        /// Toggles the ballistic shield on or off, handling attachment, animations, and constraints.
+        /// </summary>
         private static async void ToggleShield()
         {
-            shieldActive = true;
+            // Get the closest vehicle for proximity checks.
+            Vehicle closestVehicle = GetClosestVehicle(1.5f);
 
-            Vector3 playerPos = PlayerPed.Position;
-            Vehicle closestVehicle = GetClosestVehicle(1f);
-
-            if (closestVehicle is null)
+            // Validate conditions for using the shield.
+            if (PlayerPed.IsInPoliceVehicle)
             {
+                ErrorNotification("You can't be in a police car!", true);
                 shieldActive = false;
-
-                ErrorNotification("You must be near a police cruiser to do this.", true);
                 return;
             }
 
-            if (!PlayerPed.IsInPoliceVehicle || closestVehicle?.ClassType == VehicleClass.Emergency)
+            if (closestVehicle?.ClassType != VehicleClass.Emergency)
             {
-                RequestAnimation("combat@gestures@gang@pistol_1h@beckon");
-                PlayerPed.PlayAnim("combat@gestures@gang@pistol_1h@beckon", "0", 8.0f, -8.0f, -1, AnimationFlags.StayInEndFrame | AnimationFlags.AllowRotation | AnimationFlags.UpperBodyOnly, 0.0f, false, false, false);
+                ErrorNotification("You must be near a police cruiser to do this.", true);
+                shieldActive = false;
+                return;
+            }
 
-                await LoadModel("prop_ballistic_shield");
-                var shield = CreateObject(GetHashKey("prop_ballistic_shield"), playerPos.X, playerPos.Y, playerPos.Z, true, true, true);
+            if (!PlayerPed.Weapons.HasWeapon(WeaponHash.CombatPistol))
+            {
+                ErrorNotification("You must have a combat pistol in order to do this.");
+                shieldActive = false;
+                return;
+            }
 
-                int shieldEnt = shield;
+            // If the shield is not currently held:
+            if (!holdingShield)
+            {
+                // Request necessary models and animations.
+                RequestModel(shieldPropName);
+                RequestAnim(shieldAnimDict);
 
-                AttachEntityToEntity(shieldEnt, PlayerPed.Handle, GetEntityBoneIndexByName(PlayerPed.Handle, "IK_L_Hand"), 0.0f, -0.05f, -0.10f, -30.0f, 180.0f, 40.0f, false, false, true, false, 0, true);
+                // Create the shield prop and set its properties.
+                shieldProp = await CreateProp(shieldPropName, PlayerPed.Position, false, false);
+                shieldProp.IsPersistent = true;
+                shieldProp.IsInvincible = true;
+
+                // Set network properties for the shield prop
+                shieldNetworkId = shieldProp.NetworkId;
+
+                SetNetworkIdExistsOnAllMachines(shieldNetworkId, true);
+                NetworkSetNetworkIdDynamic(shieldNetworkId, true);
+                SetNetworkIdCanMigrate(shieldNetworkId, false);
+
+                // Play shield animation and attach the prop to the player's left hand.
+                PlayerPed.PlayAnim(shieldAnimDict, "0", 8.0f, -8.0f, -1, AnimationFlags.StayInEndFrame | AnimationFlags.UpperBodyOnly | AnimationFlags.AllowRotation, 0.0f, false, false, false);
+
+                AttachEntityToEntity(shieldProp.Handle, PlayerPed.Handle, GetEntityBoneIndexByName(PlayerPed.Handle, "IK_L_Hand"), 0.0f, -0.05f, -0.10f, -30.0f, 180.0f, 40.0f, false, false, true, false, 0, true);
                 SetWeaponAnimationOverride(PlayerPed.Handle, (uint)GetHashKey("Gang1H"));
 
-                if (HasPedGotWeapon(PlayerPed.Handle, (uint)WeaponHash.CombatPistol, false) || GetSelectedPedWeapon(PlayerPed.Handle) == (int)WeaponHash.CombatPistol)
+                if (PlayerPed.Weapons.HasWeapon(WeaponHash.CombatPistol) && GetSelectedPedWeapon(PlayerPed.Handle) != (int)WeaponHash.CombatPistol)
                 {
-                    SetCurrentPedWeapon(PlayerPed.Handle, (uint)WeaponHash.CombatPistol, true);
-                }
-                else
-                {
-                    GiveWeaponToPed(PlayerPed.Handle, (uint)WeaponHash.CombatPistol, 80, false, true);
-                    SetCurrentPedWeapon(PlayerPed.Handle, (uint)WeaponHash.CombatPistol, true);
+                    PlayerPed.Weapons.Select(WeaponHash.CombatPistol);
                 }
 
-                SetEnableHandcuffs(PlayerPed.Handle, true);
+                holdingShield = true;
+                shieldActive = true;
 
-                if (shieldActive)
-                {
-                    TriggerEvent("Menu:Client:disableRiotShieldControls", true);
-                }
+                TriggerEvent("Menu:Client:disableShieldControls", shieldActive); // Trigger a event to disable control while holding a shield.
             }
-
-            if (PlayerPed.Weapons.Current == WeaponHash.Unarmed && shieldActive)
+            else
             {
-                DeleteEntity(ref shieldEnt);
-                ClearPedTasksImmediately(PlayerPed.Handle);
+                // Clear all the players tasks 
+                ClearAllTasksImmediately();
 
-                SetCurrentPedWeapon(PlayerPed.Handle, (uint)WeaponHash.Unarmed, true);
-                SetWeaponAnimationOverride(PlayerPed.Handle, (uint)GetHashKey("Default"));
+                // Detach the shield from the ped.
+                DetachEntity(shieldProp.Handle, true, true);
+
+                // Delete the entity on the network end
+                DeleteEntity(ref shieldNetworkId);
+                shieldProp.Delete(); // Delete the prop on client side.
 
                 shieldActive = false;
-            }
-            else
-            {
-                ErrorNotification("You need combat pistol and have it selected to do this!", true);
+                usingShield = false;
+
+                TriggerEvent("Menu:Client:disableShieldControls", shieldActive); // Trigger a event to enable control while holding a shield.
             }
         }
 
-        [EventHandler("Menu:Client:disableRiotShieldControls")]
-        private void OnDisableWhileShieldActive(bool shieldActive)
+        private async Task DisableShieldControls()
         {
-            if (shieldActive)
-            {
-                Tick += DisableWhileShieldActive;
-            }
-            else
-            {
-                Tick -= DisableWhileShieldActive;
-            }
+            DisableControlAction(1, 23, true); // F to enter the vehicle.
+            DisableControlAction(1, 75, true); // F to leave the vehicle.
         }
+        #endregion
 
-        private async Task DisableWhileShieldActive()
+        #region Event Handlers
+        [EventHandler("Menu:Client:disableShieldControls")]
+        private void OnDisableShieldControls(bool disableControls)
         {
-            DisableControlAction(1, 23, true);
-            DisableControlAction(1, 75, true);
+            if (disableControls)
+            {
+                Tick += DisableShieldControls;
+            }
+
+            Tick -= DisableShieldControls;
         }
         #endregion
     }
