@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Red.Common.Server;
 using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
 
@@ -32,9 +31,11 @@ namespace Red.InteractionMenu.Server
             }
         }
 
-        [EventHandler("Menu:Server:getAllSpeedzones")]
-        private void OnGetAllSpeedzones([FromSource] Player player)
+        [EventHandler("Menu:Server:getSpeedzones")]
+        internal void OnGetAllData([FromSource] Player player)
         {
+            Debug.WriteLine($"Loaded {speedzones.Count} speedzone(s)");
+
             if (speedzones.Count > 0)
             {
                 player.TriggerEvent("Menu:Client:updateSpeedzones", Json.Stringify(speedzones));
@@ -42,46 +43,56 @@ namespace Red.InteractionMenu.Server
         }
 
         [EventHandler("Menu:Server:createSpeedzone")]
-        private void OnSpeedzoneCreated([FromSource] Player player, Vector3 zonePos, int zoneRadius, float zoneSpeed)
+        internal void OnZoneCreated([FromSource] Player player, Vector3 zoneLoc, int zoneRadius, float zoneSpeed)
         {
-            if (speedzones.Any(zone => Vector3.Distance(zone.Position, zonePos) <= zone.Radius))
+            Speedzone playerZone = speedzones.FirstOrDefault(sz => sz.ServerId == int.Parse(player.Handle));
+
+            if (speedzones.Any(sz => Vector3.Distance(new Vector3(sz.Position.X, sz.Position.Y, sz.Position.Z), zoneLoc) <= sz.Radius))
             {
-                player.TriggerEvent("Menu:Client:showClientNotification", "~r~~h~Error~h~~s~: There is already a speedzone near you.");
+                player.TriggerEvent("Menu:Client:showClientNotification", "~r~There is already a speed limit set for this location.");
+            }
+            else if (playerZone != null)
+            {
+                player.TriggerEvent("Menu:Client:showClientNotification", $"~r~You already have a speed zone placed.");
             }
             else
             {
-                speedzones.Add(new Speedzone { Position = zonePos, Radius = zoneRadius, Speed = zoneSpeed, ServerId = int.Parse(player.Handle) });
-                TriggerClientEvent("Menu:Client:updateSpeedzones", Json.Stringify(speedzones));
-                player.TriggerEvent("Menu:Client:showClientNotification", "~g~~h~Success~h~~s~: Speedzone created.");
+                speedzones.Add(new Speedzone { Position = zoneLoc, Radius = zoneRadius, Speed = zoneSpeed, ServerId = int.Parse(player.Handle) });
+
+                Debug.WriteLine($"Player: {player.Name} created a speedzone at: {new Vector3(player.Character.Position.X, player.Character.Position.Y, player.Character.Position.Z)}");
+                player.TriggerEvent("Menu:Client:showClientNotification", $"~g~Speedzone created.");
+
+                TriggerLatentClientEvent("Menu:Client:updateSpeedzones", 5000, Json.Stringify(speedzones));
             }
         }
 
         [EventHandler("Menu:Server:deleteSpeedzone")]
-        private void OnSpeedzoneDeleted([FromSource] Player player, Vector3 playerPos)
+        internal void OnZoneDeleted([FromSource] Player player, Vector3 playerPos)
         {
             Speedzone closestZone = null;
             float closestDistance = speedZoneRadiuses.Last() + 1;
 
-            foreach (Speedzone zone in speedzones)
+            foreach (Speedzone sz in speedzones)
             {
-                float distance = Vector3.Distance(playerPos, zone.Position);
+                float distance = Vector3.Distance(playerPos, new Vector3(sz.Position.X, sz.Position.Y, sz.Position.Z));
 
-                if (distance <= zone.Radius && distance < closestDistance)
+                if (distance <= sz.Radius && distance < closestDistance)
                 {
-                    closestZone = zone;
+                    closestZone = sz;
                     closestDistance = distance;
                 }
             }
 
-            if (closestZone is not null)
+            if (closestZone != null)
             {
                 speedzones.Remove(closestZone);
-                TriggerClientEvent("Menu:Client:updateSpeedzones", Json.Stringify(speedzones));
-                player.TriggerEvent("Menu:Client:showClientNotification", "~g~~h~Success~h~~s~: Speedzone deleted.");
+                TriggerLatentClientEvent("Menu:Client:updateSpeedzones", 5000, Json.Stringify(speedzones));
+                player.TriggerEvent("Menu:Client:showClientNotification", $"~g~Speedzone Deleted.");
+                Debug.WriteLine($"Player: {player.Name} deleted a speedzone.");
             }
             else
             {
-                player.TriggerEvent("Menu:Client:showClientNotification", "~r~~h~Error~h~~s~: You must be inside the speedzone you wish to delete.");
+                player.TriggerEvent("Menu:Client:showClientNotification", $"~r~You are not inside any active speed zones.");
             }
         }
 

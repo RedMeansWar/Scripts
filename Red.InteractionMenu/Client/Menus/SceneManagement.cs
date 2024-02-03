@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using CitizenFX.Core;
 using CitizenFX.Core.UI;
-using Red.Common.Client;
 using static CitizenFX.Core.Native.API;
 using static Red.Common.Client.Client;
 
@@ -17,7 +16,7 @@ namespace Red.InteractionMenu.Client.Menus
         protected static float zoneSpeed = 30;
         protected static Prop visualizedProp;
         protected static SceneProp visualizedSceneProp;
-        protected static readonly List<Speedzone> speedzones = new();
+        protected readonly List<Speedzone> speedzones = new();
 
         protected readonly static IReadOnlyList<SceneProp> sceneProps = new List<SceneProp>()
         {
@@ -40,13 +39,10 @@ namespace Red.InteractionMenu.Client.Menus
         {
             0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60
         };
-
         #endregion
 
         #region Constructor
-
-        public SceneManagement() => TriggerServerEvent("Menu:Server:getAllSpeedzones");
-
+        public SceneManagement() => TriggerServerEvent("Menu:Server:getSpeedzones");
         #endregion
 
         #region Methods
@@ -161,7 +157,7 @@ namespace Red.InteractionMenu.Client.Menus
 
         private static bool DeleteClosestSceneProp()
         {
-            Vector3 plyPos = Game.PlayerPed.Position;
+            Vector3 plyPos = PlayerPed.Position;
 
             foreach (SceneProp sceneProp in sceneProps)
             {
@@ -192,15 +188,15 @@ namespace Red.InteractionMenu.Client.Menus
 
         private static async Task<bool> SpawnProp(int propIndex)
         {
-            if (Game.PlayerPed.IsInVehicle())
+            if (PlayerPed.IsInVehicle())
             {
                 return false;
             }
 
             SceneProp sceneProp = sceneProps[propIndex];
 
-            Prop spawnedProp = await World.CreateProp(new(sceneProp.Model), Game.PlayerPed.Position, false, true);
-            spawnedProp.Heading = RotateProp(Game.PlayerPed.Heading, sceneProp.Heading);
+            Prop spawnedProp = await World.CreateProp(new(sceneProp.Model), PlayerPed.Position, false, true);
+            spawnedProp.Heading = RotateProp(PlayerPed.Heading, sceneProp.Heading);
             spawnedProp.IsPersistent = true;
             spawnedProp.IsPositionFrozen = true;
 
@@ -218,9 +214,11 @@ namespace Red.InteractionMenu.Client.Menus
 
             return orientation;
         }
+
         #endregion
 
         #region Ticks
+
         [Tick]
         private async Task VisualizePropTick()
         {
@@ -230,49 +228,52 @@ namespace Red.InteractionMenu.Client.Menus
                 visualizedProp = null;
             }
 
-            if (visualizedSceneProp is null || Game.PlayerPed.IsInVehicle())
+            if (visualizedSceneProp is null || PlayerPed.IsInVehicle())
             {
                 visualizedProp = null;
                 await Delay(1000);
                 return;
             }
 
-            visualizedProp = await World.CreateProp(new(visualizedSceneProp.Model), Game.PlayerPed.GetOffsetPosition(new(0, 1f, 0f)), false, true);
-            visualizedProp.Heading = RotateProp(Game.PlayerPed.Heading, visualizedSceneProp.Heading);
+            visualizedProp = await World.CreateProp(new(visualizedSceneProp.Model), PlayerPed.GetOffsetPosition(new(0, 1f, 0f)), false, true);
+            visualizedProp.Heading = RotateProp(PlayerPed.Heading, visualizedSceneProp.Heading);
             visualizedProp.IsCollisionEnabled = false;
             SetEntityAlpha(visualizedProp.Handle, 100, 0);
         }
+
         #endregion
 
         #region Event Handlers
         [EventHandler("Menu:Client:updateSpeedzones")]
-        private void OnSpeedzonesUpdated(string json)
+        internal void OnSpeedZonesUpdated(string json)
         {
             List<Speedzone> updatedZones = Json.Parse<List<Speedzone>>(json);
 
-            foreach (Speedzone zone in speedzones)
+            foreach (Speedzone speedzone in speedzones)
             {
-                if (!updatedZones.Any(uz => uz == zone))
+                if (!updatedZones.Any(uz => uz == speedzone))
                 {
-                    if (zone.Blip > 0 && DoesBlipExist(zone.Blip))
+                    if (speedzone.Blip > 0 && DoesBlipExist(speedzone.Blip))
                     {
-                        int blip = zone.Blip;
+                        int blip = speedzone.Blip;
                         RemoveBlip(ref blip);
                     }
 
-                    if (zone.Zone > 0)
+                    if (speedzone.Zone > 0)
                     {
-                        RemoveSpeedZone(zone.Zone);
+                        RemoveSpeedZone(speedzone.Zone);
                     }
                 }
             }
 
             foreach (Speedzone zone in updatedZones)
             {
+                Debug.WriteLine($"Blip was found at Vector: ({new Vector3(zone.Position.X, zone.Position.Y, zone.Position.Z)}) with a radius of {zone.Radius}.");
+
                 zone.Blip = AddBlipForRadius(zone.Position.X, zone.Position.Y, zone.Position.Z, zone.Radius);
+                SetBlipSprite(zone.Blip, 9);
                 SetBlipColour(zone.Blip, 3);
                 SetBlipAlpha(zone.Blip, 80);
-                SetBlipSprite(zone.Blip, 9);
 
                 zone.Zone = AddSpeedZoneForCoord(zone.Position.X, zone.Position.Y, zone.Position.Z, zone.Radius, zone.Speed, false);
 
