@@ -17,9 +17,9 @@ namespace Red.Framework.Client
     {
         #region Variables
         protected bool ranSpawnChecker, teleported, usingDiscordPresence;
+        protected string communityName, discordAppId, discordRichPresenceAssetLogo, discordRichPresenceAssetText;
         protected float densityMultiplier = 1f;
         protected string currentAOP = "Statewide";
-        protected string communityName, discordAppId, discordRichPresenceAssetLogo, discordRichPresenceAssetText;
         protected Ped PlayerPed = Game.PlayerPed;
         protected ISet<string> allowedDepartments = new HashSet<string>();
         protected int plyrCount = 1;
@@ -65,11 +65,7 @@ namespace Red.Framework.Client
             StartAudioScene("CHARACTER_CHANGE_IN_SKY_SCENE");
             SetAudioFlag("PoliceScannerDisabled", true); // Disabled the police scanner.
 
-            // Read config file
-            ReadConfigFile(); 
-
             // Return Sync Event
-            TriggerServerEvent("Framework:Server:syncAop"); // Ensures that the AOP is synced for all players when they connect. Does this work here?
             TriggerServerEvent("Framework:Server:getDiscordRoles"); // Retrieves Discord roles from a specified guild, used for department assignment
 
             // NUI Callbacks
@@ -80,6 +76,7 @@ namespace Red.Framework.Client
             RegisterNUICallback("disconnect", Disconnect);
             RegisterNUICallback("quitGame", QuitGame);
             RegisterNUICallback("cancelNUI", CancelNUI);
+
             RegisterNUICallback("spawnAtPrison", SpawnAtPrison);
             RegisterNUICallback("spawnAtGrapeseed", SpawnAtGrapeseed);
             RegisterNUICallback("spawnAtMotelNew", SpawnAtMotelNew);
@@ -90,6 +87,7 @@ namespace Red.Framework.Client
             RegisterNUICallback("spawnAtMorningwoodHotel", SpawnAtMorningwoodHotel);
             RegisterNUICallback("spawnAtStarLane", SpawnAtStarLane);
             RegisterNUICallback("spawnAtNikolaPlace", SpawnAtNikolaPlace);
+
             RegisterNUICallback("spawnAtVinewoodPd", SpawnAtVinewoodPd);
             RegisterNUICallback("spawnAtSandyPd", SpawnAtSandyPd);
             RegisterNUICallback("spawnAtDavisPd", SpawnAtDavisPd);
@@ -97,7 +95,26 @@ namespace Red.Framework.Client
             RegisterNUICallback("spawnAtMissionRowPd", SpawnAtMissionRowPd);
             RegisterNUICallback("spawnAtRockfordPd", SpawnAtRockfordPd);
             RegisterNUICallback("spawnAtDelPerroPd", SpawnAtDelPerroPd);
+
+            RegisterNUICallback("spawnAtStation1", SpawnAtStation1);
+            RegisterNUICallback("spawnAtStation2", SpawnAtStation2);
+            RegisterNUICallback("spawnAtStation3", SpawnAtStation3);
+            RegisterNUICallback("spawnAtStation4", SpawnAtStation4);
+            RegisterNUICallback("spawnAtStation5", SpawnAtStation5);
+            RegisterNUICallback("spawnAtStation6", SpawnAtStation5);
+            RegisterNUICallback("spawnAtStation7", SpawnAtStation7);
+            RegisterNUICallback("spawnAtStation8", SpawnAtStation8);
+
             RegisterNUICallback("doNotTeleport", DoNotTeleport);
+
+            SetDiscordAppId("1099781467116163072");
+            SetDiscordRichPresenceAsset("inrp_logo");
+            SetDiscordRichPresenceAssetText($"{plyrCount} player(s) in San Andreas!");
+
+            TriggerEvent("chat:addTemplate", "TemplateGreen", "<div style='background-color: rgba(0, 153, 0, 0.4); padding-top: 10px; padding-bottom: 10px; border-radius: 10px; text-align: center;'>{1}</div");
+            TriggerEvent("chat:addTemplate", "TemplateGrey", "<div style='background-color: rgba(34, 34, 34, 0.4); padding-top: 10px; padding-bottom: 10px; border-radius: 10px; text-align: center;'>{1}</div");
+            TriggerEvent("chat:addTemplate", "TemplateRed", "<div style='background-color: rgba(255, 0, 0, 0.4); padding-top: 10px; padding-bottom: 10px; border-radius: 10px; text-align: center;'>{1}</div");
+            TriggerServerEvent("Framework:Server:syncInfo");
 
             // Gernerates a hash for the player
             uint PLAYER = Game.GenerateHashASCII("PLAYER");
@@ -126,14 +143,6 @@ namespace Red.Framework.Client
             for (int i = 0; i < 15; i++)
             {
                 EnableDispatchService(i, false);
-            }
-
-            // If has the UsingDiscordPresence in the config enabled (needs to go through a discord application)
-            if (usingDiscordPresence)
-            {
-                SetDiscordAppId(discordAppId);
-                SetDiscordRichPresenceAsset(discordRichPresenceAssetLogo);
-                SetDiscordRichPresenceAssetText(discordRichPresenceAssetText);
             }
 
             SendNUIMessage(Json.Stringify(new
@@ -169,33 +178,18 @@ namespace Red.Framework.Client
         #endregion
 
         #region NUI Callbacks
-        /// <summary>
-        /// Handles player disconnect logic, dropping them from the server with the message "Disconnected via Framework.".
-        /// </summary>
-        /// <param name="data">Quit Game NUI data from the caller.</param>
-        /// <param name="result">Callback delegate to report success or failure.</param>
         private void QuitGame(IDictionary<string, object> data, CallbackDelegate result)
         {
             ForceSocialClubUpdate();
             result(new { success = true, message = "success" });
         }
 
-        /// <summary>
-        /// Handles player disconnect logic, dropping them from the server with the message "Disconnected via Framework.".
-        /// </summary>
-        /// <param name="data">Disconnect NUI data from the caller.</param>
-        /// <param name="result">Callback delegate to report success or failure.</param>
         private void Disconnect(IDictionary<string, object> data, CallbackDelegate result)
         {
             TriggerServerEvent("Framework:DropUser");
             result(new { success = true, message = "success" });
         }
 
-        /// <summary>
-        /// Handles NUI cancel logic, removing an UI displayed from the NUI methods.
-        /// </summary>
-        /// <param name="data">Close NUI data from the caller.</param>
-        /// <param name="result">Callback delegate to report success or failure.</param>
         public void CancelNUI(IDictionary<string, object> data, CallbackDelegate result)
         {
             SendNUIMessage(Json.Stringify(new
@@ -209,14 +203,8 @@ namespace Red.Framework.Client
             result(new { success = true, message = "success" });
         }
 
-        /// <summary>
-        /// Handles character selection, including data validation, character creation, event triggering, and department-specific actions.
-        /// </summary>
-        /// <param name="data">Character data received from the caller.</param>
-        /// <param name="result">Callback delegate to report success or failure.</param>
         private async void SelectCharacter(IDictionary<string, object> data, CallbackDelegate result)
         {
-            // Extract character data from the input dictionary:
             string charId = data.GetVal("charId", "0");
             string firstName = data.GetVal<string>("firstName", null);
             string lastName = data.GetVal<string>("lastName", null);
@@ -237,14 +225,11 @@ namespace Red.Framework.Client
                 return;
             }
 
-            // Create the character
             Character createdCharacter = CreateCharacter(firstName, lastName, gender, department, dob, cash, bank, charId);
 
-            // Set the current character and trigger events
             currentCharacter = createdCharacter;
             TriggerEvent("Framework:Client:characterSelected", Json.Stringify(createdCharacter));
 
-            // Perform department-specific actions
             if (currentCharacter.Department == "Civ")
             {
                 SendNUIMessage(Json.Stringify(new
@@ -290,18 +275,11 @@ namespace Red.Framework.Client
                 }));
             }
 
-            // Debug output
             Debug.WriteLine($"Selected Character [{currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})]");
         }
 
-        /// <summary>
-        /// Handles character creation, including data validation, character object creation, server communication, and success/failure feedback.
-        /// </summary>
-        /// <param name="data">Character data received from the caller.</param>
-        /// <param name="result">Callback delegate to report success or failure.</param>
         private void CreateCharacter(IDictionary<string, object> data, CallbackDelegate result)
         {
-            // Extract character data from the input dictionary
             string firstName = data.GetVal<string>("firstName", null);
             string lastName = data.GetVal<string>("lastName", null);
             string gender = data.GetVal<string>("gender", null);
@@ -310,10 +288,8 @@ namespace Red.Framework.Client
             string cash = data.GetVal("cash", "-1");
             string bank = data.GetVal("bank", "-1");
 
-            // Validate character data
             if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName) || string.IsNullOrWhiteSpace(gender) || string.IsNullOrWhiteSpace(department) || string.IsNullOrWhiteSpace(dob) || cash == "-1" || bank == "-1")
             {
-                // Handle invalid data
                 SendNUIMessage(Json.Stringify(new
                 {
                     type = "ERROR",
@@ -323,13 +299,10 @@ namespace Red.Framework.Client
                 return;
             }
 
-            // Create the character object
             Character createdCharacter = CreateCharacter(firstName, lastName, gender, department, dob, cash, bank, "0");
 
-            // Notify the server to create the character
             TriggerServerEvent("Framework:Server:createCharacter", Json.Stringify(createdCharacter));
 
-            // Send success message to NUI and callback
             SendNUIMessage(Json.Stringify(new
             {
                 type = "SUCCESS",
@@ -339,20 +312,12 @@ namespace Red.Framework.Client
             result(new { success = true, message = "success" });
         }
 
-        /// <summary>
-        /// Handles character deletion, including server communication and success feedback.
-        /// </summary>
-        /// <param name="data">Character data received from the caller.</param>
-        /// <param name="result">Callback delegate to report success or failure.</param>
         private async void DeleteCharacter(IDictionary<string, object> data, CallbackDelegate result)
         {
-            // Extract character ID from the input dictionary
             string characterId = data.GetVal<string>("characterId", null);
 
-            // Notify the server to delete the character
             TriggerServerEvent("Framework:Server:deleteCharacter", long.Parse(characterId));
 
-            // Send success message to NUI and callback
             SendNUIMessage(Json.Stringify(new
             {
                 type = "SUCCESS",
@@ -362,14 +327,8 @@ namespace Red.Framework.Client
             result(new { success = true, message = "success" });
         }
 
-        /// <summary>
-        /// Handles character editing, including data validation, character object creation, server communication, and success/failure feedback.
-        /// </summary>
-        /// <param name="data">Character data received from the caller, containing updated fields.</param>
-        /// <param name="result">Callback delegate to report success or failure.</param>
         private void EditCharacter(IDictionary<string, object> data, CallbackDelegate result)
         {
-            // Extract character data from the input dictionary
             string firstName = data.GetVal<string>("firstName", null);
             string lastName = data.GetVal<string>("lastName", null);
             string gender = data.GetVal<string>("gender", null);
@@ -377,10 +336,8 @@ namespace Red.Framework.Client
             string dob = data.GetVal<string>("dob", null);
             string charId = data.GetVal("charId", "-1");
 
-            // Validate character data
             if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName) || string.IsNullOrWhiteSpace(gender) || string.IsNullOrWhiteSpace(department) || string.IsNullOrWhiteSpace(dob))
             {
-                // Handle invalid data
                 SendNUIMessage(Json.Stringify(new
                 {
                     type = "ERROR",
@@ -390,7 +347,6 @@ namespace Red.Framework.Client
                 return;
             }
 
-            // Create a new Character object with updated data
             Character editedCharacter = new()
             {
                 CharacterId = long.Parse(charId),
@@ -401,10 +357,8 @@ namespace Red.Framework.Client
                 Department = department
             };
 
-            // Notify the server to edit the character
             TriggerServerEvent("Framework:Server:editCharacter", Json.Stringify(editedCharacter));
 
-            // Send success message to NUI and callback
             SendNUIMessage(Json.Stringify(new
             {
                 type = "SUCCESS",
@@ -414,645 +368,551 @@ namespace Red.Framework.Client
             result(new { success = true, message = "success" });
         }
 
-        /// <summary>
-        /// Handles spawning a civilian character at the prison, including UI updates, teleportation, and notifications.
-        /// </summary>
-        /// <param name="data">Data received from the caller (not used in this method).</param>
-        /// <param name="result">Callback delegate to report success or failure (not used in this method).</param>
         private async void SpawnAtPrison(IDictionary<string, object> data, CallbackDelegate result)
         {
-            // Only proceed if the current character is a civilian
             if (currentCharacter.Department == "Civ")
             {
-                // Close UI elements
                 SendNUIMessage(Json.Stringify(new
                 {
                     type = "CLOSE_UI"
                 }));
 
                 SetNUIFocus(false, false);
-
-                // Delay to allow UI actions to complete
                 await Delay(100);
 
-                // Teleport the player to the prison
                 TeleportToSpawnLocation(1848.59f, 2585.88f, 45.67f);
                 SetEntityHeading(Game.Player.Character.Handle, 270.0f);
-
-                // Close any remaining spawn-related modals
                 CloseSpawnModals();
 
-                // Delay to allow teleportation to complete
                 await Delay(100);
-
-                // Send a chat message confirming the character selection
                 TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
 
-        /// <summary>
-        /// Handles spawning a civilian character at Grapeseed, including UI updates, teleportation, and notifications.
-        /// </summary>
-        /// <param name="data">Data received from the caller (not used in this method).</param>
-        /// <param name="result">Callback delegate to report success or failure (not used in this method).</param>
         private async void SpawnAtGrapeseed(IDictionary<string, object> data, CallbackDelegate result)
         {
             if (currentCharacter.Department == "Civ")
             {
-                // Close UI elements
                 SendNUIMessage(Json.Stringify(new
                 {
                     type = "CLOSE_UI"
                 }));
 
                 SetNUIFocus(false, false);
-
-                // Delay to allow UI actions to complete
                 await Delay(100);
 
-                // Teleport the player to the prison
                 TeleportToSpawnLocation(1666.2f, 4740.12f, 41.99f);
                 SetEntityHeading(Game.Player.Character.Handle, 282.89f);
-
-                // Close any remaining spawn-related modals
                 CloseSpawnModals();
 
-                // Delay to allow teleportation to complete
                 await Delay(100);
-
-                // Send a chat message confirming the character selection
                 TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
 
-        /// <summary>
-        /// Handles spawning a civilian character at a hotel on Route 68, including UI updates, teleportation, and notifications.
-        /// </summary>
-        /// <param name="data">Data received from the caller (not used in this method).</param>
-        /// <param name="result">Callback delegate to report success or failure (not used in this method).</param>
         private async void SpawnAtMotelNew(IDictionary<string, object> data, CallbackDelegate result)
         {
             if (currentCharacter.Department == "Civ")
             {
-                // Close UI elements
                 SendNUIMessage(Json.Stringify(new
                 {
                     type = "CLOSE_UI"
                 }));
 
                 SetNUIFocus(false, false);
-
-                // Delay to allow UI actions to complete
                 await Delay(100);
 
-                // Teleport the player to the prison
                 TeleportToSpawnLocation(1114.75f, 2641.67f, 38.14f);
                 SetEntityHeading(Game.Player.Character.Handle, 354.14f);
-
-                // Close any remaining spawn-related modals
                 CloseSpawnModals();
 
-                // Delay to allow teleportation to complete
                 await Delay(100);
-
-                // Send a chat message confirming the character selection
                 TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
 
-        /// <summary>
-        /// Handles spawning a civilian character at a hotel on Route 68, including UI updates, teleportation, and notifications.
-        /// </summary>
-        /// <param name="data">Data received from the caller (not used in this method).</param>
-        /// <param name="result">Callback delegate to report success or failure (not used in this method).</param>
         private async void SpawnAtMotel(IDictionary<string, object> data, CallbackDelegate result)
         {
             if (currentCharacter.Department == "Civ")
             {
-                // Close UI elements
                 SendNUIMessage(Json.Stringify(new
                 {
                     type = "CLOSE_UI"
                 }));
 
                 SetNUIFocus(false, false);
-
-                // Delay to allow UI actions to complete
                 await Delay(100);
 
-                // Teleport the player to the prison
                 TeleportToSpawnLocation(366.72f, 2625.21f, 44.67f);
                 SetEntityHeading(Game.Player.Character.Handle, 26.68f);
-
-                // Close any remaining spawn-related modals
                 CloseSpawnModals();
 
-                // Delay to allow teleportation to complete
                 await Delay(100);
-
-                // Send a chat message confirming the character selection
                 TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
 
-        /// <summary>
-        /// Handles spawning a civilian character at the Abandoned Motel, including UI updates, teleportation, and notifications.
-        /// </summary>
-        /// <param name="data">Data received from the caller (not used in this method).</param>
-        /// <param name="result">Callback delegate to report success or failure (not used in this method).</param>
         private async void SpawnAtAbandonedMotel(IDictionary<string, object> data, CallbackDelegate result)
         {
             if (currentCharacter.Department == "Civ")
             {
-                // Close UI elements
                 SendNUIMessage(Json.Stringify(new
                 {
                     type = "CLOSE_UI"
                 }));
 
                 SetNUIFocus(false, false);
-
-                // Delay to allow UI actions to complete
                 await Delay(100);
 
-                // Teleport the player to the prison
                 TeleportToSpawnLocation(1569.59f, 3607.65f, 35.37f);
                 SetEntityHeading(Game.Player.Character.Handle, 26.12f);
-
-                // Close any remaining spawn-related modals
                 CloseSpawnModals();
 
-                // Delay to allow teleportation to complete
                 await Delay(100);
-
-                // Send a chat message confirming the character selection
                 TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
 
-        /// <summary>
-        /// Handles spawning a civilian character at the Casino parking lot, including UI updates, teleportation, and notifications.
-        /// </summary>
-        /// <param name="data">Data received from the caller (not used in this method).</param>
-        /// <param name="result">Callback delegate to report success or failure (not used in this method).</param>
         private async void SpawnAtCasino(IDictionary<string, object> data, CallbackDelegate result)
         {
             if (currentCharacter.Department == "Civ")
             {
-                // Close UI elements
                 SendNUIMessage(Json.Stringify(new
                 {
                     type = "CLOSE_UI"
                 }));
 
                 SetNUIFocus(false, false);
-
-                // Delay to allow UI actions to complete
                 await Delay(100);
 
-                // Teleport the player to the prison
                 TeleportToSpawnLocation(885.27f, -2.63f, 78.76f);
                 SetEntityHeading(Game.Player.Character.Handle, 414.21f);
-
-                // Close any remaining spawn-related modals
                 CloseSpawnModals();
 
-                // Delay to allow teleportation to complete
                 await Delay(100);
-
-                // Send a chat message confirming the character selection
                 TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
 
-        /// <summary>
-        /// Handles spawning a civilian character at Grove Street, including UI updates, teleportation, and notifications.
-        /// </summary>
-        /// <param name="data">Data received from the caller (not used in this method).</param>
-        /// <param name="result">Callback delegate to report success or failure (not used in this method).</param>
         private async void SpawnAtGroveStreet(IDictionary<string, object> data, CallbackDelegate result)
         {
             if (currentCharacter.Department == "Civ")
             {
-                // Close UI elements
                 SendNUIMessage(Json.Stringify(new
                 {
                     type = "CLOSE_UI"
                 }));
 
                 SetNUIFocus(false, false);
-
-                // Delay to allow UI actions to complete
                 await Delay(100);
 
-                // Teleport the player to the prison
                 TeleportToSpawnLocation(90.7f, -1965.5f, 20.75f);
                 SetEntityHeading(Game.Player.Character.Handle, 316.16f);
 
-                // Close any remaining spawn-related modals
-                CloseSpawnModals();
-
-                // Delay to allow teleportation to complete
                 await Delay(100);
-
-                // Send a chat message confirming the character selection
+                CloseSpawnModals();
                 TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
 
-        /// <summary>
-        /// Handles spawning a civilian character at the Morningwood Hotel, including UI updates, teleportation, and notifications.
-        /// </summary>
-        /// <param name="data">Data received from the caller (not used in this method).</param>
-        /// <param name="result">Callback delegate to report success or failure (not used in this method).</param>
         private async void SpawnAtMorningwoodHotel(IDictionary<string, object> data, CallbackDelegate result)
         {
             if (currentCharacter.Department == "Civ")
             {
-                // Close UI elements
                 SendNUIMessage(Json.Stringify(new
                 {
                     type = "CLOSE_UI"
                 }));
 
                 SetNUIFocus(false, false);
-
-                // Delay to allow UI actions to complete
                 await Delay(100);
 
-                // Teleport the player to the prison
                 TeleportToSpawnLocation(-1221.59f, -184.09f, 39.18f);
                 SetEntityHeading(Game.Player.Character.Handle, 119.75f);
 
-                // Close any remaining spawn-related modals
                 CloseSpawnModals();
 
-                // Delay to allow teleportation to complete
                 await Delay(100);
 
-                // Send a chat message confirming the character selection
                 TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
 
-        /// <summary>
-        /// Handles spawning a civilian character on Star Lane, including UI updates, teleportation, and notifications.
-        /// </summary>
-        /// <param name="data">Data received from the caller (not used in this method).</param>
-        /// <param name="result">Callback delegate to report success or failure (not used in this method).</param>
         private async void SpawnAtStarLane(IDictionary<string, object> data, CallbackDelegate result)
         {
             if (currentCharacter.Department == "Civ")
             {
-                // Close UI elements
                 SendNUIMessage(Json.Stringify(new
                 {
                     type = "CLOSE_UI"
                 }));
 
                 SetNUIFocus(false, false);
-
-                // Delay to allow UI actions to complete
                 await Delay(100);
 
-                // Teleport the player to the prison
                 TeleportToSpawnLocation(1404.22f, 2169.01f, 97.88f);
                 SetEntityHeading(Game.Player.Character.Handle, 262.06f);
-                
-                // Close any remaining spawn-related modals
                 CloseSpawnModals();
 
-                // Delay to allow teleportation to complete
                 await Delay(100);
-
-                // Send a chat message confirming the character selection
                 TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
 
-        /// <summary>
-        /// Handles spawning a civilian character at Nikola Place, including UI updates, teleportation, and notifications.
-        /// </summary>
-        /// <param name="data">Data received from the caller (not used in this method).</param>
-        /// <param name="result">Callback delegate to report success or failure (not used in this method).</param>
         private async void SpawnAtNikolaPlace(IDictionary<string, object> data, CallbackDelegate result)
         {
             if (currentCharacter.Department == "Civ")
             {
-                // Close UI elements
                 SendNUIMessage(Json.Stringify(new
                 {
                     type = "CLOSE_UI"
                 }));
 
                 SetNUIFocus(false, false);
-
-                // Delay to allow UI actions to complete
                 await Delay(100);
 
-                // Teleport the player to the prison
                 TeleportToSpawnLocation(1395.14f, -574.76f, 74.34f);
                 SetEntityHeading(Game.Player.Character.Handle, 107.64f);
-                
-                // Close any remaining spawn-related modals
                 CloseSpawnModals();
 
-                // Delay to allow teleportation to complete
                 await Delay(100);
-
-                // Send a chat message confirming the character selection
                 TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
 
-        /// <summary>
-        /// Handles spawning a police character at the Vinewood Police Station, including UI updates, teleportation, and notifications.
-        /// </summary>
-        /// <param name="data">Data received from the caller (not used in this method).</param>
-        /// <param name="result">Callback delegate to report success or failure (not used in this method).</param>
         private async void SpawnAtVinewoodPd(IDictionary<string, object> data, CallbackDelegate result)
         {
-            if (currentCharacter.Department == "SAHP" || currentCharacter.Department == "LSPD" || currentCharacter.Department == "BCSO" || currentCharacter.Department == "LSFD")
+            if (currentCharacter.Department == "SAHP" || currentCharacter.Department == "LSPD" || currentCharacter.Department == "BCSO")
             {
-                // Close UI elements
                 SendNUIMessage(Json.Stringify(new
                 {
                     type = "CLOSE_UI"
                 }));
 
                 SetNUIFocus(false, false);
-
-                // Delay to allow UI actions to complete
                 await Delay(100);
 
-                // Teleport the player to the prison
                 TeleportToSpawnLocation(639.69f, 0.57f, 82.79f);
                 SetEntityHeading(Game.Player.Character.Handle, 254.93f);
-                
-                // Close any remaining spawn-related modals
                 CloseSpawnModals();
 
-                // Delay to allow teleportation to complete
                 await Delay(100);
-
-                // Send a chat message confirming the character selection
                 TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
 
-        /// <summary>
-        /// Handles spawning a police character at the Sandy Shores Police Station, including UI updates, teleportation, and notifications.
-        /// </summary>
-        /// <param name="data">Data received from the caller (not used in this method).</param>
-        /// <param name="result">Callback delegate to report success or failure (not used in this method).</param>
         private async void SpawnAtSandyPd(IDictionary<string, object> data, CallbackDelegate result)
         {
-            if (currentCharacter.Department == "SAHP" || currentCharacter.Department == "LSPD" || currentCharacter.Department == "BCSO" || currentCharacter.Department == "LSFD")
+            if (currentCharacter.Department == "SAHP" || currentCharacter.Department == "LSPD" || currentCharacter.Department == "BCSO")
             {
-                // Close UI elements
                 SendNUIMessage(Json.Stringify(new
                 {
                     type = "CLOSE_UI"
                 }));
 
                 SetNUIFocus(false, false);
-
-                // Delay to allow UI actions to complete
                 await Delay(100);
 
-                // Teleport the player to the prison
                 TeleportToSpawnLocation(1864.19f, 3699.68f, 33.61f);
                 SetEntityHeading(Game.Player.Character.Handle, 33.61f);
-
-                // Close any remaining spawn-related modals
                 CloseSpawnModals();
 
-                // Delay to allow teleportation to complete
                 await Delay(100);
-
-                // Send a chat message confirming the character selection
                 TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
 
-        /// <summary>
-        /// Handles spawning a police character at the Davis Police Station, including UI updates, teleportation, and notifications.
-        /// </summary>
-        /// <param name="data">Data received from the caller (not used in this method).</param>
-        /// <param name="result">Callback delegate to report success or failure (not used in this method).</param>
         private async void SpawnAtDavisPd(IDictionary<string, object> data, CallbackDelegate result)
         {
-            if (currentCharacter.Department == "SAHP" || currentCharacter.Department == "LSPD" || currentCharacter.Department == "BCSO" || currentCharacter.Department == "LSFD")
+            if (currentCharacter.Department == "SAHP" || currentCharacter.Department == "LSPD" || currentCharacter.Department == "BCSO")
             {
-                // Close UI elements
                 SendNUIMessage(Json.Stringify(new
                 {
                     type = "CLOSE_UI"
                 }));
 
                 SetNUIFocus(false, false);
-
-                // Delay to allow UI actions to complete
                 await Delay(100);
 
-                // Teleport the player to the prison
                 TeleportToSpawnLocation(373.76f, -1610.07f, 29.29f);
                 SetEntityHeading(Game.Player.Character.Handle, 232.08f);
 
-                // Close any remaining spawn-related modals
+                await Delay(0);
                 CloseSpawnModals();
-
-                // Delay to allow teleportation to complete
-                await Delay(100);
-
-                // Send a chat message confirming the character selection
                 TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
 
-        /// <summary>
-        /// Handles spawning a police character at the Paleto Bay Police Station, including UI updates, teleportation, and notifications.
-        /// </summary>
-        /// <param name="data">Data received from the caller (not used in this method).</param>
-        /// <param name="result">Callback delegate to report success or failure (not used in this method).</param>
         private async void SpawnAtPaletoPd(IDictionary<string, object> data, CallbackDelegate result)
         {
-            if (currentCharacter.Department == "SAHP" || currentCharacter.Department == "LSPD" || currentCharacter.Department == "BCSO" || currentCharacter.Department == "LSFD")
+            if (currentCharacter.Department == "SAHP" || currentCharacter.Department == "LSPD" || currentCharacter.Department == "BCSO")
             {
-                // Close UI elements
                 SendNUIMessage(Json.Stringify(new
                 {
                     type = "CLOSE_UI"
                 }));
 
                 SetNUIFocus(false, false);
-
-                // Delay to allow UI actions to complete
                 await Delay(100);
 
-                // Teleport the player to the prison
                 TeleportToSpawnLocation(-447.72f, 6000.73f, 31.69f);
                 SetEntityHeading(Game.Player.Character.Handle, 137.97f);
-                
-                // Close any remaining spawn-related modals
                 CloseSpawnModals();
 
-                // Delay to allow teleportation to complete
                 await Delay(100);
-
-                // Send a chat message confirming the character selection
                 TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
 
-        /// <summary>
-        /// Handles spawning a police character at the Mission Row Police Station, including UI updates, teleportation, and notifications.
-        /// </summary>
-        /// <param name="data">Data received from the caller (not used in this method).</param>
-        /// <param name="result">Callback delegate to report success or failure (not used in this method).</param>
         private async void SpawnAtMissionRowPd(IDictionary<string, object> data, CallbackDelegate result)
         {
-            if (currentCharacter.Department == "SAHP" || currentCharacter.Department == "LSPD" || currentCharacter.Department == "BCSO" || currentCharacter.Department == "LSFD")
+            if (currentCharacter.Department == "SAHP" || currentCharacter.Department == "LSPD" || currentCharacter.Department == "BCSO")
             {
-                // Close UI elements
                 SendNUIMessage(Json.Stringify(new
                 {
                     type = "CLOSE_UI"
                 }));
 
                 SetNUIFocus(false, false);
-
-                // Delay to allow UI actions to complete
                 await Delay(100);
 
-                // Teleport the player to the prison
-                TeleportToSpawnLocation(426.6f, -981.23f, 30.71f);
-                SetEntityHeading(Game.Player.Character.Handle, 88.07f);
-
-                // Close any remaining spawn-related modals
+                TeleportToSpawnLocation(431.46f, -981.35f, 90.71f);
+                SetEntityHeading(Game.Player.Character.Handle, 30.71f);
                 CloseSpawnModals();
 
-                // Delay to allow teleportation to complete
                 await Delay(100);
-
-                // Send a chat message confirming the character selection
                 TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
 
-        /// <summary>
-        /// Handles spawning a police character at the Rockford Police Station, including UI updates, teleportation, and notifications.
-        /// </summary>
-        /// <param name="data">Data received from the caller (not used in this method).</param>
-        /// <param name="result">Callback delegate to report success or failure (not used in this method).</param>
         private async void SpawnAtRockfordPd(IDictionary<string, object> data, CallbackDelegate result)
         {
-            if (currentCharacter.Department == "SAHP" || currentCharacter.Department == "LSPD" || currentCharacter.Department == "BCSO" || currentCharacter.Department == "LSFD")
+            if (currentCharacter.Department == "SAHP" || currentCharacter.Department == "LSPD" || currentCharacter.Department == "BCSO")
             {
-                // Close UI elements
                 SendNUIMessage(Json.Stringify(new
                 {
                     type = "CLOSE_UI"
                 }));
 
                 SetNUIFocus(false, false);
-
-                // Delay to allow UI actions to complete
                 await Delay(100);
 
-                // Teleport the player to the prison
                 TeleportToSpawnLocation(-560.78f, -133.86f, 38.09f);
                 SetEntityHeading(Game.Player.Character.Handle, 197.56f);
-
-                // Close any remaining spawn-related modals
                 CloseSpawnModals();
 
-                // Delay to allow teleportation to complete
                 await Delay(100);
-
-                // Send a chat message confirming the character selection
                 TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
 
-        /// <summary>
-        /// Handles spawning a police character at the Del Perro Police Station, including UI updates, teleportation, and notifications.
-        /// </summary>
-        /// <param name="data">Data received from the caller (not used in this method).</param>
-        /// <param name="result">Callback delegate to report success or failure (not used in this method).</param>
         private async void SpawnAtDelPerroPd(IDictionary<string, object> data, CallbackDelegate result)
         {
-            if (currentCharacter.Department == "SAHP" || currentCharacter.Department == "LSPD" || currentCharacter.Department == "BCSO" || currentCharacter.Department == "LSFD")
+            if (currentCharacter.Department == "SAHP" || currentCharacter.Department == "LSPD" || currentCharacter.Department == "BCSO")
             {
-                // Close UI elements
                 SendNUIMessage(Json.Stringify(new
                 {
                     type = "CLOSE_UI"
                 }));
 
                 SetNUIFocus(false, false);
-
-                // Delay to allow UI actions to complete
                 await Delay(100);
 
-                // Teleport the player to the prison
                 TeleportToSpawnLocation(-1078.2f, -857.61f, 5.04f);
                 SetEntityHeading(Game.Player.Character.Handle, 210.23f);
-
-                // Close any remaining spawn-related modals
                 CloseSpawnModals();
 
-                // Delay to allow teleportation to complete
                 await Delay(100);
-
-                // Send a chat message confirming the character selection
                 TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
             }
         }
 
-        /// <summary>
-        /// Handles the scenario where teleportation is not required, closing UI elements, reporting success, and notifying the player.
-        /// </summary>
-        /// <param name="data">Data received from the caller (not used in this method).</param>
-        /// <param name="result">Callback delegate to report success or failure.</param>
+        private async void SpawnAtStation1(IDictionary<string, object> data, CallbackDelegate result)
+        {
+            if (currentCharacter.Department == "LSFD")
+            {
+                SendNUIMessage(Json.Stringify(new
+                {
+                    type = "CLOSE_UI"
+                }));
+
+                SetNUIFocus(false, false);
+                await Delay(100);
+
+                TeleportToSpawnLocation(-637.75f, -120.5f, 38.35f);
+                SetEntityHeading(Game.Player.Character.Handle, 83.25f);
+                CloseSpawnModals();
+
+                await Delay(100);
+                TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
+            }
+        }
+
+        private async void SpawnAtStation2(IDictionary<string, object> data, CallbackDelegate result)
+        {
+            if (currentCharacter.Department == "LSFD")
+            {
+                SendNUIMessage(Json.Stringify(new
+                {
+                    type = "CLOSE_UI"
+                }));
+
+                SetNUIFocus(false, false);
+                await Delay(100);
+
+                TeleportToSpawnLocation(-1074.81f, -3596.74f, 35.43f);
+                SetEntityHeading(Game.Player.Character.Handle, 208.47f);
+                CloseSpawnModals();
+
+                await Delay(100);
+                TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
+            }
+        }
+
+        private async void SpawnAtStation3(IDictionary<string, object> data, CallbackDelegate result)
+        {
+            if (currentCharacter.Department == "LSFD")
+            {
+                SendNUIMessage(Json.Stringify(new
+                {
+                    type = "CLOSE_UI"
+                }));
+
+                SetNUIFocus(false, false);
+                await Delay(100);
+
+                TeleportToSpawnLocation(-382.02f, 6120.77f, 31.48f);
+                SetEntityHeading(Game.Player.Character.Handle, 44.46f);
+                CloseSpawnModals();
+
+                await Delay(100);
+                TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
+            }
+        }
+
+        private async void SpawnAtStation4(IDictionary<string, object> data, CallbackDelegate result)
+        {
+            if (currentCharacter.Department == "LSFD")
+            {
+                SendNUIMessage(Json.Stringify(new
+                {
+                    type = "CLOSE_UI"
+                }));
+
+                SetNUIFocus(false, false);
+                await Delay(100);
+
+                TeleportToSpawnLocation(2105.07f, 1830.02f, 32.81f);
+                SetEntityHeading(Game.Player.Character.Handle, 344.98f);
+                CloseSpawnModals();
+
+                await Delay(100);
+                TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
+            }
+        }
+
+        private async void SpawnAtStation5(IDictionary<string, object> data, CallbackDelegate result)
+        {
+            if (currentCharacter.Department == "LSFD")
+            {
+                SendNUIMessage(Json.Stringify(new
+                {
+                    type = "CLOSE_UI"
+                }));
+
+                SetNUIFocus(false, false);
+                await Delay(100);
+
+                TeleportToSpawnLocation(-1032.94f, -2386.49f, 13.94f);
+                SetEntityHeading(Game.Player.Character.Handle, 238.44f);
+                CloseSpawnModals();
+
+                await Delay(100);
+                TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
+            }
+        }
+
+        private async void SpawnAtStation6(IDictionary<string, object> data, CallbackDelegate result)
+        {
+            if (currentCharacter.Department == "LSFD")
+            {
+                SendNUIMessage(Json.Stringify(new
+                {
+                    type = "CLOSE_UI"
+                }));
+
+                SetNUIFocus(false, false);
+                await Delay(100);
+
+                TeleportToSpawnLocation(214.08f, -1642.1f, 29.73f);
+                SetEntityHeading(Game.Player.Character.Handle, 318.47f);
+                CloseSpawnModals();
+
+                await Delay(100);
+                TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
+            }
+        }
+
+        private async void SpawnAtStation7(IDictionary<string, object> data, CallbackDelegate result)
+        {
+            if (currentCharacter.Department == "LSFD")
+            {
+                SendNUIMessage(Json.Stringify(new
+                {
+                    type = "CLOSE_UI"
+                }));
+
+                SetNUIFocus(false, false);
+                await Delay(100);
+
+                TeleportToSpawnLocation(1200.78f, -1488.72f, 34.77f);
+                SetEntityHeading(Game.Player.Character.Handle, 178.45f);
+                CloseSpawnModals();
+
+                await Delay(100);
+                TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
+            }
+        }
+
+        private async void SpawnAtStation8(IDictionary<string, object> data, CallbackDelegate result)
+        {
+            if (currentCharacter.Department == "LSFD")
+            {
+                SendNUIMessage(Json.Stringify(new
+                {
+                    type = "CLOSE_UI"
+                }));
+
+                SetNUIFocus(false, false);
+                await Delay(100);
+
+                TeleportToSpawnLocation(-1176.51f, -1775.08f, 3.85f);
+                SetEntityHeading(Game.Player.Character.Handle, 302.46f);
+                CloseSpawnModals();
+
+                await Delay(100);
+                TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
+            }
+        }
+
         private async void DoNotTeleport(IDictionary<string, object> data, CallbackDelegate result)
         {
-            // Send a message to the UI indicating no teleportation is needed
             SendNUIMessage(Json.Stringify(new
             {
                 type = "DONT_TELEPORT"
             }));
 
-            // Close UI elements
             SetNUIFocus(false, false);
-
-            // Report success to the caller
             result(new { success = true, message = "success" });
 
-            // Delay to allow UI actions to complete
             await Delay(100);
-
-            // Send a chat message confirming the character selection
             TriggerEvent("_chat:chatMessage", $"{communityName}", new[] { 255, 255, 255 }, $"You are now playing as {currentCharacter.FirstName} {currentCharacter.LastName} ({currentCharacter.Department})");
         }
         #endregion
 
         #region Methods
-        /// <summary>
-        /// Creates a new Character object with the provided information.
-        /// </summary>
-        /// <param name="firstName">The character's first name.</param>
-        /// <param name="lastName">The character's last name.</param>
-        /// <param name="gender">The character's gender.</param>
-        /// <param name="department">The character's department.</param>
-        /// <param name="dob">The character's date of birth as a string in a format parseable by DateTime.Parse.</param>
-        /// <param name="cash">The character's cash amount as a string.</param>
-        /// <param name="bank">The character's bank balance as a string.</param>
-        /// <param name="charId">The character's ID as a string.</param>
-        /// <returns>The newly created Character object.</returns>
         private Character CreateCharacter(string firstName, string lastName, string gender, string department, string dob, string cash, string bank, string charId)
         {
-            // Create a new Character object and populate its properties
             Character createdCharacter = new()
             {
                 CharacterId = int.Parse(charId),
@@ -1068,29 +928,20 @@ namespace Red.Framework.Client
             return createdCharacter;
         }
 
-        /// <summary>
-        /// Displays the amount of characters that the person has created.
-        /// </summary>
         private void DisplayNUI()
         {
-            if (IsNUIFocused())
+            if (IsNuiFocused())
             {
                 return;
             }
-            
+
             TriggerServerEvent("Framework:Server:getCharacters");
         }
 
-        /// <summary>
-        /// Adds a department to the allowedDepartments list if it doesn't already exist.
-        /// </summary>
-        /// <param name="department">The department to add.</param>
         private void AddIfNotExist(string department)
         {
-            // Check if the department is already in the list
             if (!allowedDepartments.Contains(department))
             {
-                // Add the department to the list
                 allowedDepartments.Add(department);
             }
         }
@@ -1141,7 +992,7 @@ namespace Red.Framework.Client
             if (Configuration.LoadFromString(data).Contains("Framework", "EnableDiscordRickPresence") == true)
             {
                 Configuration loaded = Configuration.LoadFromString(data);
-                
+
                 communityName = loaded["Framework"]["CommunityName"].StringValue;
                 usingDiscordPresence = loaded["Framework"]["EnableDiscordRickPresence"].BoolValue;
                 discordAppId = loaded["Framework"]["DiscordAppId"].StringValue;
@@ -1169,16 +1020,11 @@ namespace Red.Framework.Client
             }));
         }
 
-        [EventHandler("Framework:Client:syncAop")]
-        private void OnSyncAop(string aop)
+        [EventHandler("Framework:Client:syncInfo")]
+        private void OnSyncInfo(int newPlayerCount, string newAOP)
         {
-            currentAOP = aop;
-
-            SendNUIMessage(Json.Stringify(new
-            {
-                type = "UPDATE_AOP",
-                aop = $"Welcome to San Andreas! (AOP: {aop})"
-            }));
+            plyrCount = newPlayerCount;
+            currentAOP = newAOP;
         }
 
         [EventHandler("Framework:Client:updateCommunityName")]
@@ -1280,7 +1126,7 @@ namespace Red.Framework.Client
                 ranSpawnChecker = true;
 
                 await Delay(100);
-                TriggerServerEvent("Framework:Server:syncAop", currentAOP);
+                TriggerServerEvent("Framework:Server:syncInfo");
             }
         }
         #endregion
@@ -1290,13 +1136,14 @@ namespace Red.Framework.Client
         private async Task MainTick()
         {
             await Delay(55000);
+            TriggerServerEvent("Framework:Server:syncInfo");
 
             foreach (Vehicle vehicle in World.GetAllVehicles().Where(v => suppressedModels.Contains(v.DisplayName.ToLower()) && !v.PreviouslyOwnedByPlayer))
             {
                 vehicle.Delete();
             }
 
-            TriggerServerEvent("Framework:Server:syncAop", currentAOP);
+            TriggerServerEvent("Framework:Server:syncInfo");
             TriggerServerEvent("Framework:Server:updateCommunityName", communityName);
         }
 
@@ -1309,7 +1156,7 @@ namespace Red.Framework.Client
             SetRandomVehicleDensityMultiplierThisFrame(densityMultiplier);
 
             // Sets AI ped and scenario ped densitity
-            SetPedDensityMultiplierThisFrame(densityMultiplier); 
+            SetPedDensityMultiplierThisFrame(densityMultiplier);
             SetScenarioPedDensityMultiplierThisFrame(densityMultiplier, densityMultiplier);
 
             DisablePlayerVehicleRewards(Game.Player.Handle);
