@@ -9,13 +9,8 @@
   
     <ItemGroup>
       <PackageReference Include="CitizenFX.Core.Server" Version="1.0.*" />
-	  <Compile Include="../Shared/**/*.cs" />
-    </ItemGroup>
   
-    <ItemGroup>
-      <Reference Include="Newtonsoft.Json">
-        <HintPath>..\..\_References_\Newtonsoft.Json.dll</HintPath>
-      </Reference>
+      <Compile Include="../Shared/**/*.cs" />
     </ItemGroup>
 </Project>
   

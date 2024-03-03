@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Red.Common.Client
+namespace Red.Common
 {
     public class Character // Mainly used for framework dependent scripts.
     {

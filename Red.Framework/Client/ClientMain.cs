@@ -7,6 +7,7 @@ using SharpConfig;
 using CitizenFX.Core;
 using CitizenFX.Core.Native;
 using static CitizenFX.Core.Native.API;
+using static Red.Common.Client.Client;
 using static Red.Common.Client.Hud.HUD;
 using static Red.Common.Client.Hud.NUI;
 using static Red.Common.Client.Extensions;
@@ -15,12 +16,12 @@ namespace Red.Framework.Client
 {
     internal class ClientMain : BaseScript
     {
+        #pragma warning disable CS1998
         #region Variables
         protected bool ranSpawnChecker, teleported, usingDiscordPresence;
         protected string communityName, discordAppId, discordRichPresenceAssetLogo, discordRichPresenceAssetText;
         protected float densityMultiplier = 1f;
         protected string currentAOP = "Statewide";
-        protected Ped PlayerPed = Game.PlayerPed;
         protected ISet<string> allowedDepartments = new HashSet<string>();
         protected int plyrCount = 1;
 
@@ -381,7 +382,7 @@ namespace Red.Framework.Client
                 await Delay(100);
 
                 TeleportToSpawnLocation(1848.59f, 2585.88f, 45.67f);
-                SetEntityHeading(Game.Player.Character.Handle, 270.0f);
+                SetEntityHeading(PlayerCharacter.Handle, 270.0f);
                 CloseSpawnModals();
 
                 await Delay(100);
@@ -402,7 +403,7 @@ namespace Red.Framework.Client
                 await Delay(100);
 
                 TeleportToSpawnLocation(1666.2f, 4740.12f, 41.99f);
-                SetEntityHeading(Game.Player.Character.Handle, 282.89f);
+                SetEntityHeading(PlayerCharacter.Handle, 282.89f);
                 CloseSpawnModals();
 
                 await Delay(100);
@@ -423,7 +424,7 @@ namespace Red.Framework.Client
                 await Delay(100);
 
                 TeleportToSpawnLocation(1114.75f, 2641.67f, 38.14f);
-                SetEntityHeading(Game.Player.Character.Handle, 354.14f);
+                SetEntityHeading(PlayerCharacter.Handle, 354.14f);
                 CloseSpawnModals();
 
                 await Delay(100);
@@ -444,7 +445,7 @@ namespace Red.Framework.Client
                 await Delay(100);
 
                 TeleportToSpawnLocation(366.72f, 2625.21f, 44.67f);
-                SetEntityHeading(Game.Player.Character.Handle, 26.68f);
+                SetEntityHeading(PlayerCharacter.Handle, 26.68f);
                 CloseSpawnModals();
 
                 await Delay(100);
@@ -465,7 +466,7 @@ namespace Red.Framework.Client
                 await Delay(100);
 
                 TeleportToSpawnLocation(1569.59f, 3607.65f, 35.37f);
-                SetEntityHeading(Game.Player.Character.Handle, 26.12f);
+                SetEntityHeading(PlayerCharacter.Handle, 26.12f);
                 CloseSpawnModals();
 
                 await Delay(100);
@@ -486,7 +487,7 @@ namespace Red.Framework.Client
                 await Delay(100);
 
                 TeleportToSpawnLocation(885.27f, -2.63f, 78.76f);
-                SetEntityHeading(Game.Player.Character.Handle, 414.21f);
+                SetEntityHeading(PlayerCharacter.Handle, 414.21f);
                 CloseSpawnModals();
 
                 await Delay(100);
@@ -507,7 +508,7 @@ namespace Red.Framework.Client
                 await Delay(100);
 
                 TeleportToSpawnLocation(90.7f, -1965.5f, 20.75f);
-                SetEntityHeading(Game.Player.Character.Handle, 316.16f);
+                SetEntityHeading(PlayerCharacter.Handle, 316.16f);
 
                 await Delay(100);
                 CloseSpawnModals();
@@ -528,7 +529,7 @@ namespace Red.Framework.Client
                 await Delay(100);
 
                 TeleportToSpawnLocation(-1221.59f, -184.09f, 39.18f);
-                SetEntityHeading(Game.Player.Character.Handle, 119.75f);
+                SetEntityHeading(PlayerCharacter.Handle, 119.75f);
 
                 CloseSpawnModals();
 
@@ -551,7 +552,7 @@ namespace Red.Framework.Client
                 await Delay(100);
 
                 TeleportToSpawnLocation(1404.22f, 2169.01f, 97.88f);
-                SetEntityHeading(Game.Player.Character.Handle, 262.06f);
+                SetEntityHeading(PlayerCharacter.Handle, 262.06f);
                 CloseSpawnModals();
 
                 await Delay(100);
@@ -572,7 +573,7 @@ namespace Red.Framework.Client
                 await Delay(100);
 
                 TeleportToSpawnLocation(1395.14f, -574.76f, 74.34f);
-                SetEntityHeading(Game.Player.Character.Handle, 107.64f);
+                SetEntityHeading(PlayerCharacter.Handle, 107.64f);
                 CloseSpawnModals();
 
                 await Delay(100);
@@ -593,7 +594,7 @@ namespace Red.Framework.Client
                 await Delay(100);
 
                 TeleportToSpawnLocation(639.69f, 0.57f, 82.79f);
-                SetEntityHeading(Game.Player.Character.Handle, 254.93f);
+                SetEntityHeading(PlayerCharacter.Handle, 254.93f);
                 CloseSpawnModals();
 
                 await Delay(100);
@@ -614,7 +615,7 @@ namespace Red.Framework.Client
                 await Delay(100);
 
                 TeleportToSpawnLocation(1864.19f, 3699.68f, 33.61f);
-                SetEntityHeading(Game.Player.Character.Handle, 33.61f);
+                SetEntityHeading(PlayerCharacter.Handle, 33.61f);
                 CloseSpawnModals();
 
                 await Delay(100);
@@ -635,7 +636,7 @@ namespace Red.Framework.Client
                 await Delay(100);
 
                 TeleportToSpawnLocation(373.76f, -1610.07f, 29.29f);
-                SetEntityHeading(Game.Player.Character.Handle, 232.08f);
+                SetEntityHeading(PlayerCharacter.Handle, 232.08f);
 
                 await Delay(0);
                 CloseSpawnModals();
@@ -656,7 +657,7 @@ namespace Red.Framework.Client
                 await Delay(100);
 
                 TeleportToSpawnLocation(-447.72f, 6000.73f, 31.69f);
-                SetEntityHeading(Game.Player.Character.Handle, 137.97f);
+                SetEntityHeading(PlayerCharacter.Handle, 137.97f);
                 CloseSpawnModals();
 
                 await Delay(100);
@@ -677,7 +678,7 @@ namespace Red.Framework.Client
                 await Delay(100);
 
                 TeleportToSpawnLocation(431.46f, -981.35f, 90.71f);
-                SetEntityHeading(Game.Player.Character.Handle, 30.71f);
+                SetEntityHeading(PlayerCharacter.Handle, 30.71f);
                 CloseSpawnModals();
 
                 await Delay(100);
@@ -698,7 +699,7 @@ namespace Red.Framework.Client
                 await Delay(100);
 
                 TeleportToSpawnLocation(-560.78f, -133.86f, 38.09f);
-                SetEntityHeading(Game.Player.Character.Handle, 197.56f);
+                SetEntityHeading(PlayerCharacter.Handle, 197.56f);
                 CloseSpawnModals();
 
                 await Delay(100);
@@ -719,7 +720,7 @@ namespace Red.Framework.Client
                 await Delay(100);
 
                 TeleportToSpawnLocation(-1078.2f, -857.61f, 5.04f);
-                SetEntityHeading(Game.Player.Character.Handle, 210.23f);
+                SetEntityHeading(PlayerCharacter.Handle, 210.23f);
                 CloseSpawnModals();
 
                 await Delay(100);
@@ -740,7 +741,7 @@ namespace Red.Framework.Client
                 await Delay(100);
 
                 TeleportToSpawnLocation(-637.75f, -120.5f, 38.35f);
-                SetEntityHeading(Game.Player.Character.Handle, 83.25f);
+                SetEntityHeading(PlayerCharacter.Handle, 83.25f);
                 CloseSpawnModals();
 
                 await Delay(100);
@@ -761,7 +762,7 @@ namespace Red.Framework.Client
                 await Delay(100);
 
                 TeleportToSpawnLocation(-1074.81f, -3596.74f, 35.43f);
-                SetEntityHeading(Game.Player.Character.Handle, 208.47f);
+                SetEntityHeading(PlayerCharacter.Handle, 208.47f);
                 CloseSpawnModals();
 
                 await Delay(100);
@@ -782,7 +783,7 @@ namespace Red.Framework.Client
                 await Delay(100);
 
                 TeleportToSpawnLocation(-382.02f, 6120.77f, 31.48f);
-                SetEntityHeading(Game.Player.Character.Handle, 44.46f);
+                SetEntityHeading(PlayerCharacter.Handle, 44.46f);
                 CloseSpawnModals();
 
                 await Delay(100);
@@ -803,7 +804,7 @@ namespace Red.Framework.Client
                 await Delay(100);
 
                 TeleportToSpawnLocation(2105.07f, 1830.02f, 32.81f);
-                SetEntityHeading(Game.Player.Character.Handle, 344.98f);
+                SetEntityHeading(PlayerCharacter.Handle, 344.98f);
                 CloseSpawnModals();
 
                 await Delay(100);
@@ -824,7 +825,7 @@ namespace Red.Framework.Client
                 await Delay(100);
 
                 TeleportToSpawnLocation(-1032.94f, -2386.49f, 13.94f);
-                SetEntityHeading(Game.Player.Character.Handle, 238.44f);
+                SetEntityHeading(PlayerCharacter.Handle, 238.44f);
                 CloseSpawnModals();
 
                 await Delay(100);
@@ -845,7 +846,7 @@ namespace Red.Framework.Client
                 await Delay(100);
 
                 TeleportToSpawnLocation(214.08f, -1642.1f, 29.73f);
-                SetEntityHeading(Game.Player.Character.Handle, 318.47f);
+                SetEntityHeading(PlayerCharacter.Handle, 318.47f);
                 CloseSpawnModals();
 
                 await Delay(100);
@@ -866,7 +867,7 @@ namespace Red.Framework.Client
                 await Delay(100);
 
                 TeleportToSpawnLocation(1200.78f, -1488.72f, 34.77f);
-                SetEntityHeading(Game.Player.Character.Handle, 178.45f);
+                SetEntityHeading(PlayerCharacter.Handle, 178.45f);
                 CloseSpawnModals();
 
                 await Delay(100);
@@ -887,7 +888,7 @@ namespace Red.Framework.Client
                 await Delay(100);
 
                 TeleportToSpawnLocation(-1176.51f, -1775.08f, 3.85f);
-                SetEntityHeading(Game.Player.Character.Handle, 302.46f);
+                SetEntityHeading(PlayerCharacter.Handle, 302.46f);
                 CloseSpawnModals();
 
                 await Delay(100);
@@ -951,11 +952,11 @@ namespace Red.Framework.Client
             Vector3 spawnLocation = new(x, y, z);
 
             // Ensures that the player doesn't die when teleported
-            Game.Player.Character.IsInvincible = true;
+            PlayerCharacter.IsInvincible = true;
 
             // Removes collision and gravity logic from the player
-            Game.Player.Character.IsCollisionEnabled = false;
-            Game.Player.Character.HasGravity = false;
+            PlayerCharacter.IsCollisionEnabled = false;
+            PlayerCharacter.HasGravity = false;
 
             // Triggers that character swap animation for the player
             SwitchOutPlayer(PlayerPedId(), 0, 1);
@@ -963,18 +964,18 @@ namespace Red.Framework.Client
             await Delay(3000); // Delay of 3 seconds
 
             // Sets the player position to the spawn location selected
-            Game.Player.Character.Position = spawnLocation;
+            PlayerCharacter.Position = spawnLocation;
 
             Function.Call((Hash)0xD8295AF639FD9CB8, PlayerPedId()); // Method is called (SwitchToMultiSecondpart) current way is the easiest way?
 
             await Delay(3000); // Delay of 3 seconds
 
             // Turns the character back to a vulnerable state
-            Game.Player.Character.IsInvincible = false;
+            PlayerCharacter.IsInvincible = false;
 
             // Sets collision and gravity logic for the player
-            Game.Player.Character.IsCollisionEnabled = true;
-            Game.Player.Character.HasGravity = true;
+            PlayerCharacter.IsCollisionEnabled = true;
+            PlayerCharacter.HasGravity = true;
         }
 
         private void CloseSpawnModals()
@@ -1168,5 +1169,6 @@ namespace Red.Framework.Client
             }
         }
         #endregion
+        #pragma warning restore CS1998
     }
 }

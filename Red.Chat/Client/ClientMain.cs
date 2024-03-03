@@ -45,7 +45,7 @@ namespace Red.Chat.Client
                 return;
             }
 
-            SetResourceKvp($"red_chat_twotter_{currentCharacter.CharacterId}", username);
+            SetResourceKvp($"irp_chat_twotter_{currentCharacter.CharacterId}", username);
             twotterUsername = username;
 
             TriggerEvent("_chat:chatMessage", "SYSTEM", new[] { 0, 73, 83 }, $"Twotter username set to ^*{username}^r");
@@ -199,7 +199,7 @@ namespace Red.Chat.Client
                 type = "ON_MESSAGE",
                 message = new
                 {
-                    color = new[] { 209, 153, 0 },
+                    color = new[] { 205, 92, 92 },
                     multiline = true,
                     args = new[] { $"[311] {name}", message }
                 }
@@ -353,7 +353,8 @@ namespace Red.Chat.Client
                         {
                             location311 += $" / {crossingRoad311}";
                         }
-                        TriggerServerEvent("Chat:Server:311Message", location311, joinedArgs);
+
+                        TriggerServerEvent("Chat:Server:911Message", location311, joinedArgs);
                         break;
                     default:
                         if (message.StartsWith("/"))

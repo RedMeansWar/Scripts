@@ -214,6 +214,16 @@ namespace Red.Common.Client
                 await Delay(0);
             }
         }
+
+        public static async void LoadScaleformMovie(string scaleformName)
+        {
+            int scaleform = RequestScaleformMovie(scaleformName);
+
+            while (!HasScaleformMovieLoaded(scaleform))
+            {
+                await Delay(0);
+            }
+        }
         #endregion
 
         #region Animations

@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-namespace Red.Common.Server
+namespace Red.Common
 {
     public static class Json
     {

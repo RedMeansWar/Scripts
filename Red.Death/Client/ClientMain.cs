@@ -47,16 +47,16 @@ namespace Red.Death.Client
             Tick -= ControlsTick;
             isDead = false;
 
-            NetworkResurrectLocalPlayer(coordsToReviveAt.X, coordsToReviveAt.Y, coordsToReviveAt.Z + 1f, Game.PlayerPed.Heading, false, false);
+            NetworkResurrectLocalPlayer(coordsToReviveAt.X, coordsToReviveAt.Y, coordsToReviveAt.Z + 1f, PlayerPed.Heading, false, false);
 
-            Game.PlayerPed.Health = Game.PlayerPed.MaxHealth;
-            Game.PlayerPed.ClearBloodDamage();
-            Game.PlayerPed.Task.ClearAll();
-            Game.PlayerPed.IsInvincible = false;
-            Game.PlayerPed.IsFireProof = false;
-            Game.PlayerPed.IsExplosionProof = false;
-            Game.PlayerPed.IsCollisionProof = false;
-            Game.PlayerPed.IsMeleeProof = false;
+            PlayerPed.Health = PlayerPed.MaxHealth;
+            PlayerPed.ClearBloodDamage();
+            PlayerPed.Task.ClearAll();
+            PlayerPed.IsInvincible = false;
+            PlayerPed.IsFireProof = false;
+            PlayerPed.IsExplosionProof = false;
+            PlayerPed.IsCollisionProof = false;
+            PlayerPed.IsMeleeProof = false;
 
             return true;
         }
@@ -71,12 +71,12 @@ namespace Red.Death.Client
                 return;
             }
 
-            Vector4 spawnPos = spawnLocations.OrderBy(p => Vector3.DistanceSquared((Vector3)p, Game.PlayerPed.Position)).First();
+            Vector4 spawnPos = spawnLocations.OrderBy(p => Vector3.DistanceSquared((Vector3)p, PlayerPed.Position)).First();
 
-            Game.PlayerPed.Weapons.RemoveAll();
+            PlayerPed.Weapons.RemoveAll();
 
-            NetworkFadeOutEntity(Game.PlayerPed.Handle, true, false);
-            while (NetworkIsEntityFading(Game.PlayerPed.Handle))
+            NetworkFadeOutEntity(PlayerPed.Handle, true, false);
+            while (NetworkIsEntityFading(PlayerPed.Handle))
             {
                 await Delay(0);
             }
@@ -103,7 +103,7 @@ namespace Red.Death.Client
                 await Delay(0);
             }
 
-            NetworkFadeInEntity(Game.PlayerPed.Handle, false);
+            NetworkFadeInEntity(PlayerPed.Handle, false);
             Screen.Fading.FadeIn(500);
         }
         #endregion
@@ -130,16 +130,16 @@ namespace Red.Death.Client
             isDead = true;
             Random random = new();
 
-            coordsToReviveAt = Game.PlayerPed.Position;
-            NetworkResurrectLocalPlayer(coordsToReviveAt.X, coordsToReviveAt.Y, coordsToReviveAt.Z + 0.1f, Game.PlayerPed.Heading, false, false);
+            coordsToReviveAt = PlayerPed.Position;
+            NetworkResurrectLocalPlayer(coordsToReviveAt.X, coordsToReviveAt.Y, coordsToReviveAt.Z + 0.1f, PlayerPed.Heading, false, false);
 
-            Game.PlayerPed.IsInvincible = true;
-            Game.PlayerPed.IsFireProof = true;
-            Game.PlayerPed.IsExplosionProof = true;
-            Game.PlayerPed.IsCollisionProof = true;
-            Game.PlayerPed.IsMeleeProof = true;
-            Game.PlayerPed.Health = Game.PlayerPed.MaxHealth;
-            Game.PlayerPed.Armor = 0;
+            PlayerPed.IsInvincible = true;
+            PlayerPed.IsFireProof = true;
+            PlayerPed.IsExplosionProof = true;
+            PlayerPed.IsCollisionProof = true;
+            PlayerPed.IsMeleeProof = true;
+            PlayerPed.Health = PlayerPed.MaxHealth;
+            PlayerPed.Armor = 0;
 
             if (enableRagdoll is false)
             {
@@ -208,7 +208,7 @@ namespace Red.Death.Client
             Game.DisableControlThisFrame(0, Control.Context);
             Game.DisableControlThisFrame(0, Control.Reload);
 
-            if (enableRagdoll is false && !IsEntityPlayingAnim(Game.PlayerPed.Handle, animToPlay.Item1, animToPlay.Item2, 3))
+            if (enableRagdoll is false && !IsEntityPlayingAnim(PlayerPed.Handle, animToPlay.Item1, animToPlay.Item2, 3))
             {
                 PlayAnim(animToPlay.Item1, animToPlay.Item2, 50f, -1, (AnimationFlags)1);
             }
@@ -224,7 +224,7 @@ namespace Red.Death.Client
         [Tick]
         private async Task CheckDeathTick()
         {
-            if (!isDead && Game.PlayerPed.IsDead)
+            if (!isDead && PlayerPed.IsDead)
             {
                 OnDeath();
             }
