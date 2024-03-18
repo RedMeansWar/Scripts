@@ -319,7 +319,7 @@ namespace Red.Framework.Client
 
             TriggerServerEvent("Framework:Server:deleteCharacter", long.Parse(characterId));
 
-            SendNUIMessage(Json.Stringify(new
+            SendNuiMessage(Json.Stringify(new
             {
                 type = "SUCCESS",
                 msg = "Character deleted!"

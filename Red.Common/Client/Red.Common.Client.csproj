@@ -1,15 +1,12 @@
 <Project Sdk="CitizenFX.Sdk.Client/0.2.3">
 	<PropertyGroup>
-		<LangVersion>latest</LangVersion>
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<LangVersion>latests</LangVersion>
 	</PropertyGroup>
     <ItemGroup>
         <Compile Include="../Shared/**/*.cs" />
     </ItemGroup>
     <ItemGroup>
-      <None Remove="Client.cs~RF3b3bd08.TMP" />
-      <None Remove="ClientMain.cs~RF1e1ac970.TMP" />
-      <None Remove="Hud\NUI.cs~RF1983ea88.TMP" />
+      <None Remove="Hud\Object.cs~RF18bc9b76.TMP" />
     </ItemGroup>
     <ItemGroup>
       <Reference Include="Newtonsoft.Json">

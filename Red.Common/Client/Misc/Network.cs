@@ -4,7 +4,7 @@ using static CitizenFX.Core.Native.API;
 
 namespace Red.Common.Client.Misc
 {
-    public class Network : ClientScript
+    public class Network : BaseScript
     {
         /// <summary>
         /// Requests control of an entity from the network and awaits confirmation.
@@ -83,5 +83,12 @@ namespace Red.Common.Client.Misc
         /// <param name="networkControl"></param>
         /// <returns></returns>
         public static Task<Entity> GetEntityFromNetwork(int networkId, bool networkControl = true) => GetEntityFromNetId(networkId, networkControl);
+    }
+
+    public static class NetworkExtensions
+    {
+        public static async Task RequestControlOfEntity(this Entity entity) => await RequestControlOfEntity(entity);
+
+        public static async Task GetFromNetId(this Entity entity) => await Network.GetEntityFromNetworkId(entity.Handle);
     }
 }

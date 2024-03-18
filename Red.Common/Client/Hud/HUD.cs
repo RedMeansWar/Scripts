@@ -1,13 +1,14 @@
-﻿using CitizenFX.Core;
-using CitizenFX.Core.UI;
-using System;
+﻿using System;
 using System.Threading.Tasks;
+using CitizenFX.Core;
+using CitizenFX.Core.UI;
 using static CitizenFX.Core.Native.API;
 
 namespace Red.Common.Client.Hud
 {
-    public class HUD : ClientScript
+    public class HUD : BaseScript
     {
+        #pragma warning disable
         /// <summary>
         /// Toggles the clients HUD
         /// </summary>
@@ -109,7 +110,7 @@ namespace Red.Common.Client.Hud
         {
             // Fetch anchor for relative rectangle positioning
             Minimap anchor = Minimap.GetMinimapAnchor();
-            
+
             // Draw rectangle with position based off player's anchor.
             DrawRect(anchor.LeftX + x + (width / 2), anchor.BottomY - y + (height / 2), width, height, r, g, b, a);
         }

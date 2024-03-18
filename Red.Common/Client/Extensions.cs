@@ -1,8 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using CitizenFX.Core;
+using CitizenFX.Core.Native;
 using CitizenFX.Core.UI;
 using static CitizenFX.Core.Native.API;
+using static Red.Common.MathHelper;
 
 namespace Red.Common.Client
 {
@@ -14,7 +18,7 @@ namespace Red.Common.Client
         /// </summary>
         /// <param name="ped"></param>
         /// <returns>If the ped can do an action or not.</returns>
-        public static bool CannotDoAction(this Ped ped) => 
+        public static bool CannotDoAction(this Ped ped) =>
            ped.IsCuffed || ped.IsDead || ped.IsBeingStunned
            || ped.IsClimbing || ped.IsDiving || ped.IsFalling
            || ped.IsGettingIntoAVehicle || ped.IsJumping
@@ -171,6 +175,12 @@ namespace Red.Common.Client
             // Fade in the screen for visual consistency.
             Screen.Fading.FadeIn(500);
         }
+
+        public static uint GetHashKey(this Vehicle vehicle) => Game.GenerateHashASCII(vehicle.DisplayName);
+        #endregion
+
+        #region Weapons
+        public static uint GetHashKey(this Weapon weapon) => Game.GenerateHashASCII(weapon.DisplayName);
         #endregion
 
         #region Distance Calculations
@@ -241,7 +251,6 @@ namespace Red.Common.Client
 
             return distance;
         }
-
         #endregion
 
         #region Misc Extensions
@@ -257,7 +266,7 @@ namespace Red.Common.Client
         public static T GetVal<T>(this IDictionary<string, object> dict, string key, T defaultVal)
         {
             // Attempt to retrieve the value efficiently using TryGetValue.
-             if (dict.TryGetValue(key, out object value) && value is T t) 
+            if (dict.TryGetValue(key, out object value) && value is T t)
             {
                 return t; // Return the value if it matches the expected type.
             }
@@ -292,6 +301,22 @@ namespace Red.Common.Client
                 return (Prop)raycast.HitEntity;
             }
         }
+
+        /// <summary>
+        /// Modified version of blip.Scale
+        /// </summary>
+        /// <param name="blip"></param>
+        /// <param name="size"></param>
+        public static void Size(this Blip blip, float size = 1f) => blip.Scale = size;
+
+        /// <summary>
+        /// Removes a ped's weapon in the inventory.
+        /// </summary>
+        /// <param name="ped">The targeted ped</param>
+        /// <param name="weaponHash">The weapon to remove</param>
+        public static void RemoveWeapon(this Ped ped, uint weaponHash) => RemoveWeaponFromPed(ped.Handle, weaponHash);
+
+        public static void RemoveWeapon(this Ped ped, WeaponHash weaponHash) => RemoveWeapon(ped, (uint)weaponHash);
         #endregion
 
         #region Animations
@@ -309,7 +334,7 @@ namespace Red.Common.Client
         /// <param name="lockX">Whether to lock the ped's X position during the animation.</param>
         /// <param name="lockY">Whether to lock the ped's Y position during the animation.</param>
         /// <param name="lockZ">Whether to lock the ped's Z position during the animation.</param>
-        public static void PlayAnim(this Ped ped, string dictionary, string name, float blendInSpeed, float blendOutSpeed, int duration, AnimationFlags flags, float playbackRate, bool lockX, bool lockY, bool lockZ)
+        public static void PlayAnimation(this Ped ped, string dictionary, string name, float blendInSpeed, float blendOutSpeed, int duration, AnimationFlags flags, float playbackRate, bool lockX, bool lockY, bool lockZ)
         {
             // Utilize the underlying TaskPlayAnim function for animation playback.
             TaskPlayAnim(
@@ -327,7 +352,7 @@ namespace Red.Common.Client
             );
         }
 
-        public static void PlayAnim(this Ped ped, string dictionary, string name, float blendInSpeed, float blendOutSpeed, int duration, int flags, float playbackRate, bool lockX, bool lockY, bool lockZ)
+        public static void PlayAnimation(this Ped ped, string dictionary, string name, float blendInSpeed, float blendOutSpeed, int duration, int flags, float playbackRate, bool lockX, bool lockY, bool lockZ)
         {
             // Utilize the underlying TaskPlayAnim function for animation playback.
             TaskPlayAnim(
@@ -344,13 +369,70 @@ namespace Red.Common.Client
                 lockZ         // Lock Z position
             );
         }
+        #endregion
 
-        /// <summary>
-        /// Modified version of blip.Scale
-        /// </summary>
-        /// <param name="blip"></param>
-        /// <param name="size"></param>
-        public static void Size(this Blip blip, float size = 1f) => blip.Scale = size;
+        #region Entity
+        public static float CorrectHeading(this Entity entity)
+        {
+            float number = 360f - entity.Heading;
+
+            if ((double)number > 360.0)
+            {
+                number -= 360f;
+            }
+
+            return number;
+        }
+
+        public static float CorrectHeading(this Ped ped) => CorrectHeading(ped);
+
+        public static float CorrectHeading(this Vehicle vehicle) => CorrectHeading(vehicle);
+        #endregion
+
+        #region Vector
+        public static Vector3 Around(this Vector3 position, float radius)
+        {
+            Vector3 direction = RandomVectorXY();
+            Vector3 around = position + (direction * radius);
+
+            return around;
+        }
+
+        public static Vector3 Around(this Vector3 position, float minDistance, float maxDistance)
+        {
+            return position.Around(GetRandomFloat(minDistance, maxDistance));
+        }
+
+        public static Vector3 RandomVectorXY()
+        {
+            Random random = new(Environment.TickCount);
+
+            Vector3 vector = new();
+            vector.X = (float)(random.NextDouble() - 0.5f);
+            vector.Y = (float)(random.NextDouble() - 0.5f);
+            vector.Z = (float)(random.NextDouble() - 0.5f);
+
+            vector.Z = 0.0f;
+            vector.Normalize();
+
+            return vector;
+        }
+
+        public static string[] GetStreenAndCrossAtCoords(this Vector3 position)
+        {
+            Vector3 zero = Vector3.Zero;
+            GetNthClosestVehicleNode(position.X, position.Y, position.Z, 0, ref zero, 0, 0, 0);
+
+            uint num1 = 1;
+            uint num2 = 1;
+
+            GetStreetNameAtCoord(position.X, position.Y, position.Z, ref num2, ref num1);
+
+            string streetNameFromHashKey = GetStreetNameFromHashKey(num1);
+            string str = !(streetNameFromHashKey != "") || !(streetNameFromHashKey != "NULL") || streetNameFromHashKey == null ? "" : streetNameFromHashKey;
+
+            return [World.GetStreetName(position), str];
+        }
         #endregion
     }
 }

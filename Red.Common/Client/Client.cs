@@ -5,11 +5,12 @@ using static CitizenFX.Core.Native.API;
 
 namespace Red.Common.Client
 {
-    public class Client : BaseScript
+    public class ClientMain : BaseScript
     {
+        #pragma warning disable
         #region Private Variables
         private static Player Player;
-        
+
         protected static readonly IReadOnlyList<Control> cameraControls = new List<Control>()
         {
             Control.LookBehind, Control.LookDown, Control.LookDownOnly, Control.LookLeft, Control.LookLeftOnly, Control.LookLeftRight, Control.LookRight,
@@ -103,17 +104,6 @@ namespace Red.Common.Client
         public static Prop GetClosestPropToPed(float radius = 5f) => PlayerPed.GetClosestPropToClient(radius);
 
         /// <summary>
-        /// Plays an animation
-        /// </summary>
-        /// <param name="dictionary"></param>
-        /// <param name="name"></param>
-        public static void PlayAnim(string dictionary, string name) => PlayerPed.Task.PlayAnimation(dictionary, name);
-
-        public static void PlayAnim(string dictionary, string name, float blindInSpeed, int duration, AnimationFlags flags) => PlayerPed.Task.PlayAnimation(dictionary, name, blindInSpeed, duration, flags);
-
-        public static void PlayAnim(string dictionary, string name, float blindInSpeed, float blindOutSpeed, int duration, AnimationFlags flags, float playbackRate) => PlayerPed.Task.PlayAnimation(dictionary, name, blindInSpeed, blindOutSpeed, duration, flags, playbackRate);
-
-        /// <summary>
         /// Calculates the distance to a blip
         /// </summary>
         /// <param name="blip"></param>
@@ -174,6 +164,25 @@ namespace Red.Common.Client
         }
 
         /// <summary>
+        /// Loads a unloaded animation.
+        /// </summary>
+        /// <param name="animDict"></param>
+        public static async void LoadAnim(string animDict)
+        {
+            while (!HasAnimDictLoaded(animDict))
+            {
+                RequestAnimDict(animDict);
+                await Delay(5);
+            }
+        }
+
+        /// <summary>
+        /// Same as LoadAnim just extended
+        /// </summary>
+        /// <param name="animDict"></param>
+        public static async void LoadAnimDict(string animDict) => LoadAnim(animDict);
+
+        /// <summary>
         /// Same as RequestAnim just extended
         /// </summary>
         /// <param name="animDict"></param>
@@ -188,7 +197,7 @@ namespace Red.Common.Client
             RequestAnimSet(animSet); // Request an animation set
             while (!HasAnimSetLoaded(animSet))
             {
-                await Delay(100); 
+                await Delay(100);
             }
 
             await Delay(0);
@@ -215,15 +224,21 @@ namespace Red.Common.Client
             }
         }
 
-        public static async void LoadScaleformMovie(string scaleformName)
+        /// <summary>
+        /// Loads a weapon asset if it's not loaded.
+        /// </summary>
+        /// <param name="weaponHash"></param>
+        /// <returns>A weapon asset being loaded.</returns>
+        public static async void LoadWeaponAsset(uint weaponHash)
         {
-            int scaleform = RequestScaleformMovie(scaleformName);
-
-            while (!HasScaleformMovieLoaded(scaleform))
+            RequestWeaponAsset(weaponHash, 31, 0);
+            while (!HasWeaponAssetLoaded(weaponHash))
             {
                 await Delay(0);
             }
         }
+
+        public static void LoadWeaponAsset(WeaponHash weaponHash) => LoadWeaponAsset((uint)weaponHash);
         #endregion
 
         #region Animations
@@ -233,13 +248,15 @@ namespace Red.Common.Client
         /// <param name="dictionary"></param>
         /// <param name="name"></param>
         /// <returns>An animation being played</returns>
-        public static void PlayAnimation(string dictionary, string name) => PlayAnim(dictionary, name);
-        
-        public static void PlayAnimation(string dictionary, string name, float blendOutSpeed, int duration, AnimationFlags flags) => PlayAnim(dictionary, name, blendOutSpeed, duration, flags);
-        
-        public static void PlayAnimation(string dictionary, string name, float blindInSpeed, float blendOutSpeed, int duration, AnimationFlags flags, float playbackRate) => PlayAnim(dictionary, name, blindInSpeed, blendOutSpeed, duration, flags, playbackRate);
-        
-        public static void PlayAnimation(string dictionary, string name, float blendInSpeed, float blendOutSpeed, int duration, int animationFlags, float playbackRate) => PlayAnim(dictionary, name, blendInSpeed, blendOutSpeed, duration, (AnimationFlags)animationFlags, playbackRate);
+        public static async Task PlayAnimation(string dictionary, string name) => PlayerPed.Task.PlayAnimation(dictionary, name);
+
+        public static async Task PlayAnimation(string dictionary, string name, float blendOutSpeed, int duration, AnimationFlags flags) => PlayerPed.Task.PlayAnimation(dictionary, name, blendOutSpeed, duration, flags);
+
+        public static async Task PlayAnimation(string dictionary, string name, float blindInSpeed, float blendOutSpeed, int duration, AnimationFlags flags, float playbackRate) => PlayerPed.Task.PlayAnimation(dictionary, name, blindInSpeed, blendOutSpeed, duration, flags, playbackRate);
+
+        public static async Task PlayAnimation(string dictionary, string name, float blendInSpeed, float blendOutSpeed, int duration, int animationFlags, float playbackRate) => PlayerPed.Task.PlayAnimation(dictionary, name, blendInSpeed, blendOutSpeed, duration, (AnimationFlags)animationFlags, playbackRate);
+
+        public static async Task PlayAnimation(string dictionary, string name, float blendOutSpeed, int duration, int flags) => PlayerPed.Task.PlayAnimation(dictionary, name, blendOutSpeed, duration, (AnimationFlags)flags);
         #endregion
 
         #region Controls
@@ -300,26 +317,36 @@ namespace Red.Common.Client
         public static void ClearAnimationTask(string animDict, string animName) => PlayerPed.Task.ClearAnimation(animDict, animName);
         #endregion
 
-        #region Chat Methods
-        /// <summary>
-        /// Shortened down version of the chat:addMessage event.
-        /// </summary>
-        /// <param name="author"></param>
-        /// <param name="message"></param>
-        /// <param name="r"></param>
-        /// <param name="g"></param>
-        /// <param name="b"></param>
-        public static void AddChatMessage(string author, string message, int r = 255, int g = 255, int b = 255) => TriggerEvent("chat:addMessage", new { color = new[] { r, g, b }, args = new[] { author, message } });
+        #region Colored Text
+        public static string RedOrangeText(string message) => $"^1{message}";
 
-        /// <summary>
-        /// Shortened down version of the _chat:chatMessage event.
-        /// </summary>
-        /// <param name="author"></param>
-        /// <param name="message"></param>
-        /// <param name="r"></param>
-        /// <param name="g"></param>
-        /// <param name="b"></param>
-        public static void ChatMessage(string author, string message, int r = 255, int g = 255, int b = 255) => TriggerEvent("_chat:chatMessage", author, new[] { r, g, b }, message);
+        public static string LightGreenText(string message) => $"^2{message}";
+
+        public static string LightYellowText(string message) => $"^3{message}";
+
+        public static string DarkBlueText(string message) => $"^4{message}";
+
+        public static string LightBlueText(string message) => $"^5{message}";
+
+        public static string VioletText(string message) => $"^6{message}";
+
+        public static string WhiteText(string message) => $"^7{message}";
+
+        public static string BloodRedText(string message) => $"^8{message}";
+
+        public static string FuchsiaText(string message) => $"^9{message}";
+
+        public static string BoldText(string message) => $"^*{message}";
+
+        public static string UnderlineText(string message) => $"^_{message}";
+
+        public static string StrikethroughText(string message) => $"^~{message}";
+
+        public static string UnderlineStrikethroughText(string message) => $"^={message}";
+
+        public static string BoldUnderlineStrikethroughText(string message) => $"^*^={message}";
+
+        public static string CancelFormattingText(string message) => $"^r{message}";
         #endregion
     }
 }

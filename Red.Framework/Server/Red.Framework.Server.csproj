@@ -12,5 +12,11 @@
   
       <Compile Include="../Shared/**/*.cs" />
     </ItemGroup>
+  
+    <ItemGroup>
+      <Reference Include="Irp.Common.Server.net">
+        <HintPath>..\..\..\Irp-Script\_References_\Irp.Common.Server.net.dll</HintPath>
+      </Reference>
+    </ItemGroup>
 </Project>
   

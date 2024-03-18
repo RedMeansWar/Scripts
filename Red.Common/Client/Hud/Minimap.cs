@@ -5,6 +5,7 @@ namespace Red.Common.Client.Hud
 {
     internal class Minimap
     {
+        #pragma warning disable
         public float Width { get; set; }
         public float Height { get; set; }
         public float X { get; set; }
@@ -15,7 +16,7 @@ namespace Red.Common.Client.Hud
         public float BottomY { get; set; }
         public float XUnit { get; set; }
         public float YUnit { get; set; }
-        
+
         /// <summary>
         /// Gets the minimap and anchors it, helps with text position without
         /// it moving (adjusts based off of SafeZone sizes).
@@ -31,7 +32,7 @@ namespace Red.Common.Client.Hud
 
             // Get aspect ratio (wide monitors might affect UI layout)
             float aspectRatio = GetAspectRatio(false);
-            
+
             // constant for scaling map based off of safezone size and aspect ratio
             float factor1 = 0.05f;
             float factor2 = 0.05f;
