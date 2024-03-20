@@ -190,13 +190,13 @@ namespace Red.Common.Client
         /// <param name="blip">The blip to calculate the distance from.</param>
         /// <param name="targetPos">The target position to measure the distance to.</param>
         /// <returns>The squared distance between the blip and the target position.</returns>
-        public static float CalculateDistanceTo(this Blip blip, Vector3 targetPos)
+        public static float DistanceTo(this Blip blip, Vector3 targetPos)
         {
             // Retrieve the blip's position in the world.
             Vector3 blipLocation = blip.Position;
 
             // Calculate the distance between the blip and the target position.
-            float distanceSquared = Vector3.Distance(blipLocation, targetPos);
+            float distanceSquared = Vector3.DistanceSquared(blipLocation, targetPos);
 
             return distanceSquared;
         }
@@ -207,13 +207,13 @@ namespace Red.Common.Client
         /// <param name="blip">The blip to calculate the distance from.</param>
         /// <param name="targetPos">The target position to measure the distance to.</param>
         /// <returns>The distance between the ped and the target position.</returns>
-        public static float CalculateDistanceTo(this Ped ped, Vector3 targetPos)
+        public static float DistanceTo(this Ped ped, Vector3 targetPos)
         {
             // Retrieve the ped's position in the world.
             Vector3 pedPosition = ped.Position;
 
             // Calculate the distance between the ped and the target position.
-            float distance = Vector3.Distance(pedPosition, targetPos);
+            float distance = Vector3.DistanceSquared(pedPosition, targetPos);
 
             return distance;
         }
@@ -224,13 +224,13 @@ namespace Red.Common.Client
         /// <param name="vehicle">The vehicle to calculate the distance from.</param>
         /// <param name="targetPos">The target position to measure the distance to.</param>
         /// <returns>The distance between the vehicle and the target position.</returns>
-        public static float CalculeDistanceTo(this Vehicle vehicle, Vector3 targetPos)
+        public static float DistanceTo(this Vehicle vehicle, Vector3 targetPos)
         {
             // Retrieve the vehicle's position in the world.
             Vector3 vehPosition = vehicle.Position;
 
             // Calculate the distance between the vehicle and the target position.
-            float distance = Vector3.Distance(vehPosition, targetPos);
+            float distance = Vector3.DistanceSquared(vehPosition, targetPos);
 
             return distance;
         }
@@ -241,13 +241,13 @@ namespace Red.Common.Client
         /// <param name="prop">The prop to calculate the distance from.</param>
         /// <param name="targetPos">The target position to measure the distance to.</param>
         /// <returns>The distance between the prop and the target position.</returns>
-        public static float CalculeDistanceTo(this Prop prop, Vector3 targetPos)
+        public static float DistanceTo(this Prop prop, Vector3 targetPos)
         {
             // Retrieve the prop's position in the world.
             Vector3 propPos = prop.Position;
 
             // Calculate the distance between the prop and the target position.
-            float distance = Vector3.Distance(propPos, targetPos);
+            float distance = Vector3.DistanceSquared(propPos, targetPos);
 
             return distance;
         }

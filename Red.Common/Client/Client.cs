@@ -5,7 +5,7 @@ using static CitizenFX.Core.Native.API;
 
 namespace Red.Common.Client
 {
-    public class ClientMain : BaseScript
+    public class Client : BaseScript
     {
         #pragma warning disable
         #region Private Variables
@@ -107,11 +107,11 @@ namespace Red.Common.Client
         /// Calculates the distance to a blip
         /// </summary>
         /// <param name="blip"></param>
-        /// <param name="x"></param>
+        /// <param name="x"></param>DistanceTo
         /// <param name="y"></param>
         /// <param name="z"></param>
         /// <returns></returns>
-        public static float CalculateDistanceTo(Blip blip, float x, float y, float z) => blip.CalculateDistanceTo(new(x, y, z));
+        public static float DistanceTo(Blip blip, float x, float y, float z) => blip.DistanceTo(new(x, y, z));
         #endregion
 
         #region Model Checker
