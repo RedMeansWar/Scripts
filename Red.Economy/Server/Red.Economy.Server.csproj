@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+      <TargetFramework>netstandard2.0</TargetFramework>
+      <DebugType>portable</DebugType>
+      <TargetName>$(AssemblyName).net</TargetName>
+      <DefineConstants>SERVER</DefineConstants>
+		<LangVersion>latest</LangVersion>
+    </PropertyGroup>
+  
+    <ItemGroup>
+      <PackageReference Include="CitizenFX.Core.Server" Version="1.0.*" />
+  
+      <Compile Include="../Shared/**/*.cs" />
+    </ItemGroup>
+  
+    <ItemGroup>
+      <Reference Include="Red.Common.Server.net">
+        <HintPath>..\..\_References_\Red.Common.Server.net.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+</Project>
+  
