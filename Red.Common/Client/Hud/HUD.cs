@@ -1,34 +1,46 @@
 ﻿using System;
 using System.Threading.Tasks;
 using CitizenFX.Core;
+using CitizenFX.Core.Native;
 using CitizenFX.Core.UI;
 using static CitizenFX.Core.Native.API;
 
 namespace Red.Common.Client.Hud
 {
+    #pragma warning disable
     public class HUD : BaseScript
     {
-        #pragma warning disable
         /// <summary>
-        /// Toggles the clients HUD
+        /// Toggles the clients HUD.
         /// </summary>
         /// <param name="display"></param>
         public static void DisplayHUD(bool display = true) => DisplayHud(display);
 
         /// <summary>
-        /// Shortened version of Screen.Hud.IsVisable
-        /// </summary>
-        public static bool HUDIsVisible => Screen.Hud.IsVisible;
-
-        /// <summary>
-        /// Determines if the HUD is hidden another version of IsHudHidden
+        /// Determines if the HUD is hidden another version of IsHudHidden.
         /// </summary>
         /// <returns></returns>
         public static bool IsHUDHidden() => IsHudHidden();
 
+        /// <summary>
+        /// Determine if minimap is set to "Big Mode".
+        /// </summary>
+        /// <returns></returns>
+        public static bool IsBigmapActive() => API.IsBigmapActive();
+
+        /// <summary>
+        /// Determines if the HUD is visable.
+        /// </summary>
+        public static bool HUDIsVisible => Screen.Hud.IsVisible;
+
+        /// <summary>
+        /// Determins if the Radar is visable.
+        /// </summary>
+        public static bool RadarIsVisible => Screen.Hud.IsRadarVisible;
+
         #region Notifications
         /// <summary>
-        /// Gives a success notification using bold, green, and white text
+        /// Gives a success notification using bold, green, and white text.
         /// </summary>
         /// <param name="message"></param>
         /// <param name="blink"></param>
@@ -389,6 +401,13 @@ namespace Red.Common.Client.Hud
             };
 
             return resolution;
+        }
+
+        public static void DrawNotification(string textureDict, string textureName, int icon, string message, string title, string subtitle)
+        {
+            SetNotificationTextEntry("STRING");
+            AddTextComponentString(message);
+            SetNotificationMessage(textureDict, textureName, true, icon, title, subtitle);
         }
     }
 }

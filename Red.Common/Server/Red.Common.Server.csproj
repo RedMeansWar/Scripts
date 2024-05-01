@@ -4,7 +4,7 @@
       <DebugType>portable</DebugType>
       <TargetName>$(AssemblyName).net</TargetName>
       <DefineConstants>SERVER</DefineConstants>
-		<LangVersion>latests</LangVersion>
+      <LangVersion>latest</LangVersion>
     </PropertyGroup>
   
     <ItemGroup>

@@ -9,76 +9,30 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/css/bootstrap.min.css" integrity="sha512-SbiR/eusphKoMVVXysTKG/7VseWii+Y3FdHrt0EpKgpToZeemhqHeZeLWLhJutz/2ut2Vw1uQEj2MbRF+TVBUA==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" integrity="sha512-jnSuA4Ss2PkkikSOLtYs8BlYIeeIK1h99ty4YfvRPAlzr377vr3CXDb7sb7eEEBYjDtcYj+AjBH3FLv5uSJuXg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/css/bootstrap-datepicker.min.css" integrity="sha512-34s5cpvaNG3BknEWSuOncX28vz97bRI59UnVtEEpFX536A7BtZSJHsDyFoCl8S7Dt2TPzcrCEoHBGeM4SUBDBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="style.css">
   </head>
-  <body style="display: none">
+  <body style="display: none;">
     <div class="content-container">
-    <img src="imgs/logo.png" class="logo" loading="lazy">
-    <h2 class="titleHeader" id="communityHeader" style="font-weight: 400;">Community Name</h2>
-    <h2 class="titleHeader" id="titleHeader">Welcome to San Andreas! (AOP: Statewide)</h2>
-    <div class="mainBody" id="mainBody" style="display: none">
-      <ul id="charList" class="characterList">
-        <li class="characterItem">
-          <button class="btn btn-primary">Play As: Brandon O (CIV)</button>
-          <button class="btn btn-success">Edit</button>
-        </li>
-      </ul>
-    </div>
-
-    <div class="quitButton">
-      <button class="btn btn-danger" onclick="quitGame()">Quit Game</button>
-    </div>
-
-    <div class="cancelButton">
-        <button class="btn btn-warning" onclick="cancelNUI()">Cancel</button>
-    </div>
-
-    <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-          <div class="modal-body text-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-3">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="8" x2="12" y2="12"></line>
-              <line x1="12" y1="16" x2="12" y2="16"></line>
-            </svg>
-            <h5 class="modal-title mb-3">Error!</h5>
-            <p style="color: red;" id="errorMsg">Error: Something went wrong.</p>
-          </div>
-          <div class="modal-footer justify-content-center">
-            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
-          </div>
-        </div>
+      <img src="imgs/logo.png" class="logo" loading="lazy">
+      <h2 class="frameworkHeader" id="frameworkHeader">Welcome to the INRP Framework</h2>
+      <h2 class="titleHeader" id="titleHeader">AOP: Statewide</h2>
+      <div class="mainBody" id="mainBody" style="display: none;">
+        <ul id="charList" class="characterList">
+          <li class="characterItem">
+            <button class="select-btn-hover color-1">Play As: Brandon O. (Civ)</button>
+            <button class="edit-btn-hover color-1"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button class="delete-btn-hover color-1"><i class="fa-solid fa-trash-can"></i></button>
+          </li>
+        </ul>
+      </div>
+      <div class="cancelButton">
+        <button class="custom-btn-hover color-1" onclick="closeNUI()">Cancel</button>
       </div>
     </div>
 
-    <div class="modal fade" id="confDeleteModal" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="confDeleteModalHeader">Are you sure?</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <div class="text-center mb-3">
-              <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-3">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="8 12 12 16 16 12"></polyline>
-                <line x1="12" y1="8" x2="12" y2="16"></line>
-              </svg>
-              <h5 style="color: red;" id="confDeleteMessage">Are you sure you wish to delete this character? We won't be able to help you recover this character.</h5>
-            </div>
-          </div>
-          <div class="modal-footer" id="confDeleteModalFooter">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal fade" id="createChar" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal fade" id="createChar" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false" data-bs-theme="dark">
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
           <div class="modal-header">
@@ -151,14 +105,14 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-primary" onclick="validateCreateCharacter()">Create Character</button>
+            <button type="button" class="btn btn-primary" onclick="validateAndCreateCharacter();">Create Character</button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="modal fade" id="editChar" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" role="dialog">
+    <div class="modal fade" id="editChar" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" role="dialog" data-bs-theme="dark">
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
           <div class="modal-header">
@@ -220,13 +174,13 @@
           <div class="modal-footer" id="editModalFooter">
             <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Delete Character</button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary" onclick="validateCreateValuesAndEditCharacter()">Save Character</button>
+            <button type="button" class="btn btn-primary" onclick="validateAndEditCharacter();">Save Character</button>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-hidden="true" data-bs-theme="dark">
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
           <div class="modal-body text-center">
@@ -244,91 +198,82 @@
       </div>
     </div>
 
-    <div class="modal fade modal-lg" id="civSpawnModal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="civSpawnModal" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="spawnLocationtitle">Spawn Locations</h5>
-              <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" onclick="hideCivSpawnModal()">
-              </button>
-            </div>
-            <div class="modal-body">
-                    <div class="d-grid gap-2 col-13 mx-6">
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#prisonSpawnBtn" onclick="spawnAtPrison()">365 Bolingbrooke Approach</button>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#grapeseedHouseSpawnBtn" onclick="spawnAtGrapeseed()">114 Grapeseed Main Street</button>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#routeHotelNewSpawnBtn" onclick="spawnAtMotelNew()">260 Route 68 (Motel)</button>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#routeHotelSpawnBtn" onclick="spawnAtMotel()">241 Route 68 (Motel)</button>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#routeHotelAbandonedSpawnBtn" onclick="spawnAtAbandonedMotel()">274 Panorama Drive (Motel)</button>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#casinoSpawnBtn" onclick="spawnAtCasino()">587 Mirror Park Boulevard (Casino)</button>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#groveStreetSpawnBtn" onclick="spawnAtGroveStreet()">845 Grove Street (House)</button>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#morningHotelSpawnBtn" onclick="spawnAtMorningwoodHotel()">658 Morningwood Boulevard (Hotel)</button>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#mirrorParkSpawnBtn" onclick="spawnAtNikolaPlace()">571 Nikola Place (Mirror Park)</button>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#SpawnBtn" onclick="spawnAtStarLane()">367 Star Lane (House)</button>
-                    </div>
-                </div>
-            <div class="modal-footer">
-              <button class="btn btn-danger" data-dismiss="modal" onclick="doNotTeleport()">Don't Teleport</button>
-            </div>
-        </div>
-        </div>
-    </div>
-    
-    <div class="modal fade modal-lg" id="policeSpawnModal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="policeSpawnModal" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="spawnLocationPolicetitle">Spawn Locations</h5>
-              <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" onclick="hideLeoSpawnModal()">
-              </button>
-            </div>
-            <div class="modal-body">
-                    <div class="d-grid gap-2 col-13 mx-6">
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#vinewoodPdSpawnBtn" onclick="spawnAtVinewoodPd()">Vinewood Police Station</button>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#sandyPdSpawnBtn" onclick="spawnAtSandyPd()">Sandy Shores Police Station</button>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#davisPdSpawnBtn" onclick="spawnAtDavisPd()">Davis Police Station</button>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#paletoPdSpawnBtn" onclick="spawnAtPaletoPd()">Paleto Bay Police Station</button>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#missionRowPdSpawnBtn" onclick="spawnAtMissonRowPd()">Mission Row Police Station</button>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#rockfordHillsPdSpawnBtn" onclick="spawnAtRockfordPd()">Rockford Hills Police Station</button>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#delPerroPdSpawnBtn" onclick="spawnAtDelPerroPd()">Del Perro Police Station</button>
-                    </div>
-                </div>
-            <div class="modal-footer">
-              <button class="btn btn-danger" data-dismiss="modal" onclick="doNotTeleport()">Don't Teleport</button>
-            </div>
-        </div>
-        </div>
-    </div>
-
-    <div class="modal fade modal-lg" id="fireSpawnModal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="fireSpawnModal" aria-hidden="true">
+    <div class="modal fade modal-lg" id="spawnModalCiv" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false" data-bs-theme="dark">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="spawnLocationFiretitle">Spawn Locations</h5>
-            <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" onclick="hideFireSpawnModal()">
-            </button>
+            <h5 class="modal-title" id="spawnLocationCivTitle">Spawn Locations</h5>
+            <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" onclick="hideSpawnModal('civ')"></button>
           </div>
           <div class="modal-body">
-                  <div class="d-grid gap-2 col-13 mx-6">
-                      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#station1SpawnBtn" onclick="spawnAtStation1()">Station 1</button>
-                      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#station2SpawnBtn" onclick="spawnAtStation2()">Station 2</button>
-                      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#station3SpawnBtn" onclick="spawnAtStation3()">Station 3</button>
-                      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#station4SpawnBtn" onclick="spawnAtStation3()">Station 4</button>
-                      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#station5SpawnBtn" onclick="spawnAtStation4()">Station 5</button>
-                      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#station6SpawnBtn" onclick="spawnAtStation5()">Station 6</button>
-                      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#station7SpawnBtn" onclick="spawnAtStation6()">Station 7</button>
-                      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#station8SpawnBtn" onclick="spawnAtStation7()">Station 8</button>
-                  </div>
-              </div>
-          <div class="modal-footer">
-            <button class="btn btn-danger" data-dismiss="modal" onclick="doNotTeleport()">Don't Teleport</button>
+            <div class="d-grid gap-2 col-13 mx-6">
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#prisonSpawnBtn" onclick="spawnAt(1848.56, 2585.75, 45.67, 265.45)">365 Bolingbrooke Approach</button>
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#grapeseedHouseSpawnBtn" onclick="spawnAt(1666.2, 4740.12, 41.99, 282.89)">114 Grapeseed Main Street</button>
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#routeHotelNewSpawnBtn" onclick="spawnAt(1114.75, 2641.67, 38.14, 354.14)">260 Route 68 (Motel)</button>
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#routeHotelSpawnBtn" onclick="spawnAt(366.72, 2625.21, 44.67, 26.68)">241 Route 68 (Motel)</button>
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#routeHotelAbandonedSpawnBtn" onclick="spawnAt(1569.59, 3607.65, 35.37, 26.12)">274 Panorama Drive (Motel)</button>
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#casinoSpawnBtn" onclick="spawnAt(885.27, -2.63, 78.76, 414.21)">587 Mirror Park Boulevard (Casino)</button>
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#groveStreetSpawnBtn" onclick="spawnAt(90.7, -1965.5, 20.75, 316.16)">845 Grove Street (House)</button>
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#morningHotelSpawnBtn" onclick="spawnAt(-1221.59, -184.09, 39.18, 119.75)">658 Morningwood Boulevard (Hotel)</button>
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#mirrorParkSpawnBtn" onclick="spawnAt(1395.14, '-574.76', 74.34, '107.64')">571 Nikola Place (Mirror Park)</button>
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#SpawnBtn" onclick="spawnAt(1404.22, 2169.01, 97.88, 262.06)">367 Star Lane (House)</button>
+              <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#civDoNotTpBtn" onclick="doNotTeleport()">Do Not Teleport</button>
+            </div>
           </div>
+        </div>
       </div>
+    </div>
+    
+    <div class="modal fade modal-lg" id="spawnModalPolice" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false" data-bs-theme="dark">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="spawnLocationPoliceTitle">Spawn Locations</h5>
+            <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" onclick="hideSpawnModal('police')"></button>
+          </div>
+          <div class="modal-body">
+            <div class="d-grid gap-2 col-13 mx-6">
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#vinewoodPdSpawnBtn" onclick="spawnAt(-1124.36, -842.13, 13.41, 136.39)">Vinewood Police Station</button>
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#sandyPdSpawnBtn" onclick="spawnAt(1840.83, 3679.76, 34.19, 181.85)">Sandy Shores Police Station</button>
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#davisPdSpawnBtn" onclick="spawnAt(374.11, -1624.37, 29.29, 230.29)">Davis Police Station</button>
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#paletoPdSpawnBtn" onclick="spawnAt(-448.18, 6013.79, 37, 222.19)">Paleto Bay Police Station</button>
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#missionRowPdSpawnBtn" onclick="spawnAt(422.05, -1011,96, 28.57, 181.85)">Mission Row Police Station</button>
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#rockfordHillsPdSpawnBtn" onclick="spawnAt(-564.63, -137.21, 38.14)">Rockford Hills Police Station</button>
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#vespucciPdSpawnBtn" onclick="spawnAt(-1078.2, -857.61, 5.04, 210.27)">Vespucci Police Station</button>
+              <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#policeDoNotTpBtn" onclick="doNotTeleport()">Do Not Teleport</button>
+            </div>
+          </div>
+        </div>
       </div>
-  </div>
+    </div>
 
+    <div class="modal fade modal-lg" id="spawnModalFire" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false" data-bs-theme="dark">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="spawnLocationFireTitle">Spawn Locations</h5>
+            <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" onclick="hideSpawnModal('fire')"></button>
+          </div>
+          <div class="modal-body">
+            <div class="d-grid gap-2 col-13 mx-6">
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#station1SpawnBtn" onclick="spawnAt(-643.33, -113.28, 37.93, 123.41)">Station 1</button>
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#station2SpawnBtn" onclick="spawnAt(1710.5, 3596.01, 35.42, 209.97)">Station 2</button>
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#station3SpawnBtn" onclick="spawnAt(-381.79, 6121.03, 31.48, 41.7)">Station 3</button>
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#station4SpawnBtn" onclick="spawnAt(-2102.73, 2833.15, 32.81, 332.1)">Station 4</button>
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#station5SpawnBtn" onclick="spawnAt(-1025.85, -2374.63, 13.94, 239.54)">Station 5</button>
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#station6SpawnBtn" onclick="spawnAt(215.05, -1634.25, 29.37, 322.82)">Station 6</button>
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#station7SpawnBtn" onclick="spawnAt(1196.37, -1459.29, 34.76, 2.82)">Station 7</button>
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#station8SpawnBtn" onclick="spawnAt(-1173.58, -1774.7, 3.85, 307.41)">Station 8</button>
+              <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#fireDoNotTpBtn" onclick="doNotTeleport()">Do Not Teleport</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js" integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.7/js/tether.min.js" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/js/bootstrap.min.js" integrity="sha512-1/RvZTcCDEUjY/CypiMz+iqqtaoQfAITmNSJY17Myp4Ms5mdxPS5UV7iOfdZoxcGhzFbOm6sntTKJppjvuhg4g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.min.js" integrity="sha512-ykZ1QQr0Jy/4ZkvKuqWn4iF3lqPZyij9iRv6sGqLRdTPkY69YX6+7wvVGmsdBbiIfN/8OdsI7HABjvEok6ZopQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js" integrity="sha512-LsnSViqQyaXpD4mBBdRYeP6sRwJiJveh2ZIbW41EBrNmKxgr/LFZIiWT6yr+nycvhvauz8c2nYMhrP80YhG7Cw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="script.js" defer></script>
   </body>

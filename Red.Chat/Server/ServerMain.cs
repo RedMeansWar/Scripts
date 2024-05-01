@@ -15,12 +15,23 @@ namespace Red.Chat.Server
                 return;
             }
 
-            TriggerLatentClientEvent("_chat:chatMessage", 5000, "SYSTEM", new int[] { 194, 39, 39 }, string.Join(" ", args));
+            TriggerLatentClientEvent("_chat:messageEntered", 5000, "INRP", new int[] { 194, 39, 39 }, string.Join(" ", args));
         }
         #endregion
 
         #region Event Handlers
-        [EventHandler("Chat:Server:chatNearby")]
+        [EventHandler("__cfx_internal:commandFallback")]
+        private void OnCommandNotRcon([FromSource] Player player, string msg)
+        {
+            string name = player.Name;
+            TriggerEvent("chatMessage", player.Handle, name, $"/{msg}");
+            CancelEvent();
+        }
+
+        [EventHandler("playerDropped")]
+        private void OnPlayerDropped([FromSource] Player player, string reason) => TriggerClientEvent("chatMessage", "", new[] { 255, 255, 255 }, $"^* ^2 {player.Name} left. ({reason})");
+
+        [EventHandler("_chatNearby")]
         private void OnChatMessageNearby([FromSource] Player player, dynamic author, dynamic color, dynamic message, dynamic nearbyPlayers, Vector3 authorPos)
         {
             Debug.WriteLine($"{author}: {message}^0");
@@ -36,44 +47,38 @@ namespace Red.Chat.Server
                         chatMessageArgs = chatMessageArgs.Append(authorPos).ToArray();
                     }
 
-                    ply.TriggerEvent("_chat:chatMessage", chatMessageArgs);
+                    ply.TriggerEvent("_chat:messageEntered", chatMessageArgs);
                 }
             }
         }
 
-        [EventHandler("Chat:Server:messageEntered")]
+        [EventHandler("_chat:messageEntered")]
         private void OnMessageEntered([FromSource] Player player, dynamic author, dynamic color, dynamic message)
         {
             Debug.WriteLine($"{author}: {message}^0");
 
             if (!WasEventCanceled() && !message.StartsWith("/"))
             {
-                TriggerClientEvent("_chat:chatMessage", author, color, message);
+                TriggerClientEvent("_chat:messageEntered", author, color, message);
             }
         }
 
-        [EventHandler("Chat:Server:radioMessage")]
+        [EventHandler("_chat:radioMessage")]
         private void OnRadioMessage([FromSource] Player player, string message)
         {
             TriggerClientEvent("chat:radioMessage", $"{player.Name} (#{int.Parse(player.Handle)})", message);
         }
 
-        [EventHandler("Chat:Server:twotterMessage")]
-        private void OnTwotterMessage([FromSource] Player player, string username, string message)
+        [EventHandler("_chat:twitterMessage")]
+        private void OnTwitterMessage([FromSource] Player player, string username, string message)
         {
-            TriggerClientEvent("chat:twotterMessage", username, message);
+            TriggerClientEvent("chat:twitterMessage", username, message);
         }
 
-        [EventHandler("Chat:Server:911Message")]
+        [EventHandler("_chat:911Message")]
         private void On911Message([FromSource] Player player, string location, string message)
         {
             TriggerClientEvent("chat:911Message", $"{player.Name} [{location}] (#{int.Parse(player.Handle)})", message);
-        }
-
-        [EventHandler("Chat:Server:311Message")]
-        private void On311Message([FromSource] Player player, string location, string message)
-        {
-            TriggerClientEvent("chat:311Message", $"{player.Name} [{location}] (#{int.Parse(player.Handle)})", message);
         }
         #endregion
     }

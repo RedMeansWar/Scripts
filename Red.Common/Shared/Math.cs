@@ -109,13 +109,6 @@ namespace Red.Common
 
             return Math.Abs(num1 * num2) / GreatestCommonDivisor(num1, num2);
         }
-
-        public static float GetRandomFloat(float min, float max)
-        {
-            Random random = new(Environment.TickCount);
-
-            return (float)random.NextDouble() * (max - min) + min;
-        }
     }
 
     public static class MathExtension

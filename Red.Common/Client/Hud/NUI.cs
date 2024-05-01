@@ -5,7 +5,7 @@ using static CitizenFX.Core.Native.API;
 
 namespace Red.Common.Client.Hud
 {
-    public class NUI
+    public class NUI : BaseScript
     {
         /// <summary>
         /// Registers a callback for a specific NUI message, providing a convenient way to handle NUI interactions.

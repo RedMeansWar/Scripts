@@ -5,7 +5,6 @@ namespace Red.Common.Client.Hud
 {
     internal class Minimap
     {
-        #pragma warning disable
         public float Width { get; set; }
         public float Height { get; set; }
         public float X { get; set; }
@@ -20,6 +19,7 @@ namespace Red.Common.Client.Hud
         /// <summary>
         /// Gets the minimap and anchors it, helps with text position without
         /// it moving (adjusts based off of SafeZone sizes).
+        /// 
         /// Minimap Anchor made by https://github.com/glitchdetector/fivem-minimap-anchor/blob/master/MINIANCHOR.lua
         /// 16:9 Modifications give to by traditionalism https://github.com/traditionalism
         /// </summary>

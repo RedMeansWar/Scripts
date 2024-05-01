@@ -1,13 +1,11 @@
-using System;
 using System.Linq;
-using System.Threading.Tasks;
 using CitizenFX.Core;
 
 namespace Red.Common.Server
 {
-    public class ServerMain : BaseScript
+    #pragma warning disable
+    public class Server : BaseScript
     {
-        #pragma warning disable
         #region Variables
         // These are all seperated method for use if method is not needed.
         protected static ExportDictionary ResourceExports;
@@ -74,6 +72,14 @@ namespace Red.Common.Server
         public static string GetXblId(Player player) => GetIdentifierFromType(player, "xbl:");
 
         /// <summary>
+        /// Gets the player's Public IP Address.
+        /// Reliability: Best
+        /// </summary>
+        /// <param name="player"></param>
+        /// <returns>The player's IP Address, or an empty string if not found.</returns>
+        public static string GetIpAddress(Player player) => GetIdentifierFromType(player, "ip:");
+
+        /// <summary>
         /// Gets the identifier from a player's identifiers that starts with a given prefix.
         /// </summary>
         /// <param name="player">The player to get the identifier from.</param>
@@ -105,38 +111,6 @@ namespace Red.Common.Server
             // Return the identifier.
             return id;
         }
-        #endregion
-
-        #region Colored Text
-        public static string RedOrangeText(string message) => $"^1{message}";
-
-        public static string LightGreenText(string message) => $"^2{message}";
-
-        public static string LightYellowText(string message) => $"^3{message}";
-
-        public static string DarkBlueText(string message) => $"^4{message}";
-
-        public static string LightBlueText(string message) => $"^5{message}";
-
-        public static string VioletText(string message) => $"^6{message}";
-
-        public static string WhiteText(string message) => $"^7{message}";
-
-        public static string BloodRedText(string message) => $"^8{message}";
-
-        public static string FuchsiaText(string message) => $"^9{message}";
-
-        public static string BoldText(string message) => $"^*{message}";
-
-        public static string UnderlineText(string message) => $"^_{message}";
-
-        public static string StrikethroughText(string message) => $"^~{message}";
-
-        public static string UnderlineStrikethroughText(string message) => $"^={message}";
-
-        public static string BoldUnderlineStrikethroughText(string message) => $"^*^={message}";
-
-        public static string CancelFormattingText(string message) => $"^r{message}";
         #endregion
     }
 }

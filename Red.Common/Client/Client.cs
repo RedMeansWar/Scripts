@@ -5,35 +5,10 @@ using static CitizenFX.Core.Native.API;
 
 namespace Red.Common.Client
 {
+    #pragma warning disable
     public class Client : BaseScript
     {
-        #pragma warning disable
         #region Private Variables
-        private static Player Player;
-
-        protected static readonly IReadOnlyList<Control> cameraControls = new List<Control>()
-        {
-            Control.LookBehind, Control.LookDown, Control.LookDownOnly, Control.LookLeft, Control.LookLeftOnly, Control.LookLeftRight, Control.LookRight,
-            Control.LookRightOnly, Control.LookUp, Control.LookUpDown, Control.LookUpOnly, Control.ScaledLookDownOnly, Control.ScaledLookLeftOnly,
-            Control.ScaledLookLeftRight, Control.ScaledLookUpDown, Control.ScaledLookUpOnly,  Control.VehicleDriveLook, Control.VehicleDriveLook2,
-            Control.VehicleLookBehind, Control.VehicleLookLeft, Control.VehicleLookRight, Control.NextCamera, Control.VehicleFlyAttackCamera, Control.VehicleCinCam,
-        };
-
-        protected static readonly IReadOnlyList<Control> movementControls = new List<Control>()
-        {
-            Control.MoveDown, Control.MoveDownOnly, Control.MoveLeft, Control.MoveLeftOnly, Control.MoveLeftRight, Control.MoveRight, Control.MoveRightOnly,
-            Control.MoveUp, Control.MoveUpDown, Control.MoveUpOnly, Control.VehicleFlyMouseControlOverride, Control.VehicleMouseControlOverride,
-            Control.VehicleMoveDown, Control.VehicleMoveDownOnly, Control.VehicleMoveLeft, Control.VehicleMoveLeftRight, Control.VehicleMoveRight,
-            Control.VehicleMoveRightOnly, Control.VehicleMoveUp, Control.VehicleMoveUpDown, Control.VehicleSubMouseControlOverride, Control.Duck, Control.SelectWeapon
-        };
-
-        protected static readonly IReadOnlyList<Control> attackControls = new List<Control>()
-        {
-            Control.Attack, Control.Attack2, Control.MeleeAttack1, Control.MeleeAttack2, Control.MeleeAttackAlternate, Control.MeleeAttackHeavy,
-            Control.MeleeAttackLight, Control.MeleeBlock, Control.VehicleAttack, Control.VehicleAttack2, Control.VehicleFlyAttack, Control.VehicleFlyAttack2,
-            Control.VehiclePassengerAttack
-        };
-
         protected static readonly IReadOnlyList<WeaponHash> automaticWeapons = new List<WeaponHash>()
         {
             WeaponHash.MicroSMG, WeaponHash.MachinePistol, WeaponHash.MiniSMG, WeaponHash.SMG, WeaponHash.SMGMk2, WeaponHash.AssaultSMG, WeaponHash.CombatPDW,
@@ -45,21 +20,21 @@ namespace Red.Common.Client
 
         #region Extensions
         public static Ped PlayerPed = Game.PlayerPed;
-        public static Ped PlayerCharacter = Game.Player.Character;
+        public static Player ClientPlayer = Game.Player;
 
         /// <summary>
-        /// Shortened version of GetClosestPlayerToPlayer without PlayerPlayer to access it.
+        /// Shortened version of GetClosestPlayerToPlayer without Player to access it.
         /// </summary>
         /// <param name="radius"></param>
         /// <returns></returns>
-        public static Player GetClosestPlayer(float radius = 2f) => Player.GetClosestPlayerToClient(radius);
+        public static Player GetClosestPlayer(float radius = 2f) => ClientPlayer.GetClosestPlayerToClient(radius);
 
         /// <summary>
-        /// Shortened version of GetClosestPlayerToPlayer without PlayerPlayer to access it.
+        /// Shortened version of GetClosestPlayerToPlayer without Player to access it.
         /// </summary>
         /// <param name="radius"></param>
         /// <returns></returns>
-        public static Player GetClosestPlayerToPed(float radius = 2f) => Player.GetClosestPlayerToClient(radius);
+        public static Player GetClosestPlayerToPed(float radius = 2f) => ClientPlayer.GetClosestPlayerToClient(radius);
 
         /// <summary>
         /// Shortened version of GetClosestVehicle without PlayerPed to access it.
@@ -102,16 +77,6 @@ namespace Red.Common.Client
         /// <param name="radius"></param>
         /// <returns></returns>
         public static Prop GetClosestPropToPed(float radius = 5f) => PlayerPed.GetClosestPropToClient(radius);
-
-        /// <summary>
-        /// Calculates the distance to a blip
-        /// </summary>
-        /// <param name="blip"></param>
-        /// <param name="x"></param>DistanceTo
-        /// <param name="y"></param>
-        /// <param name="z"></param>
-        /// <returns></returns>
-        public static float DistanceTo(Blip blip, float x, float y, float z) => blip.DistanceTo(new(x, y, z));
         #endregion
 
         #region Model Checker
@@ -259,38 +224,18 @@ namespace Red.Common.Client
         public static async Task PlayAnimation(string dictionary, string name, float blendOutSpeed, int duration, int flags) => PlayerPed.Task.PlayAnimation(dictionary, name, blendOutSpeed, duration, (AnimationFlags)flags);
         #endregion
 
-        #region Controls
-        /// <summary>
-        /// Disables specific player controls for the current frame, optionally including camera controls.
-        /// </summary>
-        /// <param name="cameraMovement">Whether to disable camera controls in addition to movement controls.</param>
-        public static void DisableMovementControls(bool cameraMovement)
-        {
-            // Disable camera controls if requested.
-            if (cameraMovement)
-            {
-                foreach (Control control in cameraControls)
-                {
-                    // Disable the control for both the player and third-person camera.
-                    Game.DisableControlThisFrame(0, control);  // Player
-                    Game.DisableControlThisFrame(2, control);  // Third-person camera
-                }
-            }
+        #region Props
+        public static async Task CreateProp(string modelName, Vector3 position, bool hasPhysics = false, bool placeOnGround = false) => World.CreateProp(new(modelName), position, hasPhysics, placeOnGround);
 
-            // Disable movement controls.
-            foreach (Control control in movementControls)
-            {
-                // Disable the control for both the player and third-person camera.
-                Game.DisableControlThisFrame(0, control);
-                Game.DisableControlThisFrame(2, control);
-            }
-        }
+        public static async Task CreatePropWithPhysics(string modelName, Vector3 position, bool placeOnGround = false) => World.CreateProp(new(modelName), position, true, placeOnGround);
 
-        /// <summary>
-        /// Checks if the last input was a controller input.
-        /// </summary>
-        /// <returns></returns>
-        public static bool LastInputWasController() => IsUsingKeyboard(2);
+        public static async Task CreatePropOnGround(string modelName, Vector3 position, bool hasPhysics = false) => World.CreateProp(new(modelName), position, hasPhysics, true);
+
+        public static async Task CreateProp(Model model, Vector3 position, bool hasPhysics = false, bool placeOnGround = false) => World.CreateProp(model, position, hasPhysics, placeOnGround);
+
+        public static async Task CreatePropWithPhysics(Model model, Vector3 position, bool placeOnGround = false) => World.CreateProp(model, position, true, placeOnGround);
+
+        public static async Task CreatePropOnGround(Model model, Vector3 position, bool hasPhysics = false) => World.CreateProp(model, position, hasPhysics, true);
         #endregion
 
         #region Tasks
@@ -315,38 +260,11 @@ namespace Red.Common.Client
         /// <param name="animDict"></param>
         /// <param name="animName"></param>
         public static void ClearAnimationTask(string animDict, string animName) => PlayerPed.Task.ClearAnimation(animDict, animName);
-        #endregion
 
-        #region Colored Text
-        public static string RedOrangeText(string message) => $"^1{message}";
-
-        public static string LightGreenText(string message) => $"^2{message}";
-
-        public static string LightYellowText(string message) => $"^3{message}";
-
-        public static string DarkBlueText(string message) => $"^4{message}";
-
-        public static string LightBlueText(string message) => $"^5{message}";
-
-        public static string VioletText(string message) => $"^6{message}";
-
-        public static string WhiteText(string message) => $"^7{message}";
-
-        public static string BloodRedText(string message) => $"^8{message}";
-
-        public static string FuchsiaText(string message) => $"^9{message}";
-
-        public static string BoldText(string message) => $"^*{message}";
-
-        public static string UnderlineText(string message) => $"^_{message}";
-
-        public static string StrikethroughText(string message) => $"^~{message}";
-
-        public static string UnderlineStrikethroughText(string message) => $"^={message}";
-
-        public static string BoldUnderlineStrikethroughText(string message) => $"^*^={message}";
-
-        public static string CancelFormattingText(string message) => $"^r{message}";
+        /// <summary>
+        /// Clear a lookout task
+        /// </summary>
+        public static void ClearLookAtTask() => PlayerPed.Task.ClearLookAt();
         #endregion
     }
 }

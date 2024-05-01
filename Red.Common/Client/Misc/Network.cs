@@ -69,26 +69,5 @@ namespace Red.Common.Client.Misc
 
             return Entity.FromNetworkId(networkId);
         }
-        /// <summary>
-        /// another version of GetEntityFromNetId
-        /// </summary>
-        /// <param name="networkId"></param>
-        /// <param name="networkControl"></param>
-        /// <returns></returns>
-        public static Task<Entity> GetEntityFromNetworkId(int networkId, bool networkControl = true) => GetEntityFromNetId(networkId, networkControl);
-        /// <summary>
-        /// another version of GetEntityFromNetId
-        /// </summary>
-        /// <param name="networkId"></param>
-        /// <param name="networkControl"></param>
-        /// <returns></returns>
-        public static Task<Entity> GetEntityFromNetwork(int networkId, bool networkControl = true) => GetEntityFromNetId(networkId, networkControl);
-    }
-
-    public static class NetworkExtensions
-    {
-        public static async Task RequestControlOfEntity(this Entity entity) => await RequestControlOfEntity(entity);
-
-        public static async Task GetFromNetId(this Entity entity) => await Network.GetEntityFromNetworkId(entity.Handle);
     }
 }

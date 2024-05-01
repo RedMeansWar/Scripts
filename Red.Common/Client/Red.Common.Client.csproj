@@ -6,9 +6,6 @@
         <Compile Include="../Shared/**/*.cs" />
     </ItemGroup>
     <ItemGroup>
-      <None Remove="Hud\Object.cs~RF18bc9b76.TMP" />
-    </ItemGroup>
-    <ItemGroup>
       <Reference Include="Newtonsoft.Json">
         <HintPath>..\..\_References_\Newtonsoft.Json.dll</HintPath>
       </Reference>

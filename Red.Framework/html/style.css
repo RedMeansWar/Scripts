@@ -41,6 +41,12 @@ body::before {
   margin-top: .8rem
 }
 
+.frameworkHeader {
+  font: 700 2rem Montserrat, sans-serif;
+  color: #fff;
+  margin-top: .8rem
+}
+
 .characterList {
   margin-top: 1rem;
   margin-bottom: .3rem
@@ -62,4 +68,174 @@ body::before {
 
 ::selection {
   background-color: transparent
+}
+
+label {
+  color: white;
+}
+
+h5 {
+  color: white;
+}
+
+.custom-btn-hover {
+  width: 150px;
+  font-size: 16px;
+  font-weight: 400;
+  color: #fff;
+  cursor: pointer;
+  margin: 5px;
+  height: 40px;
+  text-align: center;
+  border: none;
+  background-size: 300% 100%;
+  border-radius: 10px;
+  -o-transition: all .4s ease-in-out;
+  -webkit-transition: all .4s ease-in-out;
+  transition: all .4s ease-in-out;
+}
+
+.custom-btn-hover:hover {
+  background-position: 100% 0;
+  -o-transition: all .4s ease-in-out;
+  -webkit-transition: all .4s ease-in-out;
+  transition: all .4s ease-in-out;
+}
+
+.select-btn-hover {
+  width: fit-content;
+  font-size: 16px;
+  font-weight: 400;
+  color: #fff;
+  cursor: pointer;
+  margin: 5px;
+  height: 40px;
+  text-align: center;
+  border: none;
+  background-size: 300% 100%;
+  border-radius: 10px;
+  -o-transition: all .4s ease-in-out;
+  -webkit-transition: all .4s ease-in-out;
+  transition: all .4s ease-in-out;
+}
+
+.select-btn-hover:hover {
+  background-position: 100% 0;
+  -o-transition: all .4s ease-in-out;
+  -webkit-transition: all .4s ease-in-out;
+  transition: all .4s ease-in-out;
+}
+
+.delete-btn-hover {
+  width: 45px;
+  font-size: 16px;
+  font-weight: 400;
+  color: #fff;
+  cursor: pointer;
+  margin: 5px;
+  height: 40px;
+  text-align: center;
+  border: none;
+  background-size: 300% 100%;
+  border-radius: 10px;
+  -o-transition: all .4s ease-in-out;
+  -webkit-transition: all .4s ease-in-out;
+  transition: all .4s ease-in-out;
+}
+
+.delete-btn-hover:hover {
+  background-position: 100% 0;
+  -o-transition: all .4s ease-in-out;
+  -webkit-transition: all .4s ease-in-out;
+  transition: all .4s ease-in-out;
+}
+
+.edit-btn-hover {
+  width: 45px;
+  font-size: 16px;
+  font-weight: 400;
+  color: #fff;
+  cursor: pointer;
+  margin: 5px;
+  height: 40px;
+  text-align: center;
+  border: none;
+  background-size: 300% 100%;
+  border-radius: 10px;
+  -o-transition: all .4s ease-in-out;
+  -webkit-transition: all .4s ease-in-out;
+  transition: all .4s ease-in-out;
+}
+
+.edit-btn-hover:hover {
+  background-position: 100% 0;
+  -o-transition: all .4s ease-in-out;
+  -webkit-transition: all .4s ease-in-out;
+  transition: all .4s ease-in-out;
+}
+
+.create-btn-hover {
+  width: 150px;
+  font-size: 16px;
+  font-weight: 400;
+  color: #fff;
+  cursor: pointer;
+  margin: 5px;
+  height: 40px;
+  text-align: center;
+  border: none;
+  background-size: 300% 100%;
+  border-radius: 10px;
+  -o-transition: all .4s ease-in-out;
+  -webkit-transition: all .4s ease-in-out;
+  transition: all .4s ease-in-out;
+}
+
+.create-btn-hover:hover {
+  background-position: 100% 0;
+  -o-transition: all .4s ease-in-out;
+  -webkit-transition: all .4s ease-in-out;
+  transition: all .4s ease-in-out;
+}
+
+.custom-btn-hover:focus {
+  outline: none;
+}
+
+.select-btn-hover:focus {
+  outline: none;
+}
+
+.delete-btn-hover:focus {
+  outline: none;
+}
+
+.edit-btn-hover:focus {
+  outline: none;
+}
+
+.create-btn-hover:focus {
+  outline: none;
+}
+
+.custom-btn-hover.color-1 {
+  background-image: linear-gradient(to right, #e15125, #a1351a, #9e2118, #f88d00);
+}
+
+.custom-btn-hover.color-2 {
+  background-image: linear-gradient(to right, #d41010, #911515, #791710, #f80000);
+}
+.select-btn-hover.color-1 {
+  background-image: linear-gradient(to right, #1c6fbd, #0059be, #054894, #0088e2);
+}
+
+.delete-btn-hover.color-1 {
+  background-image: linear-gradient(to right, #e12525, #be0000, #850606, #d30000);
+}
+.edit-btn-hover.color-1 {
+  background-image: linear-gradient(to right, #1f9c13, #349e02, #0c8112, #00d323);
+}
+
+.create-btn-hover.color-1 {
+  background-image: linear-gradient(to right, #8f8f8f, rgb(104, 104, 104), #4e4e4e, #808080);
 }

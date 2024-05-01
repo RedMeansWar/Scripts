@@ -144,7 +144,7 @@ namespace Red.Jail.Client
                 SendNUIMessage(Json.Stringify(new
                 {
                     type = "DISPLAY_NUI",
-                    players = Players.Where(p => Entity.Exists(p.Character) && p.Character.CalculateDistanceTo(PlayerPed.Position) < 30f).OrderBy(p => p.Character.CalculateDistanceTo(PlayerPed.Position)).Select(x => new { x.ServerId, x.Name }).ToArray()
+                    players = Players.Where(p => Entity.Exists(p.Character) && p.Character.DistanceTo(PlayerPed.Position) < 30f).OrderBy(p => p.Character.DistanceTo(PlayerPed.Position)).Select(x => new { x.ServerId, x.Name }).ToArray()
                 }));
 
                 SetNUIFocus(true, true);
@@ -250,7 +250,7 @@ namespace Red.Jail.Client
             }
 
             Player jailer = Players[networkId];
-            float distance = PlayerPed.CalculateDistanceTo(jailer.Character.Position);
+            float distance = PlayerPed.DistanceTo(jailer.Character.Position);
 
             if (distance > 20 && distanceCheck)
             {
@@ -330,7 +330,7 @@ namespace Red.Jail.Client
         {
             if (isJailed)
             {
-                if (PlayerPed.CalculateDistanceTo(jailPosition) > 280f)
+                if (PlayerPed.DistanceTo(jailPosition) > 280f)
                 {
                     PlayerPed.Position = jailPosition;
                     releaseTime = releaseTime.AddSeconds(30);
@@ -338,7 +338,7 @@ namespace Red.Jail.Client
                 }
             }
 
-            ReducingActivity activity = reducingActivities.First(a => PlayerPed.CalculateDistanceTo(a.Position) < 1f);
+            ReducingActivity activity = reducingActivities.First(a => PlayerPed.DistanceTo(a.Position) < 1f);
 
             if (activity is not null && !completedActivites.Contains(activity))
             {
@@ -350,7 +350,7 @@ namespace Red.Jail.Client
                     Debug.WriteLine("release time " + releaseTime.ToString());
 
                     TriggerEvent("dpEmotes:PlayEmote", activity.Animation);
-                    while (PlayerPed.CalculateDistanceTo(activity.Position) < 2f && DateTime.UtcNow < end)
+                    while (PlayerPed.DistanceTo(activity.Position) < 2f && DateTime.UtcNow < end)
                     {
                         await Delay(1500);
 
@@ -380,7 +380,7 @@ namespace Red.Jail.Client
         [Tick]
         private async Task CheckLocation()
         {
-            if (PlayerPed.CalculateDistanceTo(new(1905f, 2601f, 45f)) < 100)
+            if (PlayerPed.DistanceTo(new(1905f, 2601f, 45f)) < 100)
             {
                 Prop entryProp = new(GetClosestObjectOfType(1897f, 2606f, 45f, 1f, 3110450777, false, false, false));
                 Prop exitProp = new(GetClosestObjectOfType(1905f, 2604f, 45f, 1f, 3110450777, false, false, false));
@@ -396,7 +396,7 @@ namespace Red.Jail.Client
                 }
             }
 
-            if (jailInterfaces.Any(location => PlayerPed.CalculateDistanceTo(location) < 1f))
+            if (jailInterfaces.Any(location => PlayerPed.DistanceTo(location) < 1f))
             {
                 DisplayHelpText("Press ~INPUT_CONTEXT~ to open the jail interface.");
 
@@ -415,7 +415,7 @@ namespace Red.Jail.Client
                     if (lastNotifiedTime != DateTime.MaxValue && DateTime.UtcNow.Subtract(lastNotifiedTime).TotalSeconds > 30.0)
                     {
                         lastNotifiedTime = DateTime.MaxValue;
-                        ChatMessage("[Warden]", $"{Math.Ceiling(timeLeft)} more months until you're released.", 0, 100, 255);
+                        TriggerEvent("chat:addMessage", new { color = new[] { 0, 100, 255 }, args = new[] { "[Warden]", $"{Math.Ceiling(timeLeft)} more months until you're released" } });
                         await Delay(1000);
                     }
                 }
@@ -430,13 +430,13 @@ namespace Red.Jail.Client
                     if (lastNotifiedTime != DateTime.MaxValue)
                     {
                         lastNotifiedTime = DateTime.MaxValue;
-                        ChatMessage("[Warden]", "You are eligble for release. Go to the front to be released.", 0, 100, 255);
+                        TriggerEvent("chat:addMessage", new { color = new[] { 0, 100, 255 }, args = new[] { "[Warden]", "You are eligble for release. Go to the front to be released" } });
                         await Delay(1000);
                     }
 
                     DrawText3d(exitJailPosition.X, exitJailPosition.Y, exitJailPosition.Z, "Go here to be released", 1f, 5f, 255, 255, 255, 255);
 
-                    if (PlayerPed.CalculateDistanceTo(exitJailPosition) < 3f)
+                    if (PlayerPed.DistanceTo(exitJailPosition) < 3f)
                     {
                         DisplayHelpText("Press ~INPUT_CONTEXT~ to be released.");
 

@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using CitizenFX.Core;
-using CitizenFX.Core.Native;
 using CitizenFX.Core.UI;
+using CitizenFX.Core.Native;
+using Red.Common.Client.Misc;
 using static CitizenFX.Core.Native.API;
-using static Red.Common.MathHelper;
 
 namespace Red.Common.Client
 {
@@ -114,6 +112,13 @@ namespace Red.Common.Client
         public static float ConvertToKPH(this float speed) => speed * 3.6f;
 
         /// <summary>
+        /// Converts a height value from meters to feet.
+        /// </summary>
+        /// <param name="height">The height in meters.</param>
+        /// <returns>The height in feet.</returns>
+        public static float ConvertToFeet(this float height) => height * 3.28084f;
+
+        /// <summary>
         /// Turns off the engine of a vehicle.
         /// </summary>
         /// <param name="vehicle">The vehicle to turn the engine off for.</param>
@@ -176,11 +181,11 @@ namespace Red.Common.Client
             Screen.Fading.FadeIn(500);
         }
 
-        public static uint GetHashKey(this Vehicle vehicle) => Game.GenerateHashASCII(vehicle.DisplayName);
-        #endregion
+        public static uint GetHashKey(this Vehicle vehicle) => (uint)API.GetHashKey(vehicle.DisplayName);
 
-        #region Weapons
-        public static uint GetHashKey(this Weapon weapon) => Game.GenerateHashASCII(weapon.DisplayName);
+        public static int GetHaskKey(this Vehicle vehicle) => API.GetHashKey(vehicle.DisplayName);
+
+        public static uint GetHashKey(this Weapon weapon) => (uint)API.GetHashKey(weapon.DisplayName);
         #endregion
 
         #region Distance Calculations
@@ -371,68 +376,14 @@ namespace Red.Common.Client
         }
         #endregion
 
-        #region Entity
-        public static float CorrectHeading(this Entity entity)
-        {
-            float number = 360f - entity.Heading;
+        /// <summary>
+        /// Configure behaviour or show states of ped.
+        /// </summary>
+        /// <param name="ped">The ped to set the config flag to.</param>
+        /// <param name="flag">The flag to configure</param>
+        /// <param name="value">disable or enable a flag.</param>
+        public static void SetConfigFlag(this Ped ped, PlayerConfigFlag flag, bool value) => ped.SetConfigFlag((int)flag, value);
 
-            if ((double)number > 360.0)
-            {
-                number -= 360f;
-            }
-
-            return number;
-        }
-
-        public static float CorrectHeading(this Ped ped) => CorrectHeading(ped);
-
-        public static float CorrectHeading(this Vehicle vehicle) => CorrectHeading(vehicle);
-        #endregion
-
-        #region Vector
-        public static Vector3 Around(this Vector3 position, float radius)
-        {
-            Vector3 direction = RandomVectorXY();
-            Vector3 around = position + (direction * radius);
-
-            return around;
-        }
-
-        public static Vector3 Around(this Vector3 position, float minDistance, float maxDistance)
-        {
-            return position.Around(GetRandomFloat(minDistance, maxDistance));
-        }
-
-        public static Vector3 RandomVectorXY()
-        {
-            Random random = new(Environment.TickCount);
-
-            Vector3 vector = new();
-            vector.X = (float)(random.NextDouble() - 0.5f);
-            vector.Y = (float)(random.NextDouble() - 0.5f);
-            vector.Z = (float)(random.NextDouble() - 0.5f);
-
-            vector.Z = 0.0f;
-            vector.Normalize();
-
-            return vector;
-        }
-
-        public static string[] GetStreenAndCrossAtCoords(this Vector3 position)
-        {
-            Vector3 zero = Vector3.Zero;
-            GetNthClosestVehicleNode(position.X, position.Y, position.Z, 0, ref zero, 0, 0, 0);
-
-            uint num1 = 1;
-            uint num2 = 1;
-
-            GetStreetNameAtCoord(position.X, position.Y, position.Z, ref num2, ref num1);
-
-            string streetNameFromHashKey = GetStreetNameFromHashKey(num1);
-            string str = !(streetNameFromHashKey != "") || !(streetNameFromHashKey != "NULL") || streetNameFromHashKey == null ? "" : streetNameFromHashKey;
-
-            return [World.GetStreetName(position), str];
-        }
-        #endregion
+        public static void ResetConfigFlag(this Ped ped, PlayerConfigFlag flag) => ped.ResetConfigFlag((int)flag);
     }
 }

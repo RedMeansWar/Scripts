@@ -5,6 +5,7 @@ using static CitizenFX.Core.Native.API;
 
 namespace Red.Framework.Server
 {
+    #pragma warning disable
     public class ServerMain : BaseScript
     {
         #region Variables

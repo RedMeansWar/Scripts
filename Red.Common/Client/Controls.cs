@@ -1,11 +1,36 @@
 ﻿using CitizenFX.Core;
-using CitizenFX.Core.Native;
+using System.Collections.Generic;
 using static CitizenFX.Core.Native.API;
 
 namespace Red.Common.Client
 {
     public class Controls
     {
+        #region Private Variables
+        protected static readonly IReadOnlyList<Control> cameraControls = new List<Control>()
+        {
+            Control.LookBehind, Control.LookDown, Control.LookDownOnly, Control.LookLeft, Control.LookLeftOnly, Control.LookLeftRight, Control.LookRight,
+            Control.LookRightOnly, Control.LookUp, Control.LookUpDown, Control.LookUpOnly, Control.ScaledLookDownOnly, Control.ScaledLookLeftOnly,
+            Control.ScaledLookLeftRight, Control.ScaledLookUpDown, Control.ScaledLookUpOnly,  Control.VehicleDriveLook, Control.VehicleDriveLook2,
+            Control.VehicleLookBehind, Control.VehicleLookLeft, Control.VehicleLookRight, Control.NextCamera, Control.VehicleFlyAttackCamera, Control.VehicleCinCam,
+        };
+
+        protected static readonly IReadOnlyList<Control> movementControls = new List<Control>()
+        {
+            Control.MoveDown, Control.MoveDownOnly, Control.MoveLeft, Control.MoveLeftOnly, Control.MoveLeftRight, Control.MoveRight, Control.MoveRightOnly,
+            Control.MoveUp, Control.MoveUpDown, Control.MoveUpOnly, Control.VehicleFlyMouseControlOverride, Control.VehicleMouseControlOverride,
+            Control.VehicleMoveDown, Control.VehicleMoveDownOnly, Control.VehicleMoveLeft, Control.VehicleMoveLeftRight, Control.VehicleMoveRight,
+            Control.VehicleMoveRightOnly, Control.VehicleMoveUp, Control.VehicleMoveUpDown, Control.VehicleSubMouseControlOverride, Control.Duck, Control.SelectWeapon
+        };
+
+        protected static readonly IReadOnlyList<Control> attackControls = new List<Control>()
+        {
+            Control.Attack, Control.Attack2, Control.MeleeAttack1, Control.MeleeAttack2, Control.MeleeAttackAlternate, Control.MeleeAttackHeavy,
+            Control.MeleeAttackLight, Control.MeleeBlock, Control.VehicleAttack, Control.VehicleAttack2, Control.VehicleFlyAttack, Control.VehicleFlyAttack2,
+            Control.VehiclePassengerAttack
+        };
+        #endregion
+
         public static bool IsControlJustPressed(Control control, int inputGroup = 0) => Game.IsControlJustPressed(inputGroup, control) && Game.CurrentInputMode == InputMode.MouseAndKeyboard && UpdateOnscreenKeyboard() != 0;
 
         public static bool IsControlJustPressed(Key key, int inputGroup = 0) => Game.IsControlJustPressed(inputGroup, (Control)key) && Game.CurrentInputMode == InputMode.MouseAndKeyboard && UpdateOnscreenKeyboard() != 0;
@@ -118,6 +143,38 @@ namespace Red.Common.Client
         public static void DisableControlThisFrame(Key key, int index = 0) => Game.DisableControlThisFrame(index, (Control)key);
 
         public static void DisableControlThisFrame(Button button, int index = 2) => Game.DisableControlThisFrame(index, (Control)button);
+
+        /// <summary>
+        /// Disables specific player controls for the current frame, optionally including camera controls.
+        /// </summary>
+        /// <param name="cameraMovement">Whether to disable camera controls in addition to movement controls.</param>
+        public static void DisableMovementControls(bool cameraMovement)
+        {
+            // Disable camera controls if requested.
+            if (cameraMovement)
+            {
+                foreach (Control control in cameraControls)
+                {
+                    // Disable the control for both the player and third-person camera.
+                    Game.DisableControlThisFrame(0, control);  // Player
+                    Game.DisableControlThisFrame(2, control);  // Third-person camera
+                }
+            }
+
+            // Disable movement controls.
+            foreach (Control control in movementControls)
+            {
+                // Disable the control for both the player and third-person camera.
+                Game.DisableControlThisFrame(0, control);
+                Game.DisableControlThisFrame(2, control);
+            }
+        }
+
+        /// <summary>
+        /// Checks if the last input was a controller input.
+        /// </summary>
+        /// <returns></returns>
+        public static bool LastInputWasController() => IsUsingKeyboard(2);
     }
 
     public enum Key

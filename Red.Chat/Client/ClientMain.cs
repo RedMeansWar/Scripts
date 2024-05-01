@@ -2,17 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Red.Common.Client;
 using CitizenFX.Core;
+using Red.Common;
+using Red.Common.Client;
 using static CitizenFX.Core.Native.API;
+using static Red.Common.Client.Client;
 
 namespace Red.Chat.Client
 {
+    #pragma warning disable
     public class ClientMain : BaseScript
     {
         #region Variables
         protected bool hasChatInit, chatActive;
-        protected string twotterUsername, darkWebUsername;
+        protected string twitterUsername;
         protected Character currentCharacter;
         protected List<ChatSuggestion> suggestionsList;
         #endregion
@@ -22,12 +25,12 @@ namespace Red.Chat.Client
         #endregion
 
         #region Commands
-        [Command("settwotter")]
-        private void OnSetTwotter(string[] args)
+        [Command("settwitter")]
+        private void OnSetTwitter(string[] args)
         {
             if (args.Length == 0 || string.IsNullOrEmpty(args[0]))
             {
-                TriggerEvent("_chat:chatMessage", "SYSTEM", new[] { 0, 73, 83 }, "Invalid Twotter username. Usage: /settwotter [username]");
+                TriggerEvent("_chat:messageEntered", "SYSTEM", new[] { 0, 73, 83 }, "Invalid Twitter username. Usage: /settwitter [username]");
                 return;
             }
 
@@ -35,20 +38,20 @@ namespace Red.Chat.Client
 
             if (username.Length > 18)
             {
-                TriggerEvent("_chat:chatMessage", "SYSTEM", new[] { 0, 73, 83 }, "Invalid Twotter username. Username must not exceed 18 characters. Usage: /settwotter [username]");
+                TriggerEvent("_chat:messageEntered", "SYSTEM", new[] { 0, 73, 83 }, "Invalid Twitter username. Username must not exceed 18 characters. Usage: /settwitter [username]");
                 return;
             }
 
             if (!username.All(c => char.IsLetterOrDigit(c) || c.Equals('_')))
             {
-                TriggerEvent("_chat:chatMessage", "SYSTEM", new[] { 0, 73, 83 }, "Invalid Twotter username. Username must not include special characters. Usage: /settwotter [username]");
+                TriggerEvent("_chat:messageEntered", "SYSTEM", new[] { 0, 73, 83 }, "Invalid Twitter username. Username must not include special characters. Usage: /settwitter [username]");
                 return;
             }
 
-            SetResourceKvp($"irp_chat_twotter_{currentCharacter.CharacterId}", username);
-            twotterUsername = username;
+            SetResourceKvp($"irp_chat_twitter_{currentCharacter.CharacterId}", username);
+            twitterUsername = username;
 
-            TriggerEvent("_chat:chatMessage", "SYSTEM", new[] { 0, 73, 83 }, $"Twotter username set to ^*{username}^r");
+            TriggerEvent("_chat:messageEntered", "SYSTEM", new[] { 0, 73, 83 }, $"Twitter username set to ^*{username}^r");
         }
         #endregion
 
@@ -83,15 +86,15 @@ namespace Red.Chat.Client
         #endregion
 
         #region Event Handlers
-        [EventHandler("Framework:Client:characterSelected")]
-        private void OnCharacterSelected(string json)
+        [EventHandler(Events.EVENT_C_SELECTED_CHARACTER)]
+        private void OnSelectedCharacter(string json)
         {
             currentCharacter = Json.Parse<Character>(json);
-            twotterUsername = GetResourceKvpString($"red_chat_twotter_{currentCharacter.CharacterId}");
+            twitterUsername = GetResourceKvpString($"red_chat_twitter_{currentCharacter.CharacterId}");
 
-            if (string.IsNullOrEmpty(twotterUsername))
+            if (string.IsNullOrEmpty(twitterUsername))
             {
-                twotterUsername = $"{currentCharacter.FirstName}{currentCharacter.LastName}{currentCharacter.DoB:yy}";
+                twitterUsername = $"{currentCharacter.FirstName}{currentCharacter.LastName}{currentCharacter.DoB:yy}";
             }
         }
 
@@ -119,13 +122,13 @@ namespace Red.Chat.Client
             }));
         }
 
-        [EventHandler("_chat:chatMessage")]
+        [EventHandler("_chat:messageEntered")]
         private void ChatMessage(dynamic author, dynamic colors, dynamic msg, Vector3 authorPos)
         {
             string distanceString = "";
             if (!authorPos.IsZero)
             {
-                distanceString = $" ({Math.Round(Vector3.DistanceSquared(authorPos, Game.PlayerPed.Position))}m)";
+                distanceString = $" ({Math.Round(Vector3.DistanceSquared(authorPos, PlayerPed.Position))}m)";
             }
 
             SendNuiMessage(Json.Stringify(new
@@ -161,8 +164,8 @@ namespace Red.Chat.Client
             }));
         }
 
-        [EventHandler("chat:twotterMessage")]
-        private void OnTwotterMessage(string name, string message)
+        [EventHandler("chat:twitterMessage")]
+        private void OnTwitterMessage(string name, string message)
         {
             SendNuiMessage(Json.Stringify(new
             {
@@ -171,7 +174,7 @@ namespace Red.Chat.Client
                 {
                     color = new[] { 0, 172, 238 },
                     multiline = true,
-                    args = new[] { $"[Twotter] {name}", message }
+                    args = new[] { $"[Twitter] {name}", message }
                 }
             }));
         }
@@ -187,21 +190,6 @@ namespace Red.Chat.Client
                     color = new[] { 205, 92, 92 },
                     multiline = true,
                     args = new[] { $"[911] {name}", message }
-                }
-            }));
-        }
-
-        [EventHandler("chat:311Message")]
-        private void On311Message(string name, string message)
-        {
-            SendNuiMessage(Json.Stringify(new
-            {
-                type = "ON_MESSAGE",
-                message = new
-                {
-                    color = new[] { 205, 92, 92 },
-                    multiline = true,
-                    args = new[] { $"[311] {name}", message }
                 }
             }));
         }
@@ -250,7 +238,7 @@ namespace Red.Chat.Client
 
             if (!cancel && !string.IsNullOrWhiteSpace(message))
             {
-                Vector3 plyPos = Game.PlayerPed.Position;
+                Vector3 plyPos = PlayerPed.Position;
 
                 message = message.Trim();
                 string[] args = message.Split(' ');
@@ -262,105 +250,83 @@ namespace Red.Chat.Client
                     case "/ooc":
                         if (!string.IsNullOrWhiteSpace(joinedArgs))
                         {
-                            TriggerServerEvent("Chat:Server:chatNearby", $"^* ^4[OOC]  {Game.Player.Name} (#{Game.Player.ServerId})^r", new[] { 255, 140, 0 }, joinedArgs, Players.Where(p => Vector3.Distance(p.Character.Position, plyPos) < 35f).Select(p => p.ServerId).ToList(), plyPos);
+                            TriggerServerEvent("_chatNearby", $"^* ^4[OOC] {ClientPlayer.Name} (#{ClientPlayer.ServerId})^r", new[] { 255, 140, 0 }, joinedArgs, Players.Where(p => Vector3.Distance(p.Character.Position, plyPos) < 20f).Select(p => p.ServerId).ToList(), plyPos);
                         }
                         break;
 
                     case "/gooc":
                         if (!string.IsNullOrWhiteSpace(joinedArgs))
                         {
-                            TriggerServerEvent("Chat:Server:messageEntered", $"^*[GOOC] {Game.Player.Name} (#{Game.Player.ServerId})^r", new[] { 255, 140, 0 }, joinedArgs);
+                            TriggerServerEvent("_chat:messageEntered", $"^*[GOOC] {ClientPlayer.Name} (#{ClientPlayer.ServerId})^r", new[] { 255, 140, 0 }, joinedArgs);
                         }
                         break;
 
                     case "/me":
                         if (!string.IsNullOrWhiteSpace(joinedArgs))
                         {
-                            TriggerServerEvent("Chat:Server:chatNearby", $"^* ^7[ME] {currentCharacter?.FirstName} {currentCharacter?.LastName} [{currentCharacter?.Department}] (#{Game.Player.ServerId})^r", new[] { 255, 140, 0 }, joinedArgs, Players.Where(p => Vector3.Distance(p.Character.Position, plyPos) < 35f).Select(p => p.ServerId).ToList(), plyPos);
+                            TriggerServerEvent("_chatNearby", $"^* ^7[ME] {currentCharacter?.FirstName} {currentCharacter?.LastName} [{currentCharacter?.Department}] (#{ClientPlayer.ServerId})^r", new[] { 255, 255, 255 }, joinedArgs, Players.Where(p => Vector3.Distance(p.Character.Position, plyPos) < 35f).Select(p => p.ServerId).ToList(), plyPos);
                         }
                         break;
 
                     case "/mer":
                         if (!string.IsNullOrWhiteSpace(joinedArgs))
                         {
-                            TriggerServerEvent("Chat:Server:chatNearby", $"^* ^1[ME] {currentCharacter?.FirstName} {currentCharacter?.LastName} [{currentCharacter?.Department}] (#{Game.Player.ServerId})^r", new[] { 255, 0, 0 }, joinedArgs, Players.Where(p => Vector3.Distance(p.Character.Position, plyPos) < 35f).Select(p => p.ServerId).ToList(), plyPos);
+                            TriggerServerEvent("_chatNearby", $"^*[ME] {currentCharacter?.FirstName} {currentCharacter.LastName} [{currentCharacter?.Department}] (#{ClientPlayer.ServerId})^r", new[] { 255, 0, 0 }, joinedArgs, Players.Where(p => Vector3.Distance(p.Character.Position, plyPos) < 35f).Select(p => p.ServerId).ToList(), plyPos);
                         }
                         break;
 
-                    case "/meb":
-                        if (!string.IsNullOrWhiteSpace(joinedArgs))
-                        {
-                            TriggerServerEvent("Chat:Server:chatNearby", $"^* ^5[ME] {currentCharacter?.FirstName} {currentCharacter?.LastName} [{currentCharacter?.Department}] (#{Game.Player.ServerId})^r", new[] { 0, 100, 255 }, joinedArgs, Players.Where(p => Vector3.Distance(p.Character.Position, plyPos) < 35f).Select(p => p.ServerId).ToList(), plyPos);
-                        }
-                        break;
-
-                    case "/gme":
-                        if (!string.IsNullOrWhiteSpace(joinedArgs))
-                        {
-                            TriggerServerEvent("Chat:Server:messageEntered", $"^* ^5[GME] {currentCharacter?.FirstName} {currentCharacter?.LastName} [{currentCharacter?.Department}] (#{Game.Player.ServerId})^r", new[] { 255, 140, 0 }, joinedArgs);
-                        }
-                        break;
 
                     case "/rt":
                         if (currentCharacter?.Department == "Civ")
                         {
-                            TriggerEvent("_chat:chatMessage", "SYSTEM", new[] { 194, 39, 39 }, "You aren't authorized to use the /rt command. You must not be a civilian character.");
+                            TriggerEvent("_chat:messageEntered", "INRP", new[] { 194, 39, 39 }, "You aren't authorized to use the /rt command. You must not be a civilian character.");
                             result(new { success = false, message = "not authorized" });
                             return;
                         }
 
                         if (!string.IsNullOrWhiteSpace(joinedArgs))
                         {
-                            TriggerServerEvent("Chat:Server:radioMessage", joinedArgs);
+                            TriggerServerEvent("_chat:radioMessage", joinedArgs);
                         }
                         break;
 
                     case "/twt":
-                    case "/twotter":
+                    case "/twitter":
                         if (!string.IsNullOrWhiteSpace(joinedArgs))
                         {
-                            TriggerServerEvent("Chat:Server:twotterMessage", $"@{twotterUsername}", joinedArgs);
+                            TriggerServerEvent("_chat:twitterMessage", $"@{twitterUsername}", joinedArgs);
                         }
                         break;
+
                     case "/911":
-                        uint streetNameAsHash = 0;
-                        uint crossingRoadAsHash = 0;
-
-                        GetStreetNameAtCoord(Game.PlayerPed.Position.X, Game.PlayerPed.Position.Y, Game.PlayerPed.Position.Z, ref streetNameAsHash, ref crossingRoadAsHash);
-                        string streetName = GetStreetNameFromHashKey(streetNameAsHash);
-                        string crossingRoad = GetStreetNameFromHashKey(crossingRoadAsHash);
-
-                        string location = $"{Exports["nearestpostal"].GetClosestPostal(Game.PlayerPed.Position)}, {streetName}";
-
-                        if (!string.IsNullOrWhiteSpace(crossingRoad))
+                        if (!string.IsNullOrWhiteSpace(joinedArgs))
                         {
-                            location += $" / {crossingRoad}";
+                            uint streetNameAsHash = 0;
+                            uint crossingRoadAsHash = 0;
+
+                            GetStreetNameAtCoord(PlayerPed.Position.X, PlayerPed.Position.Y, PlayerPed.Position.Z, ref streetNameAsHash, ref crossingRoadAsHash);
+                            string streetName = GetStreetNameFromHashKey(streetNameAsHash);
+                            string crossingRoad = GetStreetNameFromHashKey(crossingRoadAsHash);
+
+                            string location = $"{Exports["nearestpostal"].getClosestPostal(PlayerPed.Position)}, {streetName}";
+
+                            if (!string.IsNullOrWhiteSpace(crossingRoad))
+                            {
+                                location += $" / {crossingRoad}";
+                            }
+
+                            TriggerServerEvent("_chat:911Message", location, joinedArgs);
                         }
-
-                        TriggerServerEvent("Chat:Server:911Message", location, joinedArgs);
-                        break;
-                    case "/311":
-                        uint streetNameAsHash311 = 0;
-                        uint crossingRoadAsHash311 = 0;
-
-                        GetStreetNameAtCoord(Game.PlayerPed.Position.X, Game.PlayerPed.Position.Y, Game.PlayerPed.Position.Z, ref streetNameAsHash311, ref crossingRoadAsHash311);
-                        string streetName311 = GetStreetNameFromHashKey(streetNameAsHash311);
-                        string crossingRoad311 = GetStreetNameFromHashKey(crossingRoadAsHash311);
-
-                        string location311 = $"{Exports["nearestpostal"].GetClosestPostal(Game.PlayerPed.Position)}, {streetName311}";
-
-                        if (!string.IsNullOrWhiteSpace(crossingRoad311))
-                        {
-                            location311 += $" / {crossingRoad311}";
-                        }
-
-                        TriggerServerEvent("Chat:Server:911Message", location311, joinedArgs);
                         break;
                     default:
                         if (message.StartsWith("/"))
                         {
                             ExecuteCommand(message.Substring(1));
                             CancelEvent();
+                        }
+                        else
+                        {
+                            TriggerEvent("_chat:messageEntered", "", new[] { 3, 107, 252 }, $"^* {currentCharacter?.FirstName} {currentCharacter.LastName} [{currentCharacter?.Department}] (#{ClientPlayer.ServerId}): {joinedArgs}");
                         }
                         break;
                 }
@@ -382,31 +348,6 @@ namespace Red.Chat.Client
             public bool Canceled { get; set; }
             public string Message { get; set; }
         }
-
-        public class Character
-        {
-            public long CharacterId { get; set; }
-            public string FirstName { get; set; }
-            public string LastName { get; set; }
-            public DateTime DoB { get; set; }
-            public string Gender { get; set; }
-            public int Cash { get; set; }
-            public int Bank { get; set; }
-            public string Department { get; set; }
-        }
         #endregion
-    }
-
-    internal static class Extensions
-    {
-        internal static T GetVal<T>(this IDictionary<string, object> dict, string key, T defaultVal)
-        {
-            if (dict.TryGetValue(key, out object value) && value is T t)
-            {
-                return t;
-            }
-
-            return defaultVal;
-        }
     }
 }
